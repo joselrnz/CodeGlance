@@ -1,0 +1,21 @@
+# Python build / cache
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Generated graphs and rendered HTML (examples kept in demo/ are fine to regenerate)
+.understand-anything/
+demo/*.html
+
+# Editor / tooling
+.claude/launch.json
+.idea/
+.vscode/

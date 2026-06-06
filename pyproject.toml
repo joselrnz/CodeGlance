@@ -1,0 +1,42 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "understand-anything-py"
+version = "0.1.0"
+description = "Turn any codebase into an interactive knowledge graph you can open as a single HTML file. Pure-Python port of Understand-Anything."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "joselrnz" }]
+keywords = ["codebase", "knowledge-graph", "visualization", "static-analysis", "documentation"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Software Development :: Documentation",
+]
+
+# Core stays tiny: only networkx (pure-Python community detection + graph metrics).
+# Everything heavy is an optional extra so `pip install` is instant and offline.
+dependencies = [
+    "networkx>=3.1",
+]
+
+[project.optional-dependencies]
+# Richer parsing for many languages (functions/classes/imports beyond Python's stdlib ast).
+treesitter = ["tree-sitter>=0.21", "tree-sitter-language-pack>=0.2"]
+# Optional LLM enrichment of summaries / layer names / tour narratives.
+llm = ["anthropic>=0.40"]
+# Faster force-directed layout for large graphs.
+fast = ["numpy>=1.24"]
+all = ["tree-sitter>=0.21", "tree-sitter-language-pack>=0.2", "anthropic>=0.40", "numpy>=1.24"]
+
+[project.scripts]
+understand = "understand_anything.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/Lum1104/Understand-Anything"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/understand_anything"]
