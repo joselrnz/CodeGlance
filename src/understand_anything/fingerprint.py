@@ -10,11 +10,19 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
+from typing import Iterable
 
+from .scan import ScannedFile
+
+# Basename of the fingerprint store, written inside the project's .understand-anything/ dir.
 FP_FILE = "fingerprints.json"
 
 
-def compute(files, root: str | Path) -> dict[str, str]:
+def compute(files: Iterable[ScannedFile], root: str | Path) -> dict[str, str]:
+    """Compute SHA-1 hashes for each scanned file, keyed by relative path.
+
+    Unreadable files map to an empty string so they still appear in the diff.
+    """
     root = Path(root)
     out: dict[str, str] = {}
     for f in files:
@@ -26,6 +34,7 @@ def compute(files, root: str | Path) -> dict[str, str]:
 
 
 def load(root: str | Path) -> dict[str, str]:
+    """Load the saved fingerprint map for a project, or {} if none/invalid."""
     p = Path(root) / ".understand-anything" / FP_FILE
     if p.is_file():
         try:
@@ -37,6 +46,7 @@ def load(root: str | Path) -> dict[str, str]:
 
 
 def save(root: str | Path, fingerprints: dict[str, str]) -> None:
+    """Write the fingerprint map to .understand-anything/fingerprints.json (creating the dir)."""
     p = Path(root) / ".understand-anything" / FP_FILE
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps(fingerprints, ensure_ascii=False), encoding="utf-8")

@@ -33,15 +33,20 @@ DEFAULT_IGNORE_GLOBS = {
 
 
 class IgnoreMatcher:
-    def __init__(self, dirs: set[str], globs: set[str], path_patterns: list[str]):
+    """Decides whether a directory name or relative file path should be ignored."""
+
+    def __init__(self, dirs: set[str], globs: set[str], path_patterns: list[str]) -> None:
+        """Hold the ignored directory names, filename globs, and gitignore-style path patterns."""
         self._dirs = dirs
         self._globs = globs
         self._path_patterns = path_patterns
 
     def is_ignored_dir(self, name: str) -> bool:
+        """Return True if a directory with this name should be pruned wherever it appears."""
         return name in self._dirs
 
     def is_ignored(self, rel_path: str) -> bool:
+        """Return True if the relative path matches any ignored dir, glob, or path pattern."""
         rel_path = rel_path.replace("\\", "/")
         parts = rel_path.split("/")
         name = parts[-1]
@@ -60,6 +65,7 @@ class IgnoreMatcher:
 
 
 def _read_patterns(path: Path) -> list[str]:
+    """Read a gitignore-style file, returning usable patterns (skips blanks, comments, negations)."""
     if not path.is_file():
         return []
     out = []
@@ -72,6 +78,7 @@ def _read_patterns(path: Path) -> list[str]:
 
 
 def build_matcher(root: Path) -> IgnoreMatcher:
+    """Build an IgnoreMatcher from the built-in defaults plus the project's ignore files."""
     patterns: list[str] = []
     patterns += _read_patterns(root / ".gitignore")
     patterns += _read_patterns(root / ".understand-anything" / ".understandignore")

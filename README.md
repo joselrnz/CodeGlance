@@ -39,9 +39,11 @@ understand render knowledge-graph.json --static -o graph.svg.html
 
 - **Interactive (default):** a self-contained HTML canvas app modeled on the original dashboard —
   **labeled node cards** colored **by type** (with a type badge), **layer container boxes**,
-  **directional edge arrows**, a **project-overview** panel, and a **source-code panel** when you
-  click a node. Plus pan/zoom, search, layer + node-type legends, a minimap, and a guided tour.
-  Fully offline.
+  **directional edge arrows**, a **project-overview** panel, and a rich **node panel** when you
+  click a card: the **signature**, the **docstring / leading doc-comment** pulled from the code,
+  tags, complexity, typed connections, and the **source code with line numbers** (the node's own
+  line range highlighted). Plus pan/zoom, search, layer + node-type legends, a minimap, and a
+  guided tour. Fully offline.
 - **`--static`:** a zero-JavaScript inline-SVG rendering (cards + containers + arrows). A picture,
   but truly no JS.
 

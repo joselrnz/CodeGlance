@@ -22,21 +22,25 @@ from .schema import KnowledgeGraph
 GRAPH_DIR = ".understand-anything"
 GRAPH_FILE = "knowledge-graph.json"
 
+# Recognized subcommands; used to make `analyze` the implicit default command.
 _SUBCOMMANDS = {"analyze", "render", "dashboard"}
 
 
 def _emit(msg: str) -> None:
+    """Print a message to stderr (stdout is reserved for machine-consumable output)."""
     print(msg, file=sys.stderr)
 
 
 def _render_to_file(graph: KnowledgeGraph, out: Path, static: bool, root: Path | None = None) -> Path:
+    """Render the graph to HTML (static SVG or interactive) and write it to `out`."""
     out.parent.mkdir(parents=True, exist_ok=True)
     html = render_static(graph, root) if static else render_interactive(graph, root)
     out.write_text(html, encoding="utf-8")
     return out
 
 
-def _write_meta(root: Path, graph) -> None:
+def _write_meta(root: Path, graph: KnowledgeGraph) -> None:
+    """Write a small meta.json (last analyzed time, commit, version, file count) next to the graph."""
     import json
     from .schema import FILE_LEVEL_TYPES
 
@@ -50,6 +54,7 @@ def _write_meta(root: Path, graph) -> None:
 
 
 def _open(path: Path, no_open: bool) -> None:
+    """Open the rendered HTML in a browser, or just print its URI when `no_open` is set."""
     uri = path.resolve().as_uri()
     if no_open:
         _emit(f"  Open it: {uri}")
@@ -62,10 +67,12 @@ def _open(path: Path, no_open: bool) -> None:
 
 
 def _default_html_name(static: bool) -> str:
+    """Return the default HTML output filename for static vs. interactive renders."""
     return "knowledge-graph.static.html" if static else "knowledge-graph.html"
 
 
-def cmd_analyze(args) -> int:
+def cmd_analyze(args: argparse.Namespace) -> int:
+    """Handle the `analyze` subcommand: analyze a project, save the graph, render HTML. Returns an exit code."""
     root = Path(args.path).resolve()
     if not root.is_dir():
         _emit(f"Error: not a directory: {root}")
@@ -94,7 +101,8 @@ def cmd_analyze(args) -> int:
     return 0
 
 
-def cmd_render(args) -> int:
+def cmd_render(args: argparse.Namespace) -> int:
+    """Handle the `render` subcommand: re-render an existing knowledge-graph.json to HTML. Returns an exit code."""
     graph_path = Path(args.graph).resolve()
     if not graph_path.is_file():
         _emit(f"Error: file not found: {graph_path}")
@@ -110,7 +118,8 @@ def cmd_render(args) -> int:
     return 0
 
 
-def cmd_dashboard(args) -> int:
+def cmd_dashboard(args: argparse.Namespace) -> int:
+    """Handle the `dashboard` subcommand: render and open a project's existing graph. Returns an exit code."""
     root = Path(args.path).resolve()
     graph_path = root / GRAPH_DIR / GRAPH_FILE
     if not graph_path.is_file():
@@ -125,6 +134,7 @@ def cmd_dashboard(args) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """Construct the argparse parser with the analyze/render/dashboard subcommands and flags."""
     p = argparse.ArgumentParser(
         prog="understand",
         description="Turn a codebase into an interactive knowledge-graph HTML file (pure Python).",
@@ -160,7 +170,8 @@ def build_parser() -> argparse.ArgumentParser:
     return p
 
 
-def main(argv=None) -> int:
+def main(argv: list[str] | None = None) -> int:
+    """CLI entry point: parse args (defaulting to `analyze`) and dispatch. Returns an exit code."""
     argv = list(sys.argv[1:] if argv is None else argv)
     # Make `analyze` the default command: `understand .` == `understand analyze .`
     if argv and argv[0] not in _SUBCOMMANDS and argv[0] not in ("-h", "--help", "--version"):

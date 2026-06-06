@@ -121,41 +121,82 @@ class _PyImport:
         self.names = names
 
 
+def _py_line_range(node) -> list[int]:
+    """Return [startLine, endLine] (1-indexed) for an AST node."""
+    return [node.lineno, getattr(node, "end_lineno", None) or node.lineno]
+
+
+def _py_func_sig(node) -> str:
+    """Reconstruct a readable signature for a function/method AST node."""
+    try:
+        args = ast.unparse(node.args)
+    except Exception:
+        args = ""
+    ret = ""
+    try:
+        if node.returns is not None:
+            ret = " -> " + ast.unparse(node.returns)
+    except Exception:
+        ret = ""
+    prefix = "async def " if isinstance(node, ast.AsyncFunctionDef) else "def "
+    return f"{prefix}{node.name}({args}){ret}"
+
+
+def _py_class_sig(node) -> str:
+    """Reconstruct a readable `class Name(bases)` signature for a ClassDef node."""
+    try:
+        bases = ", ".join(ast.unparse(b) for b in node.bases)
+    except Exception:
+        bases = ""
+    return f"class {node.name}({bases})" if bases else f"class {node.name}"
+
+
+def _py_symbol(node, kind: str) -> dict:
+    """Build a rich symbol dict (name/doc/docstring/lineRange/signature) from an AST node."""
+    full_doc = (ast.get_docstring(node) or "").strip()
+    sig = _py_class_sig(node) if kind == "class" else _py_func_sig(node)
+    return {
+        "kind": kind,
+        "name": node.name,
+        "doc": full_doc.split("\n")[0][:200],   # first line → summary
+        "docstring": full_doc[:600],            # full docstring → docstring field
+        "lineRange": _py_line_range(node),
+        "signature": sig,
+        "methods": [],
+    }
+
+
 def _python_extract(text: str):
-    """Return (module_doc, symbols, imports). symbols: list of dicts; imports: list[_PyImport]."""
+    """Return (module_doc_first_line, module_docstring, symbols, imports).
+
+    symbols is a list of rich dicts (functions/classes, classes carry method dicts).
+    """
     try:
         tree = ast.parse(text)
     except SyntaxError:
-        return "", [], []
+        return "", "", [], []
 
-    module_doc = (ast.get_docstring(tree) or "").strip().split("\n")[0][:240]
+    module_docstring = (ast.get_docstring(tree) or "").strip()
+    module_doc = module_docstring.split("\n")[0][:240]
     symbols: list[dict] = []
     imports: list[_PyImport] = []
 
     for node in tree.body:
-        if isinstance(node, ast.FunctionDef) or isinstance(node, ast.AsyncFunctionDef):
-            symbols.append({
-                "kind": "function", "name": node.name,
-                "doc": (ast.get_docstring(node) or "").strip().split("\n")[0][:200],
-                "methods": [],
-            })
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            symbols.append(_py_symbol(node, "function"))
         elif isinstance(node, ast.ClassDef):
-            methods = [
-                b.name for b in node.body
-                if isinstance(b, (ast.FunctionDef, ast.AsyncFunctionDef))
+            sym = _py_symbol(node, "class")
+            sym["methods"] = [
+                _py_symbol(b, "function")
+                for b in node.body if isinstance(b, (ast.FunctionDef, ast.AsyncFunctionDef))
             ]
-            symbols.append({
-                "kind": "class", "name": node.name,
-                "doc": (ast.get_docstring(node) or "").strip().split("\n")[0][:200],
-                "methods": methods,
-                "bases": [_name_of(b) for b in node.bases if _name_of(b)],
-            })
+            symbols.append(sym)
         elif isinstance(node, ast.Import):
             for alias in node.names:
                 imports.append(_PyImport(alias.name, 0, []))
         elif isinstance(node, ast.ImportFrom):
             imports.append(_PyImport(node.module, node.level or 0, [a.name for a in node.names]))
-    return module_doc, symbols, imports
+    return module_doc, module_docstring, symbols, imports
 
 
 def _name_of(node) -> str:
@@ -254,7 +295,8 @@ def build_structural(scan_result: ScanResult) -> tuple[list[Node], list[Edge]]:
     seen_sym_ids: set[str] = set()
 
     def add_symbol(kind: str, name: str, parent_id: str, file_path: str, language: str,
-                   doc: str = "", method: bool = False) -> str:
+                   doc: str = "", method: bool = False, line_range=None, signature: str = "",
+                   docstring: str = "") -> str:
         base = f"{kind}:{file_path}:{name}"
         sid, k = base, 2
         while sid in seen_sym_ids:  # disambiguate overloads / repeated names
@@ -265,6 +307,8 @@ def build_structural(scan_result: ScanResult) -> tuple[list[Node], list[Edge]]:
             id=sid, type=kind, name=name, filePath=file_path,
             summary=doc or f"{'Method' if method else kind.capitalize()} {name} in {file_path}",
             tags=[kind, language] + (["method"] if method else []), complexity="simple",
+            lineRange=list(line_range) if line_range else None,
+            signature=signature, docstring=docstring,
         ))
         add_edge(parent_id, sid, "contains")
         return sid
@@ -272,11 +316,20 @@ def build_structural(scan_result: ScanResult) -> tuple[list[Node], list[Edge]]:
     def add_symbols(symbols, parent_id: str, file_path: str, language: str) -> int:
         for sym in symbols:
             kind = sym["kind"]
-            cid = add_symbol(kind, sym["name"], parent_id, file_path, language, sym.get("doc", ""))
+            cid = add_symbol(kind, sym["name"], parent_id, file_path, language,
+                             sym.get("doc", ""), line_range=sym.get("lineRange"),
+                             signature=sym.get("signature", ""), docstring=sym.get("docstring", ""))
             if kind == "class":
                 for meth in sym.get("methods", []):
-                    add_symbol("function", f"{sym['name']}.{meth}", cid, file_path, language,
-                               f"Method of {sym['name']}", method=True)
+                    if isinstance(meth, dict):  # rich method dict (Python ast path)
+                        add_symbol("function", f"{sym['name']}.{meth['name']}", cid, file_path,
+                                   language, meth.get("doc", ""), method=True,
+                                   line_range=meth.get("lineRange"),
+                                   signature=meth.get("signature", ""),
+                                   docstring=meth.get("docstring", ""))
+                    else:  # bare method name (tree-sitter path)
+                        add_symbol("function", f"{sym['name']}.{meth}", cid, file_path, language,
+                                   f"Method of {sym['name']}", method=True)
         return len(symbols)
 
     ts_supported = ts.supported_languages()
@@ -294,12 +347,13 @@ def build_structural(scan_result: ScanResult) -> tuple[list[Node], list[Edge]]:
         text = _read_text(abs_path) if f.sizeLines and f.sizeLines < 20_000 else ""
 
         summary = ""
+        file_docstring = ""
         symbol_count = 0
         top_dir = f.path.split("/")[0] if "/" in f.path else ""
         tags = [t for t in (f.language, f.category, top_dir) if t]
 
         if f.language == "python" and text:
-            module_doc, symbols, py_imports = _python_extract(text)
+            module_doc, file_docstring, symbols, py_imports = _python_extract(text)
             summary = module_doc
             symbol_count = add_symbols(symbols, nid, f.path, f.language)
             targets = []
@@ -322,6 +376,7 @@ def build_structural(scan_result: ScanResult) -> tuple[list[Node], list[Edge]]:
         nodes.append(Node(
             id=nid, type=ntype, name=f.path.split("/")[-1], filePath=f.path,
             summary=summary, tags=tags, complexity=_complexity(f.sizeLines, symbol_count),
+            docstring=file_docstring,
         ))
 
     return nodes, edges

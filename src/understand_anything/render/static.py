@@ -6,10 +6,12 @@ import html
 
 
 def _clip(name: str, max_chars: int) -> str:
+    """Truncate `name` to `max_chars`, appending an ellipsis when it overflows."""
     return name if len(name) <= max_chars else name[: max_chars - 1] + "…"
 
 
 def render_static_html(vm: dict) -> str:
+    """Render a view model into a self-contained, zero-JavaScript SVG knowledge-graph HTML page."""
     nodes = vm["nodes"]
     edges = vm["edges"]
     containers = vm.get("containers", [])

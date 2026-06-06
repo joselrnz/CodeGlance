@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from .ignore import build_matcher
+from .ignore import IgnoreMatcher, build_matcher
 
 # extension -> language id
 LANG_BY_EXT: dict[str, str] = {
@@ -59,6 +60,7 @@ LANG_BY_NAME: dict[str, str] = {
     "requirements.txt": "plaintext", "go.mod": "go", "go.sum": "plaintext",
 }
 
+# Language ids that count as source code (drive the "code" category and language stats).
 CODE_LANGS = {
     "python", "javascript", "typescript", "go", "rust", "ruby", "php", "java", "kotlin",
     "swift", "scala", "c", "cpp", "csharp", "lua", "vue", "svelte",
@@ -68,6 +70,7 @@ CODE_LANGS = {
     "crystal", "d", "solidity", "objc", "matlab", "tcl", "commonlisp", "scheme", "racket",
     "gleam", "odin", "glsl", "hlsl", "wgsl",
 }
+# Language buckets used to assign a high-level file category in categorize().
 CONFIG_LANGS = {"json", "yaml", "toml", "ini", "env", "xml"}
 DOC_LANGS = {"markdown", "restructuredtext", "plaintext"}
 INFRA_LANGS = {"dockerfile", "terraform", "hcl", "kubernetes"}
@@ -77,6 +80,7 @@ MARKUP_LANGS = {"html", "css", "graphql", "protobuf"}
 
 
 def categorize(language: str, rel_path: str) -> str:
+    """Map a language id (and its path) to a high-level category like code/docs/config/infra."""
     name = rel_path.replace("\\", "/").lower()
     if "/.github/workflows/" in name or name.startswith(".github/workflows/"):
         return "infra"
@@ -98,6 +102,7 @@ def categorize(language: str, rel_path: str) -> str:
 
 
 def detect_language(path: Path) -> str:
+    """Return the language id for a path by exact filename then extension, or "" if unknown."""
     if path.name in LANG_BY_NAME:
         return LANG_BY_NAME[path.name]
     return LANG_BY_EXT.get(path.suffix.lower(), "")
@@ -105,6 +110,7 @@ def detect_language(path: Path) -> str:
 
 @dataclass
 class ScannedFile:
+    """A single discovered file: relative path, detected language, category, and line count."""
     path: str          # relative, forward-slash
     language: str
     category: str
@@ -113,6 +119,7 @@ class ScannedFile:
 
 @dataclass
 class ScanResult:
+    """Outcome of scanning a project: discovered files plus aggregate language/framework info."""
     root: Path
     files: list[ScannedFile] = field(default_factory=list)
     languages: list[str] = field(default_factory=list)
@@ -122,6 +129,7 @@ class ScanResult:
 
 
 def _count_lines(path: Path) -> int:
+    """Count the number of lines in a file, returning 0 if it cannot be read."""
     try:
         with path.open("rb") as fh:
             return sum(1 for _ in fh)
@@ -140,6 +148,7 @@ _FRAMEWORK_MARKERS: list[tuple[str, tuple[str, ...]]] = [
 
 
 def _detect_frameworks(root: Path) -> list[str]:
+    """Sniff frameworks by scanning dependency manifests for known marker substrings."""
     blobs: list[str] = []
     for manifest in ("package.json", "pyproject.toml", "requirements.txt", "go.mod", "pom.xml", "Gemfile"):
         p = root / manifest
@@ -154,6 +163,11 @@ def _detect_frameworks(root: Path) -> list[str]:
 
 
 def scan(root: str | Path, max_file_lines: int = 50_000) -> ScanResult:
+    """Walk a project tree and return a ScanResult of recognized, non-ignored files.
+
+    Skips ignored paths, files with no detectable language, and files exceeding
+    `max_file_lines`; collects the set of code languages and detected frameworks.
+    """
     root = Path(root).resolve()
     matcher = build_matcher(root)
     result = ScanResult(root=root, name=root.name)
@@ -185,7 +199,8 @@ def scan(root: str | Path, max_file_lines: int = 50_000) -> ScanResult:
     return result
 
 
-def _walk(root: Path, matcher):
+def _walk(root: Path, matcher: IgnoreMatcher) -> Iterator[tuple[str, list[str], list[str]]]:
+    """Walk the tree like os.walk, pruning ignored directories in place so they aren't descended."""
     import os
 
     for dirpath, dirnames, filenames in os.walk(root):

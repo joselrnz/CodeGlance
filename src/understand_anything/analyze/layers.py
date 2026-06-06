@@ -12,6 +12,11 @@ from ..schema import Edge, Layer, Node, FILE_LEVEL_TYPES, _kebab
 
 
 def detect_layers(nodes: list[Node], edges: list[Edge]) -> list[Layer]:
+    """Detect architectural layers from the file graph via Louvain community detection.
+
+    Falls back to grouping by top-level directory when networkx is unavailable or fails.
+    Returns layers ordered largest-first, each named after its dominant directory/tag.
+    """
     file_nodes = [n for n in nodes if n.type in FILE_LEVEL_TYPES]
     if not file_nodes:
         return []
@@ -54,6 +59,7 @@ def detect_layers(nodes: list[Node], edges: list[Edge]) -> list[Layer]:
     return layers
 
 
+# Generic container dirs skipped when naming a layer, so meaningful sub-packages surface.
 GENERIC_DIRS = {
     "src", "lib", "app", "apps", "source", "sources", "packages", "pkg", "internal",
     "cmd", "main", "com", "org", "net", "io", "github",
@@ -61,8 +67,9 @@ GENERIC_DIRS = {
 
 
 def _name_community(members: list[Node], used: set[str]) -> str:
-    dirs = Counter()
-    tags = Counter()
+    """Pick a unique human-friendly name for a community from its dominant directory or tag."""
+    dirs: Counter = Counter()
+    tags: Counter = Counter()
     for n in members:
         path = n.filePath or n.id.split(":", 1)[-1]
         dir_segs = path.split("/")[:-1]  # directory parts only
@@ -93,17 +100,20 @@ def _name_community(members: list[Node], used: set[str]) -> str:
 
 
 def _titleize(s: str) -> str:
+    """Turn a dir/tag slug into a Title-Cased display name (falls back to "Core")."""
     parts = s.replace("_", " ").replace("-", " ").replace("/", " · ").split()
     return " ".join(p.capitalize() for p in parts) or "Core"
 
 
-def _describe(name: str, members: list[str], node_by_id: dict) -> str:
+def _describe(name: str, members: list[str], node_by_id: dict[str, Node]) -> str:
+    """Build a layer description summarizing its file count and top node-type kinds."""
     kinds = Counter(node_by_id[m].type for m in members)
     summary = ", ".join(f"{c} {k}" for k, c in kinds.most_common(3))
     return f"{name} layer — {len(members)} files ({summary})."
 
 
 def _fallback_by_directory(file_nodes: list[Node]) -> list[Layer]:
+    """Group files into layers by their top-level directory (used when Louvain is unavailable)."""
     groups: dict[str, list[str]] = {}
     for n in file_nodes:
         path = n.filePath or n.id.split(":", 1)[-1]

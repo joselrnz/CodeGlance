@@ -99,6 +99,7 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None) -> dict:
             "path": n.filePath, "layer": node_layer[n.id],
             "color": TYPE_COLORS.get(n.type, DEFAULT_TYPE_COLOR),
             "complexity": n.complexity, "tags": n.tags,
+            "lineRange": n.lineRange, "signature": n.signature, "docstring": n.docstring,
             "x": x, "y": y, "deg": deg.get(n.id, 0),
         })
 

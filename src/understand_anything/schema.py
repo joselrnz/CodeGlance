@@ -46,6 +46,13 @@ def edge_weight(edge_type: str) -> float:
 
 @dataclass
 class Node:
+    """A single knowledge-graph node (file, function, class, config, document, ...).
+
+    The first seven fields match the original Understand-Anything schema. ``lineRange``,
+    ``signature`` and ``docstring`` are optional enrichments this port captures from source;
+    they are only serialised when present, keeping the JSON compatible with the original tool.
+    """
+
     id: str
     type: str
     name: str
@@ -53,9 +60,13 @@ class Node:
     summary: str = ""
     tags: list[str] = field(default_factory=list)
     complexity: str = "moderate"
+    lineRange: list[int] | None = None   # [startLine, endLine], 1-indexed (functions/classes)
+    signature: str = ""                  # declaration line, e.g. "def f(x: int) -> str"
+    docstring: str = ""                  # docstring / leading doc-comment pulled from source
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        """Serialise to a plain dict; optional fields are omitted when empty."""
+        d: dict[str, Any] = {
             "id": self.id,
             "type": self.type,
             "name": self.name,
@@ -64,9 +75,18 @@ class Node:
             "tags": list(self.tags),
             "complexity": self.complexity,
         }
+        if self.lineRange:
+            d["lineRange"] = list(self.lineRange)
+        if self.signature:
+            d["signature"] = self.signature
+        if self.docstring:
+            d["docstring"] = self.docstring
+        return d
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> "Node":
+        """Build a Node from a dict, tolerating missing/None optional fields."""
+        lr = d.get("lineRange")
         return cls(
             id=d["id"],
             type=d.get("type", "file"),
@@ -75,6 +95,9 @@ class Node:
             summary=d.get("summary", "") or "",
             tags=list(d.get("tags") or []),
             complexity=d.get("complexity", "moderate") or "moderate",
+            lineRange=list(lr) if isinstance(lr, (list, tuple)) and lr else None,
+            signature=d.get("signature", "") or "",
+            docstring=d.get("docstring", "") or "",
         )
 
 

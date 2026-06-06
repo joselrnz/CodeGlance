@@ -13,15 +13,18 @@ from .analyze import layers as layers_mod
 from .analyze import llm as llm_mod
 from .analyze import tour as tour_mod
 from .analyze.structural import build_structural
-from .scan import scan
+from .scan import ScanResult, scan
 from .schema import KnowledgeGraph, Layer, Node, Project, FILE_LEVEL_TYPES, _kebab
 
+# Location of the persisted knowledge graph, relative to the project root.
 GRAPH_PATH = ".understand-anything/knowledge-graph.json"
 
+# Callback that receives human-readable progress messages during analysis.
 Progress = Callable[[str], None]
 
 
 def _git_commit(root: Path) -> str:
+    """Return the current git commit hash for `root`, or "" if not a repo / git unavailable."""
     try:
         out = subprocess.run(
             ["git", "-C", str(root), "rev-parse", "HEAD"],
@@ -71,6 +74,13 @@ def _normalize_layers(layers: list[Layer], file_ids: list[str],
 
 def analyze(root: str | Path, use_llm: bool = False, model: str | None = None,
             progress: Progress | None = None, full: bool = False) -> KnowledgeGraph:
+    """Run the full analysis pipeline for a project and return its KnowledgeGraph.
+
+    Scans files, extracts structure, detects layers, and builds a guided tour. When `use_llm`
+    is set and an LLM is available, summaries/layer names/tour are enriched. Unless `full` is
+    set, fingerprints from a prior run are used to skip unchanged work and reuse old summaries.
+    `progress` receives status messages; `model` overrides the default LLM model.
+    """
     root = Path(root).resolve()
     log = progress or (lambda _m: None)
 
@@ -160,7 +170,8 @@ def analyze(root: str | Path, use_llm: bool = False, model: str | None = None,
     return graph
 
 
-def _describe_project(scan_result) -> str:
+def _describe_project(scan_result: ScanResult) -> str:
+    """Build a one-line project description from file-category counts and top languages."""
     cats = Counter(f.category for f in scan_result.files)
     parts = ", ".join(f"{c} {k}" for k, c in cats.most_common())
     langs = ", ".join(scan_result.languages[:5]) or "mixed"

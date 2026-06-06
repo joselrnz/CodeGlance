@@ -25,7 +25,9 @@ _HEADER = 36.0
 _LANE_GAP = 48.0
 _LEFT = 48.0
 _TOP = 48.0
+# Max cards per row inside a lane before wrapping to a new row.
 _MAX_COLS = 8
+# Sentinel layer key for nodes with no assigned layer (sorts last).
 _UNASSIGNED = 1_000_000
 
 # Order within a lane: a file first, then its classes, then its functions.
@@ -35,9 +37,12 @@ _TYPE_RANK = {
 }
 
 
-def compute_layered_layout(records, n_layers):
+def compute_layered_layout(
+    records: list[dict], n_layers: int
+) -> tuple[dict[str, tuple[float, float]], list[dict], float, float]:
     """records: list of {id, layer(int or -1), type, filePath, name}.
 
+    Lays each layer out as a stacked container of gridded cards.
     Returns (positions{id:(cx,cy)}, containers[{layerKey,x,y,w,h,count}], CARD_W, CARD_H).
     """
     import math
@@ -72,9 +77,17 @@ def compute_layered_layout(records, n_layers):
     return positions, containers, CARD_W, CARD_H
 
 
-def compute_layout(node_ids, edges, layer_of, width=WIDTH, height=HEIGHT, seed=42):
-    """node_ids: list[str]; edges: list[(src, tgt, weight)]; layer_of: dict[id->layer_key].
+def compute_layout(
+    node_ids: list[str],
+    edges: list[tuple[str, str, float]],
+    layer_of: dict[str, object],
+    width: float = WIDTH,
+    height: float = HEIGHT,
+    seed: int = 42,
+) -> dict[str, tuple[float, float]]:
+    """Deterministic force-directed layout with per-layer clustering.
 
+    node_ids: list[str]; edges: list[(src, tgt, weight)]; layer_of: dict[id->layer_key].
     Returns dict[id] -> (x, y).
     """
     n = len(node_ids)
@@ -118,6 +131,7 @@ def compute_layout(node_ids, edges, layer_of, width=WIDTH, height=HEIGHT, seed=4
 
 
 def _iters(n: int) -> int:
+    """Pick the number of layout iterations, scaling down as the node count grows."""
     if n <= 200:
         return 140
     if n <= 600:
@@ -127,7 +141,16 @@ def _iters(n: int) -> int:
     return 30
 
 
-def _layout_numpy(init, edges, cluster_center, n, width, height, seed):
+def _layout_numpy(
+    init: list[tuple[float, float]],
+    edges: list[tuple[int, int, float]],
+    cluster_center: list[tuple[float, float]],
+    n: int,
+    width: float,
+    height: float,
+    seed: int,
+) -> list[list[float]]:
+    """Vectorized Fruchterman-Reingold layout (numpy) with a pull toward cluster centers."""
     import numpy as np
 
     P = np.array(init, dtype=float)
@@ -158,7 +181,16 @@ def _layout_numpy(init, edges, cluster_center, n, width, height, seed):
     return P.tolist()
 
 
-def _layout_python(init, edges, cluster_center, n, width, height, rng):
+def _layout_python(
+    init: list[tuple[float, float]],
+    edges: list[tuple[int, int, float]],
+    cluster_center: list[tuple[float, float]],
+    n: int,
+    width: float,
+    height: float,
+    rng: random.Random,
+) -> list[list[float]]:
+    """Pure-Python Fruchterman-Reingold fallback (no numpy) with cluster-center attraction."""
     pos = [list(p) for p in init]
     adj = [[] for _ in range(n)]
     for i, j, w in edges:

@@ -121,6 +121,26 @@ def test_legacy_and_esoteric_languages():
     assert "uint" not in names and "bool" not in names
 
 
+def test_python_captures_signature_linerange_docstring():
+    from understand_anything.analyze.structural import _python_extract
+    _doc, _full, syms, _imp = _python_extract(
+        'def f(x: int) -> str:\n    """Doc here."""\n    return str(x)\n'
+    )
+    assert syms[0]["signature"] == "def f(x: int) -> str"
+    assert syms[0]["lineRange"] == [1, 3]
+    assert syms[0]["docstring"] == "Doc here."
+
+
+def test_treesitter_captures_linerange_and_jsdoc():
+    if not ts.is_available():
+        return
+    syms = ts.extract_symbols(
+        "javascript", "d.js", "/** Adds two numbers. */\nexport function add(a, b) { return a + b; }\n"
+    )
+    assert syms and syms[0]["docstring"] == "Adds two numbers."
+    assert syms[0]["lineRange"] and syms[0]["signature"].startswith("function add")
+
+
 def test_incremental_writes_fingerprints():
     from understand_anything import fingerprint as fp
     analyze(FIXTURES_IMPORTS, use_llm=False)

@@ -10,6 +10,7 @@ from collections import defaultdict
 
 from ..schema import Edge, Layer, Node, TourStep, FILE_LEVEL_TYPES
 
+# Filename suffixes that commonly mark a program's entry point, in priority order.
 _ENTRY_HINTS = (
     "main.py", "__main__.py", "app.py", "manage.py", "cli.py", "wsgi.py", "asgi.py", "run.py",
     "src/index.ts", "src/main.ts", "src/app.tsx", "index.js", "main.go", "src/main.rs",
@@ -17,6 +18,10 @@ _ENTRY_HINTS = (
 
 
 def build_tour(nodes: list[Node], edges: list[Edge], layers: list[Layer], max_steps: int = 12) -> list[TourStep]:
+    """Build a deterministic guided tour: README, then entry point, then each layer's hub file.
+
+    The per-layer step picks the most-connected (highest-degree) unused node. Caps at `max_steps`.
+    """
     file_nodes = [n for n in nodes if n.type in FILE_LEVEL_TYPES]
     if not file_nodes:
         return []

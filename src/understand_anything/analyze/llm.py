@@ -10,13 +10,19 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
+from typing import Callable
 
-from ..schema import KnowledgeGraph, FILE_LEVEL_TYPES
+from ..schema import KnowledgeGraph, Layer, Node, TourStep, FILE_LEVEL_TYPES
 
+# Default Anthropic model used for enrichment when none is specified.
 DEFAULT_MODEL = "claude-sonnet-4-6"
+
+# Callback receiving progress/diagnostic messages during LLM steps.
+ProgressFn = Callable[[str], None]
 
 
 def is_available() -> bool:
+    """Return True if LLM enrichment is usable (API key set and `anthropic` importable)."""
     if not os.environ.get("ANTHROPIC_API_KEY"):
         return False
     try:
@@ -27,6 +33,7 @@ def is_available() -> bool:
 
 
 def availability_hint() -> str:
+    """Return "available", or a human-readable reason why LLM enrichment can't run."""
     if not os.environ.get("ANTHROPIC_API_KEY"):
         return "ANTHROPIC_API_KEY is not set."
     try:
@@ -37,7 +44,8 @@ def availability_hint() -> str:
 
 
 def enrich(graph: KnowledgeGraph, root: str | Path | None = None, model: str | None = None,
-           batch_size: int = 18, progress=None, only_paths: set[str] | None = None) -> int:
+           batch_size: int = 18, progress: ProgressFn | None = None,
+           only_paths: set[str] | None = None) -> int:
     """Fill in better summaries for file-level nodes. Returns number of summaries updated.
 
     If `only_paths` is given, only nodes whose filePath is in that set are enriched (used for
@@ -84,7 +92,8 @@ def enrich(graph: KnowledgeGraph, root: str | Path | None = None, model: str | N
     return updated
 
 
-def name_layers(layers, nodes, model: str | None = None, progress=None) -> int:
+def name_layers(layers: list[Layer], nodes: list[Node], model: str | None = None,
+                progress: ProgressFn | None = None) -> int:
     """Improve layer names/descriptions from member files. Mutates layers; returns count updated."""
     if not is_available() or not layers:
         return 0
@@ -117,7 +126,8 @@ def name_layers(layers, nodes, model: str | None = None, progress=None) -> int:
     return updated
 
 
-def narrate_tour(tour, nodes, project_desc: str = "", model: str | None = None, progress=None) -> int:
+def narrate_tour(tour: list[TourStep], nodes: list[Node], project_desc: str = "",
+                 model: str | None = None, progress: ProgressFn | None = None) -> int:
     """Rewrite tour step titles/descriptions into a narrative. Mutates tour; returns count."""
     if not is_available() or not tour:
         return 0
@@ -151,7 +161,8 @@ def narrate_tour(tour, nodes, project_desc: str = "", model: str | None = None, 
     return updated
 
 
-def _complete_json(prompt: str, model: str, progress=None) -> dict:
+def _complete_json(prompt: str, model: str, progress: ProgressFn | None = None) -> dict:
+    """Send one prompt to the model and parse a JSON object from the reply ({} on failure)."""
     try:
         import anthropic
         client = anthropic.Anthropic()
@@ -167,6 +178,7 @@ def _complete_json(prompt: str, model: str, progress=None) -> dict:
 
 
 def _snippet(path: Path, max_lines: int = 25) -> str:
+    """Read up to `max_lines` lines (≤1200 chars) from a file for prompt context; "" on error."""
     try:
         lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()[:max_lines]
         return "\n".join(lines)[:1200]
@@ -175,6 +187,7 @@ def _snippet(path: Path, max_lines: int = 25) -> str:
 
 
 def _build_prompt(project: str, items: list[dict]) -> str:
+    """Build the per-file summarization prompt from the batch of node items."""
     listing = "\n\n".join(
         f"### {it['id']}\npath: {it['path']}\ncurrent: {it['current']}\nhead:\n```\n{it['head']}\n```"
         for it in items
@@ -189,6 +202,7 @@ def _build_prompt(project: str, items: list[dict]) -> str:
 
 
 def _parse_json_object(text: str) -> dict:
+    """Extract and parse a JSON object from model text, tolerating code fences; {} on failure."""
     text = text.strip()
     if text.startswith("```"):
         text = text.split("```", 2)[1] if "```" in text[3:] else text

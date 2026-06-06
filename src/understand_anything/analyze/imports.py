@@ -16,11 +16,16 @@ External / third-party imports are intentionally skipped (only project-internal 
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable
 from pathlib import Path
 
+from ..scan import ScannedFile
+
+# Candidate file extensions tried when resolving a JS/TS or C/C++ import to a concrete file.
 _JS_EXTS = (".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".vue", ".svelte")
 _C_EXTS = (".h", ".hpp", ".hh", ".hxx", ".c", ".cc", ".cpp", ".cxx")
 
+# Per-language compiled regexes for extracting import specifiers from source text.
 _RE = {
     "js": re.compile(
         r"""import\s[^'"]*?from\s*['"]([^'"]+)['"]"""
@@ -40,7 +45,10 @@ _RE = {
 
 
 class ImportIndex:
-    def __init__(self, all_files: set[str]):
+    """Precomputed lookup tables used to resolve project-internal imports across languages."""
+
+    def __init__(self, all_files: set[str]) -> None:
+        """Initialize with the set of all project file rel-paths; per-language tables start empty."""
         self.all_files = all_files
         self.go_module: str = ""
         self.go_dirs: dict[str, list[str]] = {}        # import path -> .go files
@@ -48,7 +56,8 @@ class ImportIndex:
         self.java_by_suffix: dict[str, str] = {}       # "a/b/C.java" -> rel path
 
 
-def build_index(files, root: Path) -> ImportIndex:
+def build_index(files: Iterable[ScannedFile], root: Path) -> ImportIndex:
+    """Build an ImportIndex from scanned files: Go module/dirs, Rust crate roots, Java suffixes."""
     all_files = {f.path for f in files}
     idx = ImportIndex(all_files)
 
@@ -102,10 +111,12 @@ def resolve(language: str, rel_path: str, text: str, idx: ImportIndex) -> list[s
 
 
 def _findall(rx: re.Pattern, text: str) -> list[str]:
+    """Run a regex over text, returning the first non-empty group from each match."""
     return [m if isinstance(m, str) else next((g for g in m if g), "") for m in rx.findall(text)]
 
 
 def _resolve_js(text: str, rel_path: str, all_files: set[str]) -> list[str]:
+    """Resolve relative JS/TS import/require/dynamic-import specifiers to project file paths."""
     specs = []
     for m in _RE["js"].finditer(text):
         spec = m.group(1) or m.group(2) or m.group(3)
@@ -115,6 +126,7 @@ def _resolve_js(text: str, rel_path: str, all_files: set[str]) -> list[str]:
 
 
 def _resolve_go(text: str, idx: ImportIndex) -> list[str]:
+    """Resolve Go imports (single and block form) to files via the module path -> dir index."""
     if not idx.go_module:
         return []
     specs: list[str] = []
@@ -128,6 +140,7 @@ def _resolve_go(text: str, idx: ImportIndex) -> list[str]:
 
 
 def _resolve_rust(text: str, rel_path: str, idx: ImportIndex) -> list[str]:
+    """Resolve Rust `mod name;` siblings and `use crate::a::b` paths to concrete .rs files."""
     out: list[str] = []
     base = Path(rel_path).parent
     # `mod name;` -> sibling name.rs or name/mod.rs
@@ -159,6 +172,7 @@ def _resolve_rust(text: str, rel_path: str, idx: ImportIndex) -> list[str]:
 
 
 def _resolve_java(text: str, idx: ImportIndex) -> list[str]:
+    """Resolve Java dotted imports (a.b.C) to project files by path-suffix match (a/b/C.java)."""
     out: list[str] = []
     for dotted in _RE["java"].findall(text):
         suffix = dotted.replace(".", "/") + ".java"
@@ -169,7 +183,13 @@ def _resolve_java(text: str, idx: ImportIndex) -> list[str]:
     return out
 
 
-def _resolve_relative(specs, rel_path: str, all_files: set[str], exts, require_dot: bool = True) -> list[str]:
+def _resolve_relative(specs: list[str], rel_path: str, all_files: set[str],
+                      exts: tuple[str, ...], require_dot: bool = True) -> list[str]:
+    """Resolve relative import specifiers to existing files, trying each extension and index files.
+
+    With `require_dot`, bare (non-"./") specifiers are treated as external libs and skipped;
+    otherwise a project-wide path-suffix fallback is attempted (for C/C++/Ruby/PHP includes).
+    """
     out: list[str] = []
     base = Path(rel_path).parent
     for spec in specs:
@@ -192,6 +212,7 @@ def _resolve_relative(specs, rel_path: str, all_files: set[str], exts, require_d
 
 
 def _norm(p: str) -> str:
+    """Normalize a path: use "/" separators and collapse "." and ".." segments."""
     parts: list[str] = []
     for seg in p.replace("\\", "/").split("/"):
         if seg in ("", "."):

@@ -57,9 +57,19 @@ _HTML = r"""<!doctype html>
   .nb { font-size:12px; padding:4px 7px; border-radius:6px; cursor:pointer; color:#cbd5e1;
     overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .nb:hover { background:#1e293b; color:#fff; }
   .nb .et { color:#7c8aa3; font-family:ui-monospace,monospace; font-size:10px; } .muted{color:#64748b}
-  pre.code { background:#0a0f1a; border:1px solid #243049; border-radius:8px; padding:10px; overflow:auto;
-    max-height:320px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11px; line-height:1.45;
-    color:#cdd6e6; white-space:pre; }
+  .path .lr { color:#d4a574; font-size:10px; }
+  pre.sig { background:#0a0f1a; border:1px solid #243049; border-left:2px solid #5a9e6f; border-radius:6px;
+    padding:7px 9px; margin:8px 0; overflow:auto; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:11px; color:#bfe3c8; white-space:pre; }
+  .doc { color:#cbd5e1; font-size:12px; line-height:1.5; white-space:pre-wrap; background:rgba(212,165,116,0.06);
+    border:1px solid rgba(212,165,116,0.18); border-radius:6px; padding:8px 10px; }
+  .code { background:#0a0f1a; border:1px solid #243049; border-radius:8px; overflow:auto; max-height:340px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11px; line-height:1.5; }
+  .code table.ct { border-collapse:collapse; width:100%; }
+  .code td.ln { user-select:none; text-align:right; color:#475569; padding:0 9px; width:1%; white-space:nowrap;
+    border-right:1px solid #243049; }
+  .code td.lc { padding:0 10px; white-space:pre; color:#cdd6e6; }
+  .code tr.hl { background:rgba(212,165,116,0.14); } .code tr.hl td.ln { color:#d4a574; }
   #tip { position:fixed; pointer-events:none; z-index:9; max-width:320px; padding:8px 10px; font-size:12px; display:none; }
   #tip .tn{font-weight:600} #tip .tt{color:#93a1b5;font-size:11px} #tip .ts{color:#cbd5e1;margin-top:3px}
   #mm { position:fixed; right:14px; bottom:14px; width:210px; height:140px; z-index:5; padding:0; cursor:crosshair; }
@@ -182,20 +192,29 @@ function overviewHTML(){ const p=DATA.project,s=DATA.stats; let h='<div class="o
   h+='<div class="ov-h">Most connected</div>';
   for(const n of DATA.topConnected) h+='<div class="nb" data-i="'+n.i+'">'+esc(n.name)+' <span class="muted">· '+esc(n.type)+' · '+n.deg+'</span></div>';
   return h; }
+function codeHTML(src, range){ const lines=src.split('\n'); const s=(range&&range[0])||0, e=(range&&range[1])||0;
+  let h='<div class="code"><table class="ct">';
+  for(let i=0;i<lines.length;i++){ const ln=i+1, hl=(ln>=s&&ln<=e)?' class="hl"':'';
+    h+='<tr'+hl+'><td class="ln">'+ln+'</td><td class="lc">'+esc(lines[i]||' ')+'</td></tr>'; }
+  return h+'</table></div>'; }
 function infoHTML(i){ const n=N[i]; let h='<span class="close" onclick="select(-1)">✕</span>';
-  h+='<span class="ptype" style="color:'+n.color+';border-color:'+n.color+'">'+esc(n.type)+'</span> <span class="cx cx-'+esc(n.complexity)+'">●'+esc(n.complexity)+'</span>';
-  h+='<h3>'+esc(n.name)+'</h3>'; if(n.path) h+='<div class="path">'+esc(n.path)+'</div>';
+  h+='<span class="ptype" style="color:'+n.color+';border-color:'+n.color+'">'+esc(n.type)+'</span> <span class="cx cx-'+esc(n.complexity)+'">●&nbsp;'+esc(n.complexity)+'</span>';
+  h+='<h3>'+esc(n.name)+'</h3>';
+  if(n.path){ h+='<div class="path">'+esc(n.path)+(n.lineRange?' <span class="lr">L'+n.lineRange[0]+'–'+n.lineRange[1]+'</span>':'')+'</div>'; }
+  if(n.signature) h+='<pre class="sig">'+esc(n.signature)+'</pre>';
   if(n.summary) h+='<div class="summary">'+esc(n.summary)+'</div>';
+  if(n.docstring && n.docstring!==n.summary) h+='<div class="ov-h">Documentation</div><div class="doc">'+esc(n.docstring)+'</div>';
   if(n.tags&&n.tags.length) h+='<div class="pills">'+n.tags.map(t=>'<span class="pill">'+esc(t)+'</span>').join('')+'</div>';
-  if(n.layer>=0) h+='<div class="ov-h">Layer</div><div class="nb" style="cursor:default">'+esc(L[n.layer].name)+'</div>';
+  if(n.layer>=0) h+='<div class="ov-h">Layer</div><div class="nb" style="cursor:default"><span class="sw" style="background:'+L[n.layer].color+'"></span>&nbsp;'+esc(L[n.layer].name)+'</div>';
   const conns=[...nbr[i]].sort((a,b)=>N[b].deg-N[a].deg);
   if(conns.length){ h+='<div class="ov-h">Connections ('+conns.length+')</div>';
     for(const j of conns.slice(0,60)) h+='<div class="nb" data-i="'+j+'"><span class="et">'+esc(edgeBetween(i,j))+'</span> '+esc(N[j].name)+'</div>'; }
   const src=DATA.sources[n.path];
-  if(src) h+='<div class="ov-h">Source · '+esc(n.path)+'</div><pre class="code">'+esc(src)+'</pre>';
+  if(src){ h+='<div class="ov-h">Source · '+esc(n.path)+'</div>'+codeHTML(src, n.lineRange); }
   return h; }
 function renderPanel(){ panel.innerHTML = sel>=0 ? infoHTML(sel) : overviewHTML();
-  panel.querySelectorAll('.nb[data-i]').forEach(el=>el.onclick=()=>select(+el.dataset.i)); }
+  panel.querySelectorAll('.nb[data-i]').forEach(el=>el.onclick=()=>select(+el.dataset.i));
+  const hl=panel.querySelector('.ct tr.hl'); if(hl) hl.scrollIntoView({block:'center'}); }
 function select(i){ sel=i; renderPanel(); if(i>=0) center([i],false); draw(); }
 window.select=select;
 

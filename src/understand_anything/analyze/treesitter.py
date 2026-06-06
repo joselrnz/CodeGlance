@@ -273,8 +273,75 @@ def _body_of(node):
     return None
 
 
+def _point_row(p) -> int:
+    """Row (0-indexed) from a tree-sitter point, tolerating tuple or object form."""
+    try:
+        return p[0] if isinstance(p, (tuple, list)) else getattr(p, "row", 0)
+    except Exception:
+        return 0
+
+
+def _line_range(node) -> list[int] | None:
+    """Return [startLine, endLine] (1-indexed) for a node, or None if unavailable."""
+    try:
+        return [_point_row(_call(node.start_position)) + 1, _point_row(_call(node.end_position)) + 1]
+    except Exception:
+        return None
+
+
+def _sig_line(node, sb: bytes) -> str:
+    """First source line of a node — a decent stand-in for the declaration signature."""
+    return _text(node, sb).split("\n", 1)[0].strip()[:200]
+
+
+def _clean_comment(text: str) -> str:
+    """Strip comment markers (// /* */ # -- ; <!-- --> ''') and collapse to one doc string."""
+    text = text.strip()
+    for tok in ("/**", "*/", "<!--", "-->", '"""', "'''"):
+        text = text.replace(tok, "")
+    out = []
+    for ln in text.splitlines():
+        ln = ln.strip().lstrip("/#*-;").strip()
+        if ln:
+            out.append(ln)
+    return " ".join(out)[:400]
+
+
+def _symbol(node, kind: str, sb: bytes, lead_text: str = "") -> dict:
+    """Build a rich symbol dict (name/doc/docstring/lineRange/signature) for a node."""
+    doc_full = _clean_comment(lead_text) if lead_text else ""
+    return {
+        "kind": kind,
+        "name": _name_of(node, sb),
+        "doc": doc_full.split(". ")[0][:200] if doc_full else "",  # first sentence → summary
+        "docstring": doc_full,
+        "lineRange": _line_range(node),
+        "signature": _sig_line(node, sb),
+        "methods": [],
+    }
+
+
+def _is_named(node) -> bool:
+    """True for meaningful named nodes (not punctuation/keyword tokens like 'export' or '{')."""
+    try:
+        return bool(_call(node.is_named))
+    except Exception:
+        return True
+
+
+def _iter_with_comments(node):
+    """Yield (child, leading_comment_node_or_None), pairing each doc-comment with what follows."""
+    pending = None
+    for ch in _children(node):
+        if "comment" in _kind(ch):
+            pending = ch
+            continue
+        yield ch, pending
+        pending = None
+
+
 def extract_symbols(language: str, path: str, text: str):
-    """Return list of {kind, name, methods, doc} or None if extraction is unavailable."""
+    """Return list of rich symbol dicts (name/doc/docstring/lineRange/signature/methods), or None."""
     if not is_available():
         return None
     grammar = _grammar_for(language, path)
@@ -294,40 +361,48 @@ def extract_symbols(language: str, path: str, text: str):
     func_types, cls_types, method_types = spec[_F], spec[_C], spec[_M]
     callable_types = func_types | method_types
     symbols: list[dict] = []
-    impl_methods: dict[str, list[str]] = {}  # Rust: type name -> methods from impl blocks
+    impl_methods: dict[str, list[dict]] = {}  # Rust: type name -> method dicts from impl blocks
 
-    def visit(node, inside_class: bool):
+    def lead_text(comment_node) -> str:
+        return _text(comment_node, sb) if comment_node is not None else ""
+
+    def visit(node, inside_class: bool, lead=None):
         k = _kind(node)
         # Rust: methods live in `impl Type { fn ... }`, separate from the struct/enum definition.
         if language == "rust" and k == "impl_item":
             tname = _impl_type_name(node, sb)
             body = _body_of(node)
             if tname and body is not None:
-                for ch in _children(body):
-                    if _kind(ch) in func_types:
-                        mn = _name_of(ch, sb)
-                        if mn:
-                            impl_methods.setdefault(tname, []).append(mn)
+                for ch, c in _iter_with_comments(body):
+                    if _kind(ch) in func_types and _name_of(ch, sb):
+                        impl_methods.setdefault(tname, []).append(_symbol(ch, "function", sb, lead_text(c)))
             return  # don't emit impl functions as free functions
         if k in cls_types:
             cname = _name_of(node, sb)
             if cname:
-                methods = []
+                sym = _symbol(node, "class", sb, lead_text(lead))
+                sym["name"] = cname
                 body = _body_of(node)
                 if body is not None:
-                    for ch in _children(body):
-                        if _kind(ch) in callable_types:
-                            mn = _name_of(ch, sb)
-                            if mn:
-                                methods.append(mn)
-                symbols.append({"kind": "class", "name": cname, "methods": methods, "doc": ""})
+                    for ch, c in _iter_with_comments(body):
+                        if _kind(ch) in callable_types and _name_of(ch, sb):
+                            sym["methods"].append(_symbol(ch, "function", sb, lead_text(c)))
+                symbols.append(sym)
             return  # don't descend (methods already captured; avoids double-counting)
         if k in func_types and not inside_class:
-            fn = _name_of(node, sb)
-            if fn:
-                symbols.append({"kind": "function", "name": fn, "methods": [], "doc": ""})
-        for ch in _children(node):
-            visit(ch, inside_class)
+            if _name_of(node, sb):
+                symbols.append(_symbol(node, "function", sb, lead_text(lead)))
+        # This node emitted nothing — propagate any leading comment to the first NAMED child
+        # (e.g. a JSDoc before `export function ...` belongs to the wrapped function, skipping
+        # the 'export' keyword token).
+        used = False
+        for ch, c in _iter_with_comments(node):
+            take = c
+            if take is None and not used and _is_named(ch):
+                take = lead
+            if _is_named(ch):
+                used = True
+            visit(ch, inside_class, take)
 
     try:
         visit(root, False)
@@ -340,11 +415,13 @@ def extract_symbols(language: str, path: str, text: str):
         for tname, meths in impl_methods.items():
             target = by_name.get(tname)
             if target is None:
-                target = {"kind": "class", "name": tname, "methods": [], "doc": ""}
+                target = {"kind": "class", "name": tname, "methods": [], "doc": "",
+                          "docstring": "", "lineRange": None, "signature": ""}
                 symbols.append(target)
                 by_name[tname] = target
+            existing = {m["name"] for m in target["methods"] if isinstance(m, dict)}
             for m in meths:
-                if m not in target["methods"]:
+                if m["name"] not in existing:
                     target["methods"].append(m)
     return symbols
 
@@ -358,16 +435,26 @@ def _extract_generic(root, sb: bytes):
     symbols: list[dict] = []
     seen: set[tuple[str, str]] = set()
 
-    def visit(node):
+    def visit(node, lead=None):
         cls = _generic_classify(_kind(node))
+        emitted = False
         if cls:
             name = _name_of(node, sb)
             if _ok_generic_name(name) and (cls, name) not in seen:
                 seen.add((cls, name))
-                symbols.append({"kind": "class" if cls == "cls" else "function",
-                                "name": name, "methods": [], "doc": ""})
-        for ch in _children(node):
-            visit(ch)
+                sym = _symbol(node, "class" if cls == "cls" else "function", sb,
+                              _text(lead, sb) if lead is not None else "")
+                sym["name"] = name
+                symbols.append(sym)
+                emitted = True
+        used = False
+        for ch, c in _iter_with_comments(node):
+            take = c
+            if take is None and not used and not emitted and _is_named(ch):
+                take = lead
+            if _is_named(ch):
+                used = True
+            visit(ch, take)
 
     try:
         visit(root)
