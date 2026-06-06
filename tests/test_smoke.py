@@ -9,6 +9,7 @@ from understand_anything.schema import Edge, KnowledgeGraph, Node, Project
 
 FIXTURES = Path(__file__).parent / "fixtures" / "multilang"
 FIXTURES_IMPORTS = Path(__file__).parent / "fixtures" / "imports"
+FIXTURES_LEGACY = Path(__file__).parent / "fixtures" / "legacy"
 
 
 def _sample_graph() -> KnowledgeGraph:
@@ -87,6 +88,25 @@ def test_cross_language_imports():
     assert ("Main.java", "util/Helper.java") in pairs  # Java dotted suffix
     assert ("app.cpp", "lib.h") in pairs               # C++ include
     assert ("main.rs", "util.rs") in pairs             # Rust mod / use crate
+
+
+def test_legacy_and_esoteric_languages():
+    if not ts.is_available():
+        return
+    graph = analyze(FIXTURES_LEGACY, use_llm=False)
+    names = {n.name for n in graph.nodes if n.type in ("function", "class")}
+    # one representative symbol per language family
+    for expected in ("Counter", "increment",  # VHDL
+                     "alu", "dbl",             # Verilog
+                     "Calc", "Add",            # Ada
+                     "Token", "transfer",      # Solidity
+                     "Widget", "render",       # Dart
+                     "mathmod",                # Fortran
+                     "Point", "dist",          # Julia
+                     "HELLO"):                 # COBOL
+        assert expected in names, f"missing symbol {expected!r}"
+    # primitive type names must NOT leak in as symbols
+    assert "uint" not in names and "bool" not in names
 
 
 def test_incremental_writes_fingerprints():

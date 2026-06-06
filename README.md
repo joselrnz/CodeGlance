@@ -52,10 +52,17 @@ original, so graphs produced by either tool render in the other.
 Deep symbol extraction (functions, classes, methods → `contains` edges):
 
 - **Python** — always on (stdlib `ast`, no extra needed).
-- **14 more via the `treesitter` extra** (`pip install understand-anything-py[treesitter]`):
-  JavaScript, TypeScript/TSX, Go, Rust, Java, Ruby, PHP, C#, C, C++, Kotlin, Swift, Scala, Lua.
-- **Any other text file** — file-level node with a heuristic summary; relative-import edges for JS/TS.
+- **~50 more via the `treesitter` extra** (`pip install understand-anything-py[treesitter]`):
+  - *Tuned* (precise method/impl handling): JavaScript, TypeScript/TSX, Go, Rust, Java, Ruby,
+    PHP, C#, C, C++, Kotlin, Swift, Scala, Lua.
+  - *Generic node-kind classifier* (works across any grammar): VHDL, Verilog, COBOL, Fortran,
+    Ada, Pascal, Haskell, OCaml, Erlang, Elixir, Clojure, Elm, Julia, R, Perl, Groovy, Dart,
+    Zig, Nim, Crystal, D, Solidity, Objective-C, MATLAB, PowerShell, Tcl, Common Lisp, Scheme,
+    Racket, Gleam, Odin, GLSL/HLSL/WGSL, shell — and more.
+- **Any other text file** — file-level node with a heuristic summary; import edges where supported.
 
+Yes, including VHDL and COBOL. The generic classifier matches function/type node kinds by name
+across arbitrary tree-sitter grammars, so adding a language is usually just a file-extension entry.
 Without the extra, non-Python files still appear as file nodes — you just don't get per-symbol
 detail.
 

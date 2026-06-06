@@ -25,6 +25,28 @@ LANG_BY_EXT: dict[str, str] = {
     ".json": "json", ".yaml": "yaml", ".yml": "yaml", ".toml": "toml", ".ini": "ini",
     ".xml": "xml", ".csv": "csv", ".env": "env",
     ".tf": "terraform", ".tfvars": "terraform", ".hcl": "hcl",
+    # --- Hardware description / legacy / scientific ---
+    ".vhd": "vhdl", ".vhdl": "vhdl",
+    ".v": "verilog", ".sv": "verilog", ".svh": "verilog", ".vh": "verilog",
+    ".cob": "cobol", ".cbl": "cobol", ".cpy": "cobol",
+    ".f": "fortran", ".for": "fortran", ".ftn": "fortran",
+    ".f90": "fortran", ".f95": "fortran", ".f03": "fortran", ".f08": "fortran",
+    ".adb": "ada", ".ads": "ada",
+    ".pas": "pascal", ".pp": "pascal",
+    # --- Functional / JVM / others ---
+    ".hs": "haskell", ".lhs": "haskell",
+    ".ml": "ocaml", ".mli": "ocaml",
+    ".ex": "elixir", ".exs": "elixir",
+    ".erl": "erlang", ".hrl": "erlang",
+    ".clj": "clojure", ".cljs": "clojure", ".cljc": "clojure", ".edn": "clojure",
+    ".elm": "elm", ".jl": "julia", ".r": "r",
+    ".pl": "perl", ".pm": "perl",
+    ".groovy": "groovy", ".gradle": "groovy",
+    ".dart": "dart", ".zig": "zig", ".nim": "nim", ".cr": "crystal", ".d": "d",
+    ".sol": "solidity", ".mm": "objc", ".m": "matlab",
+    ".tcl": "tcl", ".lisp": "commonlisp", ".scm": "scheme", ".rkt": "racket",
+    ".gleam": "gleam", ".odin": "odin",
+    ".glsl": "glsl", ".vert": "glsl", ".frag": "glsl", ".hlsl": "hlsl", ".wgsl": "wgsl",
 }
 
 # Exact filenames -> language id (no/odd extension)
@@ -40,6 +62,11 @@ LANG_BY_NAME: dict[str, str] = {
 CODE_LANGS = {
     "python", "javascript", "typescript", "go", "rust", "ruby", "php", "java", "kotlin",
     "swift", "scala", "c", "cpp", "csharp", "lua", "vue", "svelte",
+    # extended coverage
+    "vhdl", "verilog", "cobol", "fortran", "ada", "pascal", "haskell", "ocaml", "elixir",
+    "erlang", "clojure", "elm", "julia", "r", "perl", "groovy", "dart", "zig", "nim",
+    "crystal", "d", "solidity", "objc", "matlab", "tcl", "commonlisp", "scheme", "racket",
+    "gleam", "odin", "glsl", "hlsl", "wgsl",
 }
 CONFIG_LANGS = {"json", "yaml", "toml", "ini", "env", "xml"}
 DOC_LANGS = {"markdown", "restructuredtext", "plaintext"}

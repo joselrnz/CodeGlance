@@ -11,9 +11,19 @@ from functools import lru_cache
 
 # our scan language id -> tree-sitter-language-pack grammar name
 _TS_NAME = {
+    # Tuned (explicit specs below)
     "javascript": "javascript", "typescript": "typescript", "go": "go", "rust": "rust",
     "java": "java", "ruby": "ruby", "php": "php", "csharp": "csharp", "c": "c", "cpp": "cpp",
     "kotlin": "kotlin", "swift": "swift", "lua": "lua", "scala": "scala",
+    # Extra coverage (handled by the generic node-kind classifier)
+    "vhdl": "vhdl", "cobol": "cobol", "fortran": "fortran", "ada": "ada", "verilog": "verilog",
+    "haskell": "haskell", "ocaml": "ocaml", "erlang": "erlang", "elixir": "elixir",
+    "julia": "julia", "dart": "dart", "solidity": "solidity", "objc": "objc", "groovy": "groovy",
+    "perl": "perl", "pascal": "pascal", "zig": "zig", "nim": "nim", "crystal": "crystal", "d": "d",
+    "clojure": "clojure", "elm": "elm", "r": "r", "matlab": "matlab", "powershell": "powershell",
+    "tcl": "tcl", "commonlisp": "commonlisp", "scheme": "scheme", "racket": "racket",
+    "gleam": "gleam", "odin": "odin", "glsl": "glsl", "hlsl": "hlsl", "wgsl": "wgsl",
+    "shell": "bash",
 }
 
 # Per-language node types. func = standalone callable; cls = type-like container;
@@ -100,12 +110,78 @@ _SPECS: dict[str, dict[str, set[str]]] = {
 # Node types whose text is a usable identifier (fallback when no 'name' field).
 _NAME_NODE_TYPES = {
     "identifier", "type_identifier", "field_identifier", "simple_identifier", "constant",
-    "name", "scoped_identifier", "property_identifier", "word",
+    "name", "scoped_identifier", "property_identifier", "word", "designator", "value_name",
+    "class_name", "module_name", "variable", "atom", "program_name", "entity_name",
+    "global_variable", "function_name", "type_name", "object_identifier",
+}
+
+# Generic classifier (used for languages without an explicit _SPECS entry). Matches node-kind
+# names by suffix so it works across arbitrary grammars (VHDL, COBOL, Fortran, Ada, ...).
+_GEN_FUNC_SUFFIX = (
+    "function_definition", "function_declaration", "function_body", "function_item",
+    "function_clause", "method_definition", "method_declaration", "method_signature",
+    "method_spec", "subroutine", "subprogram_body", "subprogram_declaration",
+    "procedure_declaration", "procedure_body", "procedure_definition", "constructor_definition",
+    "constructor_declaration", "func_definition", "fun_declaration", "value_definition",
+    "paragraph_header", "macro_definition", "modifier_definition", "function_specification",
+    "procedure_specification", "function_signature", "fun_definition",
+)
+_GEN_CLASS_SUFFIX = (
+    "class_definition", "class_declaration", "class_specifier", "struct_item", "struct_specifier",
+    "struct_declaration", "struct_definition", "interface_declaration", "trait_item",
+    "enum_item", "enum_declaration", "enum_specifier", "module_definition", "module_declaration",
+    "record_declaration", "protocol_declaration", "object_declaration", "entity_declaration",
+    "architecture_body", "package_declaration", "derived_type_definition", "type_definition",
+    "program_definition", "union_item", "union_specifier", "struct_type", "type_declaration",
+    "contract_declaration", "library_declaration", "namespace_declaration", "namespace_definition",
+    "abstract_definition", "primitive_definition", "data_type", "newtype", "package_body",
+)
+
+
+# Primitive/keyword names that the generic classifier sometimes grabs from type positions.
+_GENERIC_NAME_DENY = {
+    "int", "integer", "bool", "boolean", "uint", "float", "double", "char", "string", "str",
+    "byte", "short", "long", "void", "bit", "word", "real", "number", "unit", "nil", "none",
+    "self", "this", "true", "false", "null", "var", "val", "let", "const", "auto", "type",
+    "uint256", "uint8", "address", "bytes", "object", "any", "std_logic", "signal",
 }
 
 
+def _ok_generic_name(name: str) -> bool:
+    return (
+        bool(name)
+        and len(name) <= 64
+        and " " not in name and "\n" not in name and "\t" not in name
+        and name.lower() not in _GENERIC_NAME_DENY
+    )
+
+
+# VHDL interface (port/generic/param) declarations end in "interface_declaration" but are NOT types.
+_GEN_DENY_KINDS = {
+    "signal_interface_declaration", "constant_interface_declaration",
+    "variable_interface_declaration", "file_interface_declaration",
+    "procedure_interface_declaration", "function_interface_declaration",
+    "package_interface_declaration", "type_interface_declaration",
+}
+
+
+def _generic_classify(kind: str) -> str | None:
+    if kind in _GEN_DENY_KINDS:
+        return None
+    if "call" in kind or "expression" in kind or "invocation" in kind or "reference" in kind:
+        return None
+    if kind.endswith(_GEN_FUNC_SUFFIX):
+        return "func"
+    if kind == "module" or kind == "program" or kind == "submodule":  # Fortran-style containers
+        return "cls"
+    if kind.endswith(_GEN_CLASS_SUFFIX):
+        return "cls"
+    return None
+
+
 def supported_languages() -> set[str]:
-    return set(_SPECS)
+    # All languages we can parse — explicit specs plus generic-classifier coverage.
+    return set(_TS_NAME)
 
 
 @lru_cache(maxsize=1)
@@ -164,8 +240,26 @@ def _name_of(node, sb: bytes) -> str:
         decl = node.child_by_field_name("declarator")
         if decl is not None:
             return _name_of(decl, sb)
+        # Last resort for block-structured langs (Fortran, COBOL, VHDL, Ada): the name is nested
+        # inside a *_statement / *_header child — pre-order DFS for the first identifier-like leaf.
+        hit = _dfs_first_name(node, sb, 3)
+        if hit:
+            return hit
     except Exception:
         return ""
+    return ""
+
+
+def _dfs_first_name(node, sb: bytes, depth: int) -> str:
+    if depth < 0:
+        return ""
+    for ch in _children(node):
+        if _kind(ch) in _NAME_NODE_TYPES:
+            return _text(ch, sb)
+    for ch in _children(node):
+        r = _dfs_first_name(ch, sb, depth - 1)
+        if r:
+            return r
     return ""
 
 
@@ -184,16 +278,19 @@ def extract_symbols(language: str, path: str, text: str):
     if not is_available():
         return None
     grammar = _grammar_for(language, path)
-    spec = _SPECS.get(language)
-    if grammar is None or spec is None:
+    if grammar is None:
         return None
     try:
         tree = _parser(grammar).parse(text)
         root = _root(tree)
     except Exception:
         return None
-
     sb = text.encode("utf-8", "ignore")
+
+    spec = _SPECS.get(language)
+    if spec is None:
+        return _extract_generic(root, sb)
+
     func_types, cls_types, method_types = spec[_F], spec[_C], spec[_M]
     callable_types = func_types | method_types
     symbols: list[dict] = []
@@ -249,6 +346,33 @@ def extract_symbols(language: str, path: str, text: str):
             for m in meths:
                 if m not in target["methods"]:
                     target["methods"].append(m)
+    return symbols
+
+
+def _extract_generic(root, sb: bytes):
+    """Paradigm-agnostic flat extraction for languages without an explicit spec.
+
+    Emits class-like and func-like nodes wherever they occur (no method nesting), so container
+    languages (Fortran modules, VHDL architectures, Ada packages) keep their inner subprograms.
+    """
+    symbols: list[dict] = []
+    seen: set[tuple[str, str]] = set()
+
+    def visit(node):
+        cls = _generic_classify(_kind(node))
+        if cls:
+            name = _name_of(node, sb)
+            if _ok_generic_name(name) and (cls, name) not in seen:
+                seen.add((cls, name))
+                symbols.append({"kind": "class" if cls == "cls" else "function",
+                                "name": name, "methods": [], "doc": ""})
+        for ch in _children(node):
+            visit(ch)
+
+    try:
+        visit(root)
+    except Exception:
+        pass
     return symbols
 
 
