@@ -39,6 +39,18 @@ def test_render_interactive_is_self_contained():
     assert 'src="http' not in html and 'href="http' not in html  # no external refs
 
 
+def test_render_uses_cards_containers_and_type_colors():
+    from understand_anything.render import build_view_model, TYPE_COLORS
+    vm = build_view_model(_sample_graph())
+    assert vm["containers"] and vm["types"] and vm["cardW"] > 0
+    fn = next(n for n in vm["nodes"] if n["type"] == "function")
+    assert fn["color"] == TYPE_COLORS["function"]  # colored by type, not layer
+    html_i = render_interactive(_sample_graph())
+    assert "DATA.containers" in html_i and "overviewHTML" in html_i  # containers + project overview
+    html_s = render_static(_sample_graph())
+    assert "<script" not in html_s and "marker-end" in html_s  # zero-JS + directional edges
+
+
 def test_render_static_has_no_javascript():
     html = render_static(_sample_graph())
     assert "<svg" in html and "</svg>" in html

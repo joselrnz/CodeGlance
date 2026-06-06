@@ -15,6 +15,63 @@ WIDTH = 1400.0
 HEIGHT = 900.0
 
 
+# --- Layered "swimlane" layout: layers become stacked container boxes of gridded cards. -----
+CARD_W = 196.0
+CARD_H = 60.0
+_GAP_X = 26.0
+_GAP_Y = 22.0
+_PAD = 18.0
+_HEADER = 36.0
+_LANE_GAP = 48.0
+_LEFT = 48.0
+_TOP = 48.0
+_MAX_COLS = 8
+_UNASSIGNED = 1_000_000
+
+# Order within a lane: a file first, then its classes, then its functions.
+_TYPE_RANK = {
+    "file": 0, "config": 0, "document": 0, "service": 0, "pipeline": 0, "table": 0,
+    "schema": 0, "resource": 0, "endpoint": 0, "module": 0, "class": 1, "function": 2, "concept": 3,
+}
+
+
+def compute_layered_layout(records, n_layers):
+    """records: list of {id, layer(int or -1), type, filePath, name}.
+
+    Returns (positions{id:(cx,cy)}, containers[{layerKey,x,y,w,h,count}], CARD_W, CARD_H).
+    """
+    import math
+    from collections import defaultdict
+
+    groups: dict[int, list] = defaultdict(list)
+    for r in records:
+        layer = r.get("layer")
+        key = layer if isinstance(layer, int) and layer >= 0 else _UNASSIGNED
+        groups[key].append(r)
+
+    positions: dict[str, tuple[float, float]] = {}
+    containers: list[dict] = []
+    y = _TOP
+    for key in sorted(groups):
+        members = groups[key]
+        members.sort(key=lambda r: (r.get("filePath") or "", _TYPE_RANK.get(r["type"], 9), r["name"]))
+        n = len(members)
+        cols = min(_MAX_COLS, max(1, int(math.ceil(math.sqrt(n * 1.7)))))
+        rows = int(math.ceil(n / cols))
+        inner_w = cols * CARD_W + (cols - 1) * _GAP_X
+        inner_h = rows * CARD_H + (rows - 1) * _GAP_Y
+        cw = inner_w + 2 * _PAD
+        ch = inner_h + _PAD + _HEADER
+        containers.append({"layerKey": key, "x": _LEFT, "y": y, "w": cw, "h": ch, "count": n})
+        for i, r in enumerate(members):
+            rr, cc = divmod(i, cols)
+            cx = _LEFT + _PAD + cc * (CARD_W + _GAP_X) + CARD_W / 2
+            cy = y + _HEADER + rr * (CARD_H + _GAP_Y) + CARD_H / 2
+            positions[r["id"]] = (round(cx, 1), round(cy, 1))
+        y += ch + _LANE_GAP
+    return positions, containers, CARD_W, CARD_H
+
+
 def compute_layout(node_ids, edges, layer_of, width=WIDTH, height=HEIGHT, seed=42):
     """node_ids: list[str]; edges: list[(src, tgt, weight)]; layer_of: dict[id->layer_key].
 

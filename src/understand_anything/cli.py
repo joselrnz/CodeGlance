@@ -29,9 +29,9 @@ def _emit(msg: str) -> None:
     print(msg, file=sys.stderr)
 
 
-def _render_to_file(graph: KnowledgeGraph, out: Path, static: bool) -> Path:
+def _render_to_file(graph: KnowledgeGraph, out: Path, static: bool, root: Path | None = None) -> Path:
     out.parent.mkdir(parents=True, exist_ok=True)
-    html = render_static(graph) if static else render_interactive(graph)
+    html = render_static(graph, root) if static else render_interactive(graph, root)
     out.write_text(html, encoding="utf-8")
     return out
 
@@ -88,7 +88,7 @@ def cmd_analyze(args) -> int:
         return 0
 
     out = Path(args.output) if args.output else root / GRAPH_DIR / _default_html_name(args.static)
-    _render_to_file(graph, out, args.static)
+    _render_to_file(graph, out, args.static, root)
     _emit(f"  HTML : {out}")
     _open(out, args.no_open)
     return 0
@@ -100,8 +100,10 @@ def cmd_render(args) -> int:
         _emit(f"Error: file not found: {graph_path}")
         return 1
     graph = KnowledgeGraph.load(graph_path)
+    # graph lives at <root>/.understand-anything/knowledge-graph.json → root is two levels up
+    root = graph_path.parent.parent if graph_path.parent.name == GRAPH_DIR else None
     out = Path(args.output) if args.output else graph_path.with_name(_default_html_name(args.static))
-    _render_to_file(graph, out, args.static)
+    _render_to_file(graph, out, args.static, root)
     _emit(f"✓ Rendered {graph_path.name} → {out}")
     _emit(f"  {len(graph.nodes)} nodes · {len(graph.edges)} edges · {len(graph.layers)} layers")
     _open(out, args.no_open)
@@ -116,7 +118,7 @@ def cmd_dashboard(args) -> int:
         return 1
     graph = KnowledgeGraph.load(graph_path)
     out = Path(args.output) if args.output else root / GRAPH_DIR / _default_html_name(args.static)
-    _render_to_file(graph, out, args.static)
+    _render_to_file(graph, out, args.static, root)
     _emit(f"✓ {graph.project.name} → {out}")
     _open(out, args.no_open)
     return 0
