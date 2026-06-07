@@ -333,6 +333,7 @@ def build_structural(scan_result: ScanResult) -> tuple[list[Node], list[Edge]]:
         return len(symbols)
 
     ts_supported = ts.supported_languages()
+    tf_blocks: list[tuple[str, str, list[str]]] = []  # (node_id, refkey, refs) for Terraform deps
 
     def link_imports(src_id: str, targets) -> None:
         for tgt_rel in targets:
@@ -360,6 +361,14 @@ def build_structural(scan_result: ScanResult) -> tuple[list[Node], list[Edge]]:
             for pi in py_imports:
                 targets.extend(_resolve_py_import(pi, f.path, py_index))
             link_imports(nid, targets)
+        elif f.language in ("terraform", "hcl") and text:
+            ts_syms = ts.extract_symbols(f.language, f.path, text) or []
+            symbol_count = len(ts_syms)
+            for sym in ts_syms:  # create block nodes, remember refs for a later dependency pass
+                sid = add_symbol(sym["kind"], sym["name"], nid, f.path, f.language, sym.get("doc", ""),
+                                 line_range=sym.get("lineRange"), signature=sym.get("signature", ""),
+                                 docstring=sym.get("docstring", ""))
+                tf_blocks.append((sid, sym.get("refkey", ""), sym.get("refs", [])))
         else:
             if text and f.language in ts_supported:
                 ts_syms = ts.extract_symbols(f.language, f.path, text)
@@ -378,5 +387,14 @@ def build_structural(scan_result: ScanResult) -> tuple[list[Node], list[Edge]]:
             summary=summary, tags=tags, complexity=_complexity(f.sizeLines, symbol_count),
             docstring=file_docstring,
         ))
+
+    # Terraform dependency edges: link blocks that reference each other (resource -> sg, -> module, -> var).
+    if tf_blocks:
+        refmap = {refkey: sid for sid, refkey, _ in tf_blocks if refkey}
+        for sid, _refkey, refs in tf_blocks:
+            for r in refs:
+                tgt = refmap.get(r)
+                if tgt and tgt != sid:
+                    add_edge(sid, tgt, "depends_on")
 
     return nodes, edges

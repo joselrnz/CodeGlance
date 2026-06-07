@@ -71,7 +71,8 @@ the box from a single `pip install`** (tree-sitter ships as a normal pip wheel; 
 - **~50 more** via bundled tree-sitter grammars:
   - *Tuned* (precise method/impl handling): JavaScript, TypeScript/TSX, Go, Rust, Java, Ruby,
     PHP, C#, C, C++, Kotlin, Swift, Scala, Lua.
-  - *Terraform/HCL* — resource / module / variable / output blocks.
+  - *Terraform/HCL* — resource / module / variable / output blocks, **plus `depends_on` edges**
+    between blocks that reference each other (resource → security group → module → variable).
   - *Generic node-kind classifier* (works across any grammar): VHDL, Verilog, COBOL, Fortran,
     Ada, Pascal, Haskell, OCaml, Erlang, Elixir, Clojure, Elm, Julia, R, Perl, Groovy, Dart,
     Zig, Nim, Crystal, D, Solidity, Objective-C, MATLAB, PowerShell, Tcl, Common Lisp, Scheme,

@@ -7,6 +7,7 @@ by the stdlib `ast` path in structural.py, so it is intentionally not covered he
 
 from __future__ import annotations
 
+import re
 from functools import lru_cache
 
 # our scan language id -> tree-sitter-language-pack grammar name
@@ -429,8 +430,46 @@ def extract_symbols(language: str, path: str, text: str):
     return symbols
 
 
+# Dotted HCL references like aws_instance.web, module.net, var.region (each segment alpha-led).
+_TF_REF = re.compile(r"([A-Za-z_][A-Za-z0-9_-]*(?:\.[A-Za-z_][A-Za-z0-9_-]*)+)")
+_TF_BUILTIN = {"each", "count", "self", "path", "terraform", "local"}
+
+
+def _tf_refkey(btype: str, labels: list[str]) -> str:
+    """The token other blocks use to reference this block (e.g. resource -> 'type.name')."""
+    if btype == "resource" and len(labels) >= 2:
+        return f"{labels[0]}.{labels[1]}"
+    if btype == "data" and len(labels) >= 2:
+        return f"data.{labels[0]}.{labels[1]}"
+    if btype == "module" and labels:
+        return f"module.{labels[0]}"
+    if btype == "variable" and labels:
+        return f"var.{labels[0]}"
+    return ""
+
+
+def _tf_refs(text: str, self_key: str) -> list[str]:
+    """Find references to other blocks inside a block body, normalised to refkeys."""
+    out: set[str] = set()
+    for m in _TF_REF.finditer(text):
+        segs = m.group(1).split(".")
+        head = segs[0]
+        if head in _TF_BUILTIN:
+            continue
+        if head == "var" and len(segs) >= 2:
+            out.add(f"var.{segs[1]}")
+        elif head == "module" and len(segs) >= 2:
+            out.add(f"module.{segs[1]}")
+        elif head == "data" and len(segs) >= 3:
+            out.add(f"data.{segs[1]}.{segs[2]}")
+        elif head not in ("var", "module", "data") and len(segs) >= 2:
+            out.add(f"{segs[0]}.{segs[1]}")   # resource reference type.name
+    out.discard(self_key)
+    return sorted(out)
+
+
 def _extract_terraform(root, sb: bytes):
-    """Extract top-level HCL/Terraform blocks (resource/module/variable/output/...) as symbols."""
+    """Extract top-level HCL/Terraform blocks as symbols, with reference info for dependency edges."""
     body = root
     for ch in _children(root):
         if _kind(ch).endswith("body"):
@@ -454,8 +493,11 @@ def _extract_terraform(root, sb: bytes):
         if name in seen:
             continue
         seen.add(name)
+        refkey = _tf_refkey(btype, labels)
+        refs = _tf_refs(_text(node, sb), refkey)
         symbols.append({"kind": "class", "name": name, "doc": "", "docstring": "",
-                        "lineRange": _line_range(node), "signature": _sig_line(node, sb), "methods": []})
+                        "lineRange": _line_range(node), "signature": _sig_line(node, sb),
+                        "methods": [], "refkey": refkey, "refs": refs})
     return symbols
 
 
