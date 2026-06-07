@@ -132,6 +132,27 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None) -> dict:
     top_vm = [{"name": n["name"], "type": n["type"], "deg": n["deg"], "i": index_of[n["id"]]}
               for n in top_connected]
 
+    # --- Overview level: one card per layer + aggregated inter-layer edges (drill-down model) ---
+    import math as _math
+    comp_by_layer: dict[int, str] = {}
+    for i in range(len(graph.layers)):
+        cs = [n.complexity for n in graph.nodes if node_layer.get(n.id) == i]
+        comp_by_layer[i] = Counter(cs).most_common(1)[0][0] if cs else "moderate"
+    LW, LH, GX, GY = 300.0, 172.0, 48.0, 44.0
+    cols = max(1, int(_math.ceil(_math.sqrt(len(layers_vm)))))
+    layer_cards = []
+    for i, l in enumerate(layers_vm):
+        r, c = divmod(i, cols)
+        layer_cards.append({**l, "i": i, "complexity": comp_by_layer.get(i, "moderate"),
+                            "x": round(60 + c * (LW + GX) + LW / 2, 1),
+                            "y": round(60 + r * (LH + GY) + LH / 2, 1)})
+    pair: Counter = Counter()
+    for s, t, _ty in clean_edges:
+        ls, lt = node_layer.get(s, -1), node_layer.get(t, -1)
+        if ls >= 0 and lt >= 0 and ls != lt:
+            pair[(min(ls, lt), max(ls, lt))] += 1
+    layer_edges = [{"a": a, "b": b, "count": n} for (a, b), n in pair.items()]
+
     return {
         "project": graph.project.to_dict(),
         "stats": graph.stats(),
@@ -145,6 +166,10 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None) -> dict:
         "sources": _read_sources(graph, root),
         "cardW": card_w,
         "cardH": card_h,
+        "layerCards": layer_cards,
+        "layerEdges": layer_edges,
+        "layerCardW": LW,
+        "layerCardH": LH,
     }
 
 

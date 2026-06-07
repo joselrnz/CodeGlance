@@ -28,7 +28,10 @@ _HTML = r"""<!doctype html>
   #search:focus { border-color:#d4a574; }
   #topbar .hint { color:#6b5f53; font-size:11px; white-space:nowrap; }
   .leg { position:fixed; left:14px; max-width:230px; overflow:auto; padding:10px 12px; z-index:5; font-size:12px; }
-  #types { top:64px; max-height:34vh; } #legend { bottom:14px; max-height:40vh; }
+  #types { top:104px; max-height:34vh; } #legend { bottom:14px; max-height:40vh; }
+  #crumb { position:fixed; top:62px; left:14px; z-index:6; padding:6px 13px; font-size:11px; font-weight:600;
+    text-transform:uppercase; letter-spacing:.06em; color:#a39787; }
+  #crumb button { background:transparent; border:none; color:#d4a574; padding:0; font:inherit; cursor:pointer; text-transform:uppercase; }
   .leg h4 { margin:0 0 8px; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:#a39787; }
   .lg { display:flex; align-items:center; gap:8px; padding:3px 4px; border-radius:6px; cursor:pointer; }
   .lg:hover { background:#241c14; } .lg.off { opacity:.4; }
@@ -120,6 +123,7 @@ _HTML = r"""<!doctype html>
     <button id="btnHelp" title="Shortcuts (?)">?</button>
   </span>
 </div>
+<div id="crumb" class="card"></div>
 <div id="zoom" class="">
   <button id="zin" class="card" title="Zoom in">+</button>
   <button id="zout" class="card" title="Zoom out">−</button>
@@ -159,7 +163,9 @@ _HTML = r"""<!doctype html>
 <script>
 const DATA = __DATA_JSON__;
 const N=DATA.nodes, E=DATA.edges, L=DATA.layers, TY=DATA.types, TOUR=DATA.tour, CT=DATA.containers;
+const LC=DATA.layerCards||[], LE=DATA.layerEdges||[], lcW=DATA.layerCardW||300, lcH=DATA.layerCardH||172;
 const cardW=DATA.cardW, cardH=DATA.cardH;
+let view='overview', lhover=-1;   // 'overview' shows layer cards; a number drills into that layer
 const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
 const nbr=N.map(()=>new Set()), etype={};
 for(const e of E){ const a=e[0],b=e[1]; nbr[a].add(b); nbr[b].add(a); etype[a+'_'+b]=e[2]; }
@@ -169,7 +175,7 @@ const hidden=new Set(), hiddenTypes=new Set();
 let hover=-1, sel=-1, matched=null, focusSet=null, tIdx=-1, pathNodes=null, pathEdges=null;
 const esc=s=>(s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 const SX=x=>x*scale+ox, SY=y=>y*scale+oy;
-const vis=i=>!hidden.has(N[i].layer)&&!hiddenTypes.has(N[i].type);
+const vis=i=>view!=='overview'&&N[i].layer===view&&!hiddenTypes.has(N[i].type);
 function dim(i){ if(matched&&!matched.has(i))return true; if(focusSet&&!focusSet.has(i))return true;
   if(pathNodes&&!pathNodes.has(i))return true;
   if(hover>=0&&i!==hover&&!nbr[hover].has(i))return true; return false; }
@@ -182,7 +188,10 @@ function hl_code(line){ const rx=/(\/\/[^\n]*|#[^\n]*|--[^\n]*|\/\*[\s\S]*?\*\/)
   return out+_kw(line.slice(last)); }
 function _kw(s){ return esc(s).replace(_KW, '<span class="tok-kw">$1</span>'); }
 
-function bounds(){ if(CT.length){ let a=1e9,b=1e9,c=-1e9,d=-1e9; for(const k of CT){a=Math.min(a,k.x);b=Math.min(b,k.y);c=Math.max(c,k.x+k.w);d=Math.max(d,k.y+k.h);} return [a,b,c,d]; }
+function bounds(){
+  if(view==='overview'){ if(!LC.length)return[0,0,800,600]; let a=1e9,b=1e9,c=-1e9,d=-1e9;
+    for(const k of LC){a=Math.min(a,k.x-lcW/2);b=Math.min(b,k.y-lcH/2);c=Math.max(c,k.x+lcW/2);d=Math.max(d,k.y+lcH/2);} return [a,b,c,d]; }
+  const c0=CT.find(k=>k.layer===view); if(c0) return [c0.x,c0.y,c0.x+c0.w,c0.y+c0.h];
   let a=1e9,b=1e9,c=-1e9,d=-1e9; for(const n of N){a=Math.min(a,n.x);b=Math.min(b,n.y);c=Math.max(c,n.x);d=Math.max(d,n.y);} return [a,b,c,d]; }
 function fit(){ const[a,b,c,d]=bounds(); const w=(c-a)||1,h=(d-b)||1,pad=70;
   scale=Math.max(0.06,Math.min(1.4,Math.min((innerWidth-pad*2)/w,(innerHeight-150)/h)));
@@ -200,10 +209,11 @@ function bp(fx,fy,cx,cy){ const dx=fx-cx,dy=fy-cy; if(!dx&&!dy)return[cx,cy];
 function draw(){
   ctx.setTransform(DPR,0,0,DPR,0,0);
   ctx.fillStyle='#0a0a0a'; ctx.fillRect(0,0,innerWidth,innerHeight);
-  // layer containers
-  for(const c of CT){ if(hidden.has(c.layer))continue;
+  updateCrumb();
+  if(view==='overview'){ drawOverview(); drawMinimap(); return; }
+  // layer containers (only the drilled-in layer)
+  for(const c of CT){ if(c.layer!==view)continue;
     const x=SX(c.x),y=SY(c.y),w=c.w*scale,h=c.h*scale;
-    if(x>innerWidth||y>innerHeight||x+w<0||y+h<0)continue;
     rr(x,y,w,h,11); ctx.fillStyle='rgba(255,255,255,0.018)'; ctx.fill();
     ctx.lineWidth=1.2; ctx.strokeStyle=c.color+'66'; ctx.stroke();
     if(scale>0.28){ ctx.fillStyle=c.color; ctx.font='600 13px ui-sans-serif';
@@ -245,6 +255,39 @@ function drawCard(i){ const n=N[i]; const w=cardW*scale,h=cardH*scale,x=SX(n.x)-
 function pick(mx,my){ const wx=(mx-ox)/scale, wy=(my-oy)/scale;
   for(let i=N.length-1;i>=0;i--){ if(!vis(i))continue; const n=N[i];
     if(Math.abs(wx-n.x)<=cardW/2 && Math.abs(wy-n.y)<=cardH/2) return i; } return -1; }
+function pickLayer(mx,my){ const wx=(mx-ox)/scale, wy=(my-oy)/scale;
+  for(let i=LC.length-1;i>=0;i--){ const l=LC[i]; if(Math.abs(wx-l.x)<=lcW/2 && Math.abs(wy-l.y)<=lcH/2) return l.i; } return -1; }
+
+// --- Overview level: one descriptive card per layer + aggregated inter-layer edges ---
+function wrapText(text,x,y,maxw,lh,maxLines){ const words=(text||'').split(/\s+/); let line='',ln=0;
+  for(let i=0;i<words.length;i++){ const t=line?line+' '+words[i]:words[i];
+    if(ctx.measureText(t).width>maxw && line){ ctx.fillText(line,x,y+ln*lh); line=words[i]; if(++ln>=maxLines){ctx.fillText(line+'…',x,y+ln*lh);return;} }
+    else line=t; }
+  if(line&&ln<maxLines) ctx.fillText(line,x,y+ln*lh); }
+function drawOverview(){
+  for(const e of LE){ const A=LC[e.a],B=LC[e.b]; if(!A||!B)continue;
+    const x1=SX(A.x),y1=SY(A.y),x2=SX(B.x),y2=SY(B.y),mx=(x1+x2)/2,my=(y1+y2)/2;
+    const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy)||1,off=Math.min(46,len*0.16),cxp=mx-dy/len*off,cyp=my+dx/len*off;
+    ctx.strokeStyle='rgba(212,165,116,0.4)'; ctx.lineWidth=Math.min(5,1+Math.log2(e.count+1));
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.quadraticCurveTo(cxp,cyp,x2,y2);ctx.stroke();
+    ctx.fillStyle='#a39787'; ctx.font='11px ui-monospace,monospace'; ctx.fillText(e.count,(mx+cxp)/2+2,(my+cyp)/2); }
+  for(const l of LC){ const w=lcW*scale,h=lcH*scale,x=SX(l.x)-w/2,y=SY(l.y)-h/2;
+    if(x>innerWidth||y>innerHeight||x+w<0||y+h<0)continue;
+    rr(x,y,w,h,13); ctx.fillStyle='#1a1a1a'; ctx.fill();
+    ctx.fillStyle=l.color; ctx.fillRect(x,y+2,Math.max(4,5*scale),h-4);
+    ctx.lineWidth=lhover===l.i?2:1; ctx.strokeStyle=lhover===l.i?'#d4a574':'rgba(212,165,116,0.22)'; rr(x,y,w,h,13); ctx.stroke();
+    if(scale>0.2){ const pad=16*scale+4;
+      ctx.fillStyle=l.color; ctx.font='700 '+Math.round(7*scale+3)+'px ui-monospace,monospace'; ctx.fillText('LAYER · '+l.complexity, x+pad, y+Math.round(15*scale)+4);
+      ctx.fillStyle='#f5f0eb'; ctx.font=Math.round(10*scale+6)+'px Georgia,serif'; ctx.fillText(clipText(l.name,w-pad*2), x+pad, y+Math.round(40*scale)+2);
+      ctx.fillStyle='#a39787'; ctx.font=Math.round(6.5*scale+4)+'px ui-sans-serif'; wrapText(l.description||'', x+pad, y+Math.round(58*scale)+4, w-pad*2, Math.round(7*scale+6), 4);
+      ctx.fillStyle='#6b5f53'; ctx.font=Math.round(6.5*scale+3)+'px ui-sans-serif'; ctx.fillText(l.count+' files   ·   click to explore →', x+pad, y+h-Math.round(12*scale)); } }
+}
+function setView(v){ view=v; sel=-1; matched=null; pathNodes=null; pathEdges=null; focusSet=null; lhover=-1;
+  const s=document.getElementById('search'); if(s)s.value=''; renderPanel(); fit(); draw(); }
+window.setView=setView;
+function updateCrumb(){ const cr=document.getElementById('crumb'); if(!cr)return;
+  if(view==='overview') cr.innerHTML='Project Overview';
+  else cr.innerHTML='<button onclick="setView(\'overview\')">‹ Project</button> &nbsp;›&nbsp; '+esc((L[view]&&L[view].name)||'Layer'); }
 
 const tip=document.getElementById('tip');
 function tooltip(i,e){ if(i<0){tip.style.display='none';return;} const n=N[i];
@@ -301,15 +344,17 @@ document.getElementById('search').addEventListener('input',e=>{ const q=e.target
     if(hiddenTypes.has(t)){hiddenTypes.delete(t);x.classList.remove('off');}else{hiddenTypes.add(t);x.classList.add('off');}draw();}); })();
 (function(){ const el=document.getElementById('legend'); let h='<h4>'+L.length+' layers</h4>';
   L.forEach((l,i)=>{ h+='<div class="lg" data-i="'+i+'"><span class="sw" style="background:'+l.color+'"></span><span class="nm">'+esc(l.name)+'</span><span class="ct">'+l.count+'</span></div>'; });
-  el.innerHTML=h; el.querySelectorAll('.lg').forEach(x=>x.onclick=()=>{const i=+x.dataset.i;
-    if(hidden.has(i)){hidden.delete(i);x.classList.remove('off');}else{hidden.add(i);x.classList.add('off');}draw();}); })();
+  el.innerHTML=h; el.querySelectorAll('.lg').forEach(x=>x.onclick=()=>setView(+x.dataset.i)); })();  // click a layer to drill in
 
 // camera
 let drag=false,lx,ly,moved=false;
 cv.addEventListener('mousedown',e=>{drag=true;moved=false;lx=e.clientX;ly=e.clientY;});
 window.addEventListener('mousemove',e=>{ if(drag){ox+=e.clientX-lx;oy+=e.clientY-ly;lx=e.clientX;ly=e.clientY;moved=true;draw();return;}
+  if(view==='overview'){ const h=pickLayer(e.clientX,e.clientY); if(h!==lhover){lhover=h;cv.style.cursor=h>=0?'pointer':'grab';draw();} tooltip(-1,e); return; }
   const h=pick(e.clientX,e.clientY); if(h!==hover){hover=h;cv.style.cursor=h>=0?'pointer':'grab';draw();} tooltip(h,e); });
-window.addEventListener('mouseup',e=>{ if(drag&&!moved){const h=pick(e.clientX,e.clientY); select(h);} drag=false; });
+window.addEventListener('mouseup',e=>{ if(drag&&!moved){
+    if(view==='overview'){ const h=pickLayer(e.clientX,e.clientY); if(h>=0) setView(h); }
+    else { const h=pick(e.clientX,e.clientY); select(h); } } drag=false; });
 cv.addEventListener('wheel',e=>{e.preventDefault();const f=Math.exp(-e.deltaY*0.0016);
   ox=e.clientX-(e.clientX-ox)*f; oy=e.clientY-(e.clientY-oy)*f; scale*=f; draw();},{passive:false});
 
@@ -319,10 +364,10 @@ function mmInit(){ const[a,b,c,d]=bounds(); const gw=(c-a)||1,gh=(d-b)||1,p=8;
   mm.width=MM.w*DPR; mm.height=MM.h*DPR; mm.style.width=MM.w+'px'; mm.style.height=MM.h+'px';
   MM.s=Math.min((MM.w-2*p)/gw,(MM.h-2*p)/gh); MM.ox=p-a*MM.s+(MM.w-2*p-gw*MM.s)/2; MM.oy=p-b*MM.s+(MM.h-2*p-gh*MM.s)/2; }
 const mmPt=(x,y)=>[x*MM.s+MM.ox,y*MM.s+MM.oy];
-function drawMinimap(){ if(!mm.width)return; mmx.setTransform(DPR,0,0,DPR,0,0); mmx.fillStyle='#060b16'; mmx.fillRect(0,0,MM.w,MM.h);
-  for(const c of CT){ if(hidden.has(c.layer))continue; const q=mmPt(c.x,c.y); mmx.strokeStyle=c.color+'55'; mmx.lineWidth=0.6; mmx.strokeRect(q[0],q[1],c.w*MM.s,c.h*MM.s); }
-  for(let i=0;i<N.length;i++){ if(!vis(i))continue; const n=N[i],q=mmPt(n.x,n.y); mmx.globalAlpha=dim(i)?0.25:0.95; mmx.fillStyle=n.color; mmx.fillRect(q[0]-1,q[1]-0.6,Math.max(2,cardW*MM.s),Math.max(1.4,cardH*MM.s)); }
-  mmx.globalAlpha=1; const p0=mmPt((0-ox)/scale,(0-oy)/scale),p1=mmPt((innerWidth-ox)/scale,(innerHeight-oy)/scale);
+function drawMinimap(){ if(!mm.width)return; mmx.setTransform(DPR,0,0,DPR,0,0); mmx.fillStyle='#0d0b08'; mmx.fillRect(0,0,MM.w,MM.h);
+  if(view==='overview'){ for(const l of LC){ const q=mmPt(l.x-lcW/2,l.y-lcH/2); mmx.fillStyle=l.color; mmx.globalAlpha=0.9; mmx.fillRect(q[0],q[1],Math.max(3,lcW*MM.s),Math.max(2,lcH*MM.s)); } mmx.globalAlpha=1; }
+  else { for(let i=0;i<N.length;i++){ if(!vis(i))continue; const n=N[i],q=mmPt(n.x,n.y); mmx.globalAlpha=dim(i)?0.25:0.95; mmx.fillStyle=n.color; mmx.fillRect(q[0]-1,q[1]-0.6,Math.max(2,cardW*MM.s),Math.max(1.4,cardH*MM.s)); } mmx.globalAlpha=1; }
+  const p0=mmPt((0-ox)/scale,(0-oy)/scale),p1=mmPt((innerWidth-ox)/scale,(innerHeight-oy)/scale);
   mmx.strokeStyle='#e2e8f0'; mmx.lineWidth=1; mmx.strokeRect(p0[0],p0[1],p1[0]-p0[0],p1[1]-p0[1]); }
 mm.addEventListener('mousedown',e=>{ const r=mm.getBoundingClientRect(); const wx=((e.clientX-r.left)-MM.ox)/MM.s, wy=((e.clientY-r.top)-MM.oy)/MM.s;
   ox=innerWidth/2-wx*scale; oy=innerHeight/2-wy*scale; draw(); });
@@ -334,7 +379,9 @@ function center(idxs,zoom){ if(!idxs.length)return; let a=1e9,b=1e9,c=-1e9,d=-1e
 function showStep(){ const s=TOUR[tIdx]; focusSet=new Set(s.nodeIds); s.nodeIds.forEach(i=>nbr[i].forEach(j=>focusSet.add(j)));
   document.getElementById('ttitle').textContent=(tIdx+1)+'. '+s.title; document.getElementById('tdesc').textContent=s.description;
   document.getElementById('tcount').textContent=(tIdx+1)+' / '+TOUR.length;
-  if(s.nodeIds.length){ sel=s.nodeIds[0]; renderPanel(); } center(s.nodeIds,true); draw(); }
+  // drill into the layer the step's first node lives in, so it's actually visible
+  if(s.nodeIds.length){ const ly=N[s.nodeIds[0]].layer; if(ly>=0) view=ly; sel=s.nodeIds[0]; renderPanel(); }
+  center(s.nodeIds,true); draw(); }
 function startTour(){ if(!TOUR.length)return; tIdx=0; document.getElementById('tour').classList.remove('hidden'); document.getElementById('tourstart').classList.add('hidden'); showStep(); }
 function endTour(){ tIdx=-1; focusSet=null; document.getElementById('tour').classList.add('hidden'); document.getElementById('tourstart').classList.remove('hidden'); draw(); }
 document.getElementById('tourstart').onclick=startTour;
@@ -353,7 +400,7 @@ $('zin').onclick=()=>zoomBy(1.25); $('zout').onclick=()=>zoomBy(0.8);
 
 // persona tabs: Deep Dive (all) / Overview (hide functions) / Learn (tour)
 function setPersona(p, btn){ document.querySelectorAll('.pa').forEach(x=>x.classList.remove('active')); if(btn)btn.classList.add('active');
-  if(p==='overview'){ hiddenTypes.add('function'); }
+  if(p==='overview'){ hiddenTypes.add('function'); setView('overview'); }
   else if(p==='all'){ hiddenTypes.delete('function'); }
   else if(p==='learn'){ startTour(); }
   document.querySelectorAll('#types .lg').forEach(el=>el.classList.toggle('off', hiddenTypes.has(el.dataset.t)));
@@ -399,8 +446,12 @@ $('btnHelp').onclick=()=>$('helpModal').classList.remove('hidden');
 
 window.addEventListener('keydown',e=>{
   if(e.target&&e.target.tagName==='INPUT'){ if(e.key==='Escape')e.target.blur(); return; }
-  if(e.key==='Escape'){ select(-1); if(tIdx>=0)endTour();
+  if(e.key==='Escape'){ const anyModal=[...document.querySelectorAll('.modal')].some(m=>!m.classList.contains('hidden'))||!exMenu.classList.contains('hidden');
     document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden')); exMenu.classList.add('hidden');
+    if(anyModal){ return; }
+    if(sel>=0){ select(-1); }
+    else if(tIdx>=0){ endTour(); }
+    else if(view!=='overview'){ setView('overview'); }
     pathNodes=null; pathEdges=null; draw(); }
   else if(e.key==='/'){ e.preventDefault(); $('search').focus(); }
   else if(e.key==='f'){ fitAll(); }

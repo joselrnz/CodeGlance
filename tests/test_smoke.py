@@ -58,6 +58,18 @@ def test_interactive_has_toolbar_features():
         assert marker in html, f"missing feature: {marker}"
 
 
+def test_overview_layer_cards_and_drilldown():
+    from understand_anything.render import build_view_model
+    vm = build_view_model(_sample_graph())
+    assert vm["layerCards"] and len(vm["layerCards"]) == len(vm["layers"])
+    assert all("complexity" in c and "x" in c and "description" in c for c in vm["layerCards"])
+    assert "layerEdges" in vm
+    html = render_interactive(_sample_graph())
+    for marker in ("drawOverview", "setView", "pickLayer", "updateCrumb", "Click to explore"):
+        assert marker in html or marker == "Click to explore", f"missing: {marker}"
+    assert "click to explore" in html.lower()
+
+
 def test_render_static_has_no_javascript():
     html = render_static(_sample_graph())
     assert "<svg" in html and "</svg>" in html
