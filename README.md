@@ -62,10 +62,11 @@ original, so graphs produced by either tool render in the other.
 
 ## Language coverage
 
-Deep symbol extraction (functions, classes, methods → `contains` edges):
+Deep symbol extraction (functions, classes, methods → `contains` edges) — **all ~50 work out of
+the box from a single `pip install`** (tree-sitter ships as a normal pip wheel; no Node, no build):
 
-- **Python** — always on (stdlib `ast`, no extra needed).
-- **~50 more via the `treesitter` extra** (`pip install understand-anything-py[treesitter]`):
+- **Python** — stdlib `ast`.
+- **~50 more** via bundled tree-sitter grammars:
   - *Tuned* (precise method/impl handling): JavaScript, TypeScript/TSX, Go, Rust, Java, Ruby,
     PHP, C#, C, C++, Kotlin, Swift, Scala, Lua.
   - *Generic node-kind classifier* (works across any grammar): VHDL, Verilog, COBOL, Fortran,

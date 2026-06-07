@@ -17,20 +17,20 @@ classifiers = [
     "Topic :: Software Development :: Documentation",
 ]
 
-# Core stays tiny: only networkx (pure-Python community detection + graph metrics).
-# Everything heavy is an optional extra so `pip install` is instant and offline.
+# One `pip install` gets everything: 50+ languages (tree-sitter) + layer detection (networkx).
+# All are pure-pip wheels — no Node, no npm, no compiler, no build step.
 dependencies = [
     "networkx>=3.1",
+    "tree-sitter>=0.21",
+    "tree-sitter-language-pack>=0.2",
 ]
 
 [project.optional-dependencies]
-# Richer parsing for many languages (functions/classes/imports beyond Python's stdlib ast).
-treesitter = ["tree-sitter>=0.21", "tree-sitter-language-pack>=0.2"]
 # Optional LLM enrichment of summaries / layer names / tour narratives.
 llm = ["anthropic>=0.40"]
-# Faster force-directed layout for large graphs.
+# Faster force-directed layout for very large graphs.
 fast = ["numpy>=1.24"]
-all = ["tree-sitter>=0.21", "tree-sitter-language-pack>=0.2", "anthropic>=0.40", "numpy>=1.24"]
+all = ["anthropic>=0.40", "numpy>=1.24"]
 
 [project.scripts]
 understand = "understand_anything.cli:main"
