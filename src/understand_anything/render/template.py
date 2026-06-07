@@ -130,8 +130,19 @@ _HTML = r"""<!doctype html>
     letter-spacing:.06em; padding:6px; border-radius:6px; cursor:pointer; } .ptab.on { background:rgba(212,165,116,0.15); color:#d4a574; }
   .ftree .fdir { font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:#6b5f53; margin:10px 0 4px;
     font-family:ui-monospace,monospace; word-break:break-all; }
-  .fitem { display:flex; align-items:center; gap:7px; font-size:12px; padding:3px 7px; border-radius:6px; cursor:pointer; color:#d9cdbf; }
-  .fitem:hover { background:#241c14; color:#fff; } .fitem .d { width:8px; height:8px; border-radius:99px; flex:none; }
+  .ftree2 { font-size:12px; }
+  .ftree2 .frow { display:flex; align-items:center; gap:7px; padding:3px 6px; border-radius:6px; cursor:pointer;
+    color:#d9cdbf; white-space:nowrap; }
+  .ftree2 .frow:hover { background:#241c14; color:#fff; }
+  .ftree2 .fchev { width:12px; flex:none; color:#6b5f53; font-size:9px; text-align:center; }
+  .ftree2 .fdirrow .fname { color:#cbb896; }
+  .ftree2 .fname { overflow:hidden; text-overflow:ellipsis; }
+  .ftree2 .fic { font-size:8px; font-family:ui-monospace,monospace; border:1px solid; border-radius:3px; padding:1px 0;
+    min-width:22px; text-align:center; flex:none; text-transform:uppercase; line-height:1.4; }
+  #panel { transition:transform .2s ease; } #panel.collapsed { transform:translateX(118%); }
+  #panelReopen { position:fixed; right:0; top:120px; z-index:6; border-radius:8px 0 0 8px; padding:8px 7px; font-size:11px; }
+  .pclose { background:transparent; border:none; color:#a39787; cursor:pointer; font-size:14px; padding:0 6px; margin-left:auto; }
+  .pclose:hover { color:#f5f0eb; }
   .hidden { display:none !important; }
 </style>
 </head>
@@ -166,6 +177,7 @@ _HTML = r"""<!doctype html>
   <button id="zout" class="card" title="Zoom out">−</button>
 </div>
 <div id="panel" class="card"></div>
+<button id="panelReopen" class="card hidden" title="Show panel">‹ Panel</button>
 <div id="tip" class="card"></div>
 <canvas id="mm" class="card"></canvas>
 <button id="tourstart">▶ Guided tour</button>
@@ -366,24 +378,52 @@ function infoHTML(i){ const n=N[i]; let h='<span class="close" onclick="select(-
   const src=DATA.sources[n.path];
   if(src){ h+='<div class="ov-h">Source · '+esc(n.path)+'</div>'+codeHTML(src, n.lineRange); }
   return h; }
-function filesHTML(){ const files=N.map((n,i)=>({i,n})).filter(o=>FILE_LEVEL.has(o.n.type)&&o.n.path);
-  files.sort((a,b)=>a.n.path.localeCompare(b.n.path));
-  if(!files.length) return '<div class="ov-desc">No files.</div>';
-  let h='<div class="ftree">', lastDir=null;
-  for(const o of files){ const p=o.n.path, dir=p.includes('/')?p.slice(0,p.lastIndexOf('/')):'(root)';
-    if(dir!==lastDir){ h+='<div class="fdir">'+esc(dir)+'/</div>'; lastDir=dir; }
-    h+='<div class="fitem" data-i="'+o.i+'"><span class="d" style="background:'+o.n.color+'"></span>'+esc(p.split('/').pop())+'</div>'; }
-  return h+'</div>'; }
+// --- collapsible file-tree (IDE-style) ---
+const openDirs=new Set(); let FTREE=null;
+function buildTree(){ const root={dirs:{},files:[]};
+  for(let i=0;i<N.length;i++){ const n=N[i]; if(!FILE_LEVEL.has(n.type)||!n.path)continue;
+    const parts=n.path.split('/'); let cur=root;
+    for(let k=0;k<parts.length-1;k++){ const d=parts[k]; cur.dirs[d]=cur.dirs[d]||{dirs:{},files:[]}; cur=cur.dirs[d]; }
+    cur.files.push({i, name:parts[parts.length-1], color:n.color}); }
+  return root; }
+const _EXT={py:'py',pyi:'py',js:'js',mjs:'js',cjs:'js',jsx:'jsx',ts:'ts',tsx:'tsx',md:'md',markdown:'md',rst:'md',
+  json:'{}',yaml:'yml',yml:'yml',toml:'tml',ini:'ini',xml:'xml',csv:'csv',env:'env',go:'go',rs:'rs',rb:'rb',php:'php',
+  java:'jv',kt:'kt',swift:'sw',scala:'sc',c:'c',h:'h',cc:'c+',cpp:'c+',hpp:'c+',cs:'c#',lua:'lua',sh:'sh',bash:'sh',
+  ps1:'ps',sql:'sql',graphql:'gql',proto:'pb',html:'<>',htm:'<>',css:'css',scss:'css',vue:'vue',svelte:'sv',
+  tf:'tf',tfvars:'tf',hcl:'hcl',vhd:'hdl',vhdl:'hdl',v:'v',sv:'sv',cob:'cob',cbl:'cob',f90:'f90',f:'f',adb:'ada',
+  ads:'ada',pas:'pas',hs:'hs',lhs:'hs',ml:'ml',mli:'ml',ex:'ex',exs:'ex',erl:'erl',clj:'clj',elm:'elm',jl:'jl',
+  r:'r',pl:'pl',pm:'pl',groovy:'gv',gradle:'gv',dart:'dt',zig:'zig',nim:'nim',cr:'cr',d:'d',sol:'sol',m:'m',mm:'m+',
+  tcl:'tcl',lisp:'lsp',scm:'scm',rkt:'rkt',gleam:'gl',odin:'odn',glsl:'gl',hlsl:'hl',wgsl:'wg',dockerfile:'dk'};
+function extBadge(name,color){ const ext=(name.indexOf('.')>=0?name.split('.').pop():name).toLowerCase();
+  const lbl=_EXT[ext]||(ext?ext.slice(0,3):'•');
+  return '<span class="fic" style="color:'+color+';border-color:'+color+'66">'+esc(lbl)+'</span>'; }
+function treeHTML(node, prefix, depth){ let h=''; const dirNames=Object.keys(node.dirs).sort();
+  for(const d of dirNames){ const path=prefix?prefix+'/'+d:d, open=openDirs.has(path);
+    h+='<div class="frow fdirrow" data-d="'+esc(path)+'" style="padding-left:'+(depth*13+6)+'px"><span class="fchev">'+(open?'▾':'▸')+'</span><span class="fname">'+esc(d)+'</span></div>';
+    if(open) h+=treeHTML(node.dirs[d], path, depth+1); }
+  for(const f of node.files){ h+='<div class="frow fitem" data-i="'+f.i+'" style="padding-left:'+(depth*13+20)+'px">'+extBadge(f.name,f.color)+'<span class="fname">'+esc(f.name)+'</span></div>'; }
+  return h; }
+function filesHTML(){ if(!FTREE){ FTREE=buildTree(); Object.keys(FTREE.dirs).forEach(d=>openDirs.add(d)); }
+  if(!Object.keys(FTREE.dirs).length && !FTREE.files.length) return '<div class="ov-desc">No files.</div>';
+  return '<div class="ftree2">'+treeHTML(FTREE,'',0)+'</div>'; }
 function renderPanel(){
   const tabs='<div class="ptabs"><button class="ptab'+(sidebarTab==='info'?' on':'')+'" data-tab="info">Info</button>'
-    +'<button class="ptab'+(sidebarTab==='files'?' on':'')+'" data-tab="files">Files</button></div>';
+    +'<button class="ptab'+(sidebarTab==='files'?' on':'')+'" data-tab="files">Files</button>'
+    +'<button class="pclose" title="Hide panel">⟩</button></div>';
   const body = sidebarTab==='files' ? filesHTML() : (sel>=0 ? infoHTML(sel) : overviewHTML());
   panel.innerHTML = tabs + body;
   panel.querySelectorAll('.ptab').forEach(el=>el.onclick=()=>{ sidebarTab=el.dataset.tab; renderPanel(); });
+  panel.querySelector('.pclose').onclick=()=>togglePanel(false);
   panel.querySelectorAll('.nb[data-i]').forEach(el=>el.onclick=()=>goToNode(+el.dataset.i));
   panel.querySelectorAll('.fitem[data-i]').forEach(el=>el.onclick=()=>goToNode(+el.dataset.i));
+  panel.querySelectorAll('.fdirrow').forEach(el=>el.onclick=()=>{ const p=el.dataset.d;
+    if(openDirs.has(p))openDirs.delete(p); else openDirs.add(p); renderPanel(); });
   panel.querySelectorAll('.tstep').forEach(el=>el.onclick=()=>{ startTour(); tIdx=+el.dataset.t; showStep(); });
   const hl=panel.querySelector('.ct tr.hl'); if(hl) hl.scrollIntoView({block:'center'}); }
+function togglePanel(open){ panel.classList.toggle('collapsed', !open);
+  document.getElementById('panelReopen').classList.toggle('hidden', open); }
+window.togglePanel=togglePanel;
+document.getElementById('panelReopen').onclick=()=>togglePanel(true);
 function select(i){ sel=i; renderPanel(); if(i>=0) center([i],false); draw(); }
 function goToNode(i){ if(i<0)return; if(N[i]&&N[i].layer>=0) view=N[i].layer; sidebarTab='info'; sel=i; renderPanel(); center([i],true); draw(); }
 window.select=select; window.goToNode=goToNode;

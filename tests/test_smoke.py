@@ -69,9 +69,17 @@ def test_overview_layer_cards_and_drilldown():
     for marker in ("catFilters", "layerChips", "detailSeg", "fnToggle", "Start Tour"):
         assert marker in html, f"missing header chrome: {marker}"
     assert 'id="types"' not in html and 'id="legend"' not in html  # left panels removed
-    # sidebar Info/Files tabs + file explorer
-    for marker in ("ptab", "filesHTML", "fitem", 'data-tab="files"'):
+    # sidebar Info/Files tabs + collapsible file tree + panel collapse
+    for marker in ("ptab", "filesHTML", "treeHTML", "fdirrow", "extBadge", "togglePanel", 'data-tab="files"'):
         assert marker in html, f"missing sidebar feature: {marker}"
+
+
+def test_terraform_blocks_extracted():
+    if not ts.is_available():
+        return
+    src = 'resource "aws_instance" "web" {}\nmodule "net" {}\nvariable "r" {}\n'
+    names = {s["name"] for s in (ts.extract_symbols("terraform", "m.tf", src) or [])}
+    assert "resource aws_instance.web" in names and "module net" in names
     # a graph WITH layers yields exactly one layer card per layer
     g = analyze(FIXTURES, use_llm=False)
     if g.layers:

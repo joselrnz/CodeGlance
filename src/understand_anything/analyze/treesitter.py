@@ -23,7 +23,7 @@ _TS_NAME = {
     "clojure": "clojure", "elm": "elm", "r": "r", "matlab": "matlab", "powershell": "powershell",
     "tcl": "tcl", "commonlisp": "commonlisp", "scheme": "scheme", "racket": "racket",
     "gleam": "gleam", "odin": "odin", "glsl": "glsl", "hlsl": "hlsl", "wgsl": "wgsl",
-    "shell": "bash",
+    "shell": "bash", "terraform": "terraform", "hcl": "hcl",
 }
 
 # Per-language node types. func = standalone callable; cls = type-like container;
@@ -354,6 +354,9 @@ def extract_symbols(language: str, path: str, text: str):
         return None
     sb = text.encode("utf-8", "ignore")
 
+    if language in ("terraform", "hcl"):
+        return _extract_terraform(root, sb)
+
     spec = _SPECS.get(language)
     if spec is None:
         return _extract_generic(root, sb)
@@ -423,6 +426,36 @@ def extract_symbols(language: str, path: str, text: str):
             for m in meths:
                 if m["name"] not in existing:
                     target["methods"].append(m)
+    return symbols
+
+
+def _extract_terraform(root, sb: bytes):
+    """Extract top-level HCL/Terraform blocks (resource/module/variable/output/...) as symbols."""
+    body = root
+    for ch in _children(root):
+        if _kind(ch).endswith("body"):
+            body = ch
+            break
+    symbols: list[dict] = []
+    seen: set[str] = set()
+    for node in _children(body):
+        if _kind(node) != "block":
+            continue
+        btype, labels = "", []
+        for ch in _children(node):
+            k = _kind(ch)
+            if k == "identifier" and not btype:
+                btype = _text(ch, sb)
+            elif "string" in k:
+                labels.append(_text(ch, sb).strip('"').strip("'"))
+        if not btype:
+            continue
+        name = btype + (" " + ".".join(labels) if labels else "")
+        if name in seen:
+            continue
+        seen.add(name)
+        symbols.append({"kind": "class", "name": name, "doc": "", "docstring": "",
+                        "lineRange": _line_range(node), "signature": _sig_line(node, sb), "methods": []})
     return symbols
 
 
