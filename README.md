@@ -47,8 +47,11 @@ understand render knowledge-graph.json --static -o graph.svg.html
   any two nodes), **export to PNG / SVG / JSON**, **persona tabs** (Deep Dive / Overview / Learn),
   **zoom controls**, a guided tour, and keyboard shortcuts (`/ f p e ?`). Like the original, it
   opens on an **overview of layer cards** (name, description, complexity, file count) and you
-  **click a layer to drill into its files**, with a breadcrumb back to the overview. Styled to
-  match the original dashboard's **warm black + gold serif** look. Fully offline.
+  **click a layer to drill into its files**, with a breadcrumb back to the overview. The header
+  mirrors the original: **persona tabs**, a **Files/+Classes/`fn`** detail toggle, **category
+  filter buttons** (Code/Config/Docs/Infra/Data/Domain/Knowledge), and **inline layer chips**;
+  the sidebar lists the **guided-tour steps**. Styled to match the original dashboard's
+  **warm black + gold serif** look. Fully offline.
 - **`--static`:** a zero-JavaScript inline-SVG rendering (cards + containers + arrows). A picture,
   but truly no JS.
 

@@ -65,6 +65,10 @@ def test_overview_layer_cards_and_drilldown():
     for marker in ("drawOverview", "setView", "pickLayer", "updateCrumb"):
         assert marker in html, f"missing: {marker}"
     assert "click to explore" in html.lower()
+    # header chrome moved in from the original: category filters, detail toggle, layer chips, tour list
+    for marker in ("catFilters", "layerChips", "detailSeg", "fnToggle", "Start Tour"):
+        assert marker in html, f"missing header chrome: {marker}"
+    assert 'id="types"' not in html and 'id="legend"' not in html  # left panels removed
     # a graph WITH layers yields exactly one layer card per layer
     g = analyze(FIXTURES, use_llm=False)
     if g.layers:

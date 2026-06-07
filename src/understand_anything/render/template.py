@@ -102,6 +102,29 @@ _HTML = r"""<!doctype html>
   .pa:hover { color:#f5f0eb; } .pa.active { color:#d4a574; background:rgba(212,165,116,0.1); border-color:rgba(212,165,116,0.3); }
   #zoom { position:fixed; left:14px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:6px; z-index:6; }
   #zoom button { width:32px; height:32px; font-size:16px; padding:0; }
+  #topbar { overflow-x:auto; } #topbar .grow { flex:1; min-width:8px; }
+  #topbar #search { flex:none; width:150px; }
+  .seg { display:flex; background:#241c14; border-radius:8px; padding:2px; flex:none; gap:2px; }
+  .seg button { padding:4px 9px; font-size:11px; border:none; background:transparent; color:#a39787; border-radius:6px; }
+  .seg button.on { background:rgba(212,165,116,0.2); color:#d4a574; }
+  .fnbtn { flex:none; font-size:10px; text-transform:uppercase; letter-spacing:.05em; padding:4px 8px;
+    border:1px solid rgba(212,165,116,0.28); background:#1a1a1a; color:#a39787; border-radius:6px; }
+  .fnbtn.on { border-color:#d19a66; background:rgba(209,154,102,0.12); color:#e0a96a; }
+  .cats { display:flex; gap:4px; flex:none; }
+  .cat { display:flex; align-items:center; gap:5px; font-size:10px; text-transform:uppercase; letter-spacing:.04em;
+    padding:4px 7px; border:1px solid rgba(212,165,116,0.18); border-radius:6px; background:#1a1a1a; color:#a39787;
+    cursor:pointer; white-space:nowrap; } .cat:hover{color:#f5f0eb;} .cat.off{opacity:.35;}
+  .cat .d, .chip .d { width:8px; height:8px; border-radius:99px; flex:none; }
+  .chips { display:flex; gap:10px; flex:none; align-items:center; }
+  .chip { display:flex; align-items:center; gap:5px; font-size:11px; color:#a39787; cursor:pointer; white-space:nowrap; }
+  .chip:hover{color:#f5f0eb;} .chip.dim{opacity:.4;} .chip.active{color:#f5f0eb;font-weight:600;}
+  .chip .muted{color:#6b5f53;margin-left:1px;}
+  .bigbtn { width:100%; background:rgba(212,165,116,0.1); border:1px solid rgba(212,165,116,0.3); color:#d4a574;
+    padding:9px; border-radius:8px; margin:6px 0 10px; cursor:pointer; font-size:13px; }
+  .bigbtn:hover{ background:rgba(212,165,116,0.2); }
+  .tstep { font-size:12px; padding:6px 9px; background:#1a1a1a; border:1px solid rgba(212,165,116,0.12);
+    border-radius:7px; margin:4px 0; cursor:pointer; color:#d9cdbf; }
+  .tstep:hover{ border-color:rgba(212,165,116,0.4); } .tstep .tn{ color:#d4a574; font-family:ui-monospace,monospace; }
   .hidden { display:none !important; }
 </style>
 </head>
@@ -110,16 +133,23 @@ _HTML = r"""<!doctype html>
 <div id="topbar" class="card">
   <span class="title">__PROJECT_NAME__</span>
   <span class="personas">
-    <button class="pa active" data-p="all" title="Show everything">Deep Dive</button>
-    <button class="pa" data-p="overview" title="Hide functions for a high-level view">Overview</button>
-    <button class="pa" data-p="learn" title="Start the guided tour">Learn</button>
+    <button class="pa active" data-p="all" title="Code-focused — show functions">Deep Dive</button>
+    <button class="pa" data-p="overview" title="High-level architecture view">Overview</button>
+    <button class="pa" data-p="learn" title="Guided learning tour">Learn</button>
   </span>
-  <input id="search" placeholder="Search…" autocomplete="off"/>
-  <span class="hint">scroll zoom · drag pan · click a card</span>
+  <span class="seg" id="detailSeg">
+    <button data-d="file" title="Files only — architecture-level">Files</button>
+    <button data-d="class" class="on" title="Files + Classes">+Classes</button>
+  </span>
+  <button id="fnToggle" class="fnbtn" title="Toggle function nodes">fn</button>
+  <input id="search" placeholder="Search nodes…" autocomplete="off"/>
+  <span id="catFilters" class="cats"></span>
+  <span id="layerChips" class="chips"></span>
+  <span class="grow"></span>
   <span class="bar">
     <button id="btnFit" title="Fit to view (f)">⤢ Fit</button>
     <button id="btnPath" title="Path finder (p)">↦ Path</button>
-    <button id="btnExport" title="Export">⬇ Export</button>
+    <button id="btnExport" title="Export (e)">⬇ Export</button>
     <button id="btnHelp" title="Shortcuts (?)">?</button>
   </span>
 </div>
@@ -128,8 +158,6 @@ _HTML = r"""<!doctype html>
   <button id="zin" class="card" title="Zoom in">+</button>
   <button id="zout" class="card" title="Zoom out">−</button>
 </div>
-<div id="types" class="leg card"></div>
-<div id="legend" class="leg card"></div>
 <div id="panel" class="card"></div>
 <div id="tip" class="card"></div>
 <canvas id="mm" class="card"></canvas>
@@ -287,7 +315,8 @@ function setView(v){ view=v; sel=-1; matched=null; pathNodes=null; pathEdges=nul
 window.setView=setView;
 function updateCrumb(){ const cr=document.getElementById('crumb'); if(!cr)return;
   if(view==='overview') cr.innerHTML='Project Overview';
-  else cr.innerHTML='<button onclick="setView(\'overview\')">‹ Project</button> &nbsp;›&nbsp; '+esc((L[view]&&L[view].name)||'Layer'); }
+  else cr.innerHTML='<button onclick="setView(\'overview\')">‹ Project</button> &nbsp;›&nbsp; '+esc((L[view]&&L[view].name)||'Layer');
+  if(typeof refreshChips==='function') refreshChips(); }
 
 const tip=document.getElementById('tip');
 function tooltip(i,e){ if(i<0){tip.style.display='none';return;} const n=N[i];
@@ -305,6 +334,8 @@ function overviewHTML(){ const p=DATA.project,s=DATA.stats; let h='<div class="o
   for(const t of TY) h+='<div class="bar"><span class="bk" style="background:'+t.color+'"></span><span class="bl">'+esc(t.type)+'</span><span class="bb"><span style="width:'+(t.count/mx*100)+'%;background:'+t.color+'"></span></span><span class="bc">'+t.count+'</span></div>';
   h+='<div class="ov-h">Most connected</div>';
   for(const n of DATA.topConnected) h+='<div class="nb" data-i="'+n.i+'">'+esc(n.name)+' <span class="muted">· '+esc(n.type)+' · '+n.deg+'</span></div>';
+  if(TOUR.length){ h+='<div class="ov-h">Project Tour · '+TOUR.length+' steps</div><button class="bigbtn" onclick="startTour()">▶ Start Tour</button>';
+    TOUR.forEach((stp,i)=>{ h+='<div class="tstep" data-t="'+i+'"><span class="tn">'+(i+1)+'.</span> '+esc(stp.title)+'</div>'; }); }
   return h; }
 function codeHTML(src, range){ const lines=src.split('\n'); const s=(range&&range[0])||0, e=(range&&range[1])||0;
   let h='<div class="code"><table class="ct">';
@@ -329,6 +360,7 @@ function infoHTML(i){ const n=N[i]; let h='<span class="close" onclick="select(-
   return h; }
 function renderPanel(){ panel.innerHTML = sel>=0 ? infoHTML(sel) : overviewHTML();
   panel.querySelectorAll('.nb[data-i]').forEach(el=>el.onclick=()=>select(+el.dataset.i));
+  panel.querySelectorAll('.tstep').forEach(el=>el.onclick=()=>{ startTour(); tIdx=+el.dataset.t; showStep(); });
   const hl=panel.querySelector('.ct tr.hl'); if(hl) hl.scrollIntoView({block:'center'}); }
 function select(i){ sel=i; renderPanel(); if(i>=0) center([i],false); draw(); }
 window.select=select;
@@ -337,14 +369,37 @@ document.getElementById('search').addEventListener('input',e=>{ const q=e.target
   if(!q){matched=null;} else { matched=new Set(); for(let i=0;i<N.length;i++){const n=N[i];
     if(n.name.toLowerCase().includes(q)||(n.path||'').toLowerCase().includes(q)||(n.summary||'').toLowerCase().includes(q)||n.type.includes(q)) matched.add(i);} } draw(); });
 
-// legends
-(function(){ const el=document.getElementById('types'); let h='<h4>'+TY.length+' node types</h4>';
-  for(const t of TY) h+='<div class="lg" data-t="'+esc(t.type)+'"><span class="sw" style="background:'+t.color+'"></span><span class="nm">'+esc(t.type)+'</span><span class="ct">'+t.count+'</span></div>';
-  el.innerHTML=h; el.querySelectorAll('.lg').forEach(x=>x.onclick=()=>{const t=x.dataset.t;
-    if(hiddenTypes.has(t)){hiddenTypes.delete(t);x.classList.remove('off');}else{hiddenTypes.add(t);x.classList.add('off');}draw();}); })();
-(function(){ const el=document.getElementById('legend'); let h='<h4>'+L.length+' layers</h4>';
-  L.forEach((l,i)=>{ h+='<div class="lg" data-i="'+i+'"><span class="sw" style="background:'+l.color+'"></span><span class="nm">'+esc(l.name)+'</span><span class="ct">'+l.count+'</span></div>'; });
-  el.innerHTML=h; el.querySelectorAll('.lg').forEach(x=>x.onclick=()=>setView(+x.dataset.i)); })();  // click a layer to drill in
+// --- header: category filters, detail toggle, layer chips (like the original dashboard) ---
+const CATS=[
+  {n:'Code',t:['file','function','class','module'],c:'#4a7c9b'},
+  {n:'Config',t:['config'],c:'#5eead4'},
+  {n:'Docs',t:['document'],c:'#7dd3fc'},
+  {n:'Infra',t:['service','pipeline','resource'],c:'#a78bfa'},
+  {n:'Data',t:['table','schema'],c:'#6ee7b7'},
+  {n:'Domain',t:['concept','domain','flow','step'],c:'#b07a8a'},
+  {n:'Knowledge',t:['article','entity','topic','claim','source'],c:'#d4a574'},
+];
+(function(){ const el=document.getElementById('catFilters');
+  el.innerHTML=CATS.map((c,i)=>'<button class="cat" data-i="'+i+'" title="Toggle '+c.n+' nodes"><span class="d" style="background:'+c.c+'"></span>'+c.n+'</button>').join('');
+  el.querySelectorAll('.cat').forEach(b=>b.onclick=()=>{ const c=CATS[+b.dataset.i], off=c.t.some(t=>hiddenTypes.has(t));
+    if(off){ c.t.forEach(t=>hiddenTypes.delete(t)); } else { c.t.forEach(t=>hiddenTypes.add(t)); }
+    b.classList.toggle('off', !off); draw(); }); })();
+(function(){ const el=document.getElementById('layerChips');
+  el.innerHTML=L.map((l,i)=>'<span class="chip" data-i="'+i+'"><span class="d" style="background:'+l.color+'"></span>'+esc(l.name)+'<span class="muted">('+l.count+')</span></span>').join('');
+  el.querySelectorAll('.chip').forEach(x=>x.onclick=()=>setView(+x.dataset.i)); })();
+function refreshChips(){ document.querySelectorAll('#layerChips .chip').forEach((x,i)=>{
+  x.classList.toggle('active', view===i); x.classList.toggle('dim', view!=='overview'&&view!==i); }); }
+
+// detail level (Files / +Classes) + function toggle
+let detail='class', showFns=false;
+function applyDetail(){ hiddenTypes.delete('class'); hiddenTypes.delete('function');
+  if(detail==='file'){ hiddenTypes.add('class'); hiddenTypes.add('function'); }
+  else if(!showFns){ hiddenTypes.add('function'); }
+  document.querySelectorAll('#detailSeg button').forEach(b=>b.classList.toggle('on', b.dataset.d===detail));
+  document.getElementById('fnToggle').classList.toggle('on', showFns);
+  draw(); }
+document.querySelectorAll('#detailSeg button').forEach(b=>b.onclick=()=>{ detail=b.dataset.d; if(detail==='file')showFns=false; applyDetail(); });
+document.getElementById('fnToggle').onclick=()=>{ showFns=!showFns; if(showFns)detail='class'; applyDetail(); };
 
 // camera
 let drag=false,lx,ly,moved=false;
@@ -389,6 +444,7 @@ document.getElementById('tprev').onclick=()=>{if(tIdx>0){tIdx--;showStep();}};
 document.getElementById('tnext').onclick=()=>{if(tIdx<TOUR.length-1){tIdx++;showStep();}else endTour();};
 document.getElementById('tclose').onclick=endTour;
 if(!TOUR.length) document.getElementById('tourstart').classList.add('hidden');
+window.startTour=startTour;
 // --- toolbar: fit / export / path finder / help ---
 const $=id=>document.getElementById(id);
 function fitAll(){ matched=null; pathNodes=null; pathEdges=null; focusSet=null; fit(); draw(); }
@@ -398,12 +454,11 @@ $('btnFit').onclick=fitAll;
 function zoomBy(f){ ox=innerWidth/2-(innerWidth/2-ox)*f; oy=innerHeight/2-(innerHeight/2-oy)*f; scale*=f; draw(); }
 $('zin').onclick=()=>zoomBy(1.25); $('zout').onclick=()=>zoomBy(0.8);
 
-// persona tabs: Deep Dive (all) / Overview (hide functions) / Learn (tour)
+// persona tabs: Deep Dive (functions on) / Overview (high-level) / Learn (tour)
 function setPersona(p, btn){ document.querySelectorAll('.pa').forEach(x=>x.classList.remove('active')); if(btn)btn.classList.add('active');
-  if(p==='overview'){ hiddenTypes.add('function'); setView('overview'); }
-  else if(p==='all'){ hiddenTypes.delete('function'); }
+  if(p==='overview'){ setView('overview'); }
+  else if(p==='all'){ showFns=true; detail='class'; applyDetail(); }
   else if(p==='learn'){ startTour(); }
-  document.querySelectorAll('#types .lg').forEach(el=>el.classList.toggle('off', hiddenTypes.has(el.dataset.t)));
   draw(); }
 document.querySelectorAll('.pa').forEach(b=>b.onclick=()=>setPersona(b.dataset.p, b));
 
@@ -462,7 +517,7 @@ window.addEventListener('keydown',e=>{
   if(tIdx>=0&&e.key==='ArrowLeft')$('tprev').click(); });
 
 window.addEventListener('resize',resize);
-renderPanel(); fit(); resize();
+applyDetail(); renderPanel(); fit(); resize();
 </script>
 </body>
 </html>
