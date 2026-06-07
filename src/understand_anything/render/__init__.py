@@ -153,6 +153,21 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None) -> dict:
             pair[(min(ls, lt), max(ls, lt))] += 1
     layer_edges = [{"a": a, "b": b, "count": n} for (a, b), n in pair.items()]
 
+    # Vendored devicon language icons — inline only the ones the project actually uses.
+    from .icons import ICON_SVG, EXT_TO_KEY, NAME_TO_KEY
+    used_keys: set[str] = set()
+    for n in graph.nodes:
+        if not n.filePath:
+            continue
+        base = n.filePath.split("/")[-1].lower()
+        key = NAME_TO_KEY.get(base)
+        if not key and "." in base:
+            key = EXT_TO_KEY.get(base.rsplit(".", 1)[-1])
+        if key:
+            used_keys.add(key)
+    used_keys |= {"_folder", "_folder_open", "_file"}  # folder/file glyphs for the tree
+    icon_svg = {k: ICON_SVG[k] for k in used_keys if k in ICON_SVG}
+
     return {
         "project": graph.project.to_dict(),
         "stats": graph.stats(),
@@ -170,6 +185,9 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None) -> dict:
         "layerEdges": layer_edges,
         "layerCardW": LW,
         "layerCardH": LH,
+        "iconSvg": icon_svg,
+        "iconExt": EXT_TO_KEY,
+        "iconName": NAME_TO_KEY,
     }
 
 

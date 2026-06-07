@@ -139,6 +139,7 @@ _HTML = r"""<!doctype html>
   .ftree2 .fname { overflow:hidden; text-overflow:ellipsis; }
   .ftree2 .fic { font-size:8px; font-family:ui-monospace,monospace; border:1px solid; border-radius:3px; padding:1px 0;
     min-width:22px; text-align:center; flex:none; text-transform:uppercase; line-height:1.4; }
+  .ftree2 .fic-svg { flex:none; width:15px; height:15px; display:inline-flex; } .fic-svg svg { width:15px; height:15px; display:block; }
   #panel { transition:transform .2s ease; } #panel.collapsed { transform:translateX(118%); }
   #panelReopen { position:fixed; right:0; top:120px; z-index:6; border-radius:8px 0 0 8px; padding:8px 7px; font-size:11px; }
   .pclose { background:transparent; border:none; color:#a39787; cursor:pointer; font-size:14px; padding:0 6px; margin-left:auto; }
@@ -394,12 +395,19 @@ const _EXT={py:'py',pyi:'py',js:'js',mjs:'js',cjs:'js',jsx:'jsx',ts:'ts',tsx:'ts
   ads:'ada',pas:'pas',hs:'hs',lhs:'hs',ml:'ml',mli:'ml',ex:'ex',exs:'ex',erl:'erl',clj:'clj',elm:'elm',jl:'jl',
   r:'r',pl:'pl',pm:'pl',groovy:'gv',gradle:'gv',dart:'dt',zig:'zig',nim:'nim',cr:'cr',d:'d',sol:'sol',m:'m',mm:'m+',
   tcl:'tcl',lisp:'lsp',scm:'scm',rkt:'rkt',gleam:'gl',odin:'odn',glsl:'gl',hlsl:'hl',wgsl:'wg',dockerfile:'dk'};
-function extBadge(name,color){ const ext=(name.indexOf('.')>=0?name.split('.').pop():name).toLowerCase();
-  const lbl=_EXT[ext]||(ext?ext.slice(0,3):'•');
+function extBadge(name,color){ const low=name.toLowerCase();
+  // real vscode-icons file-type logo if we have one (matched by filename, then extension)
+  let key=(DATA.iconName&&DATA.iconName[low]);
+  const ext=(low.indexOf('.')>=0?low.split('.').pop():low);
+  if(!key) key=(DATA.iconExt&&DATA.iconExt[ext]);
+  const svg=key&&DATA.iconSvg&&DATA.iconSvg[key];
+  if(svg) return '<span class="fic-svg">'+svg+'</span>';
+  const lbl=_EXT[ext]||(ext?ext.slice(0,3):'•');   // fallback text badge
   return '<span class="fic" style="color:'+color+';border-color:'+color+'66">'+esc(lbl)+'</span>'; }
 function treeHTML(node, prefix, depth){ let h=''; const dirNames=Object.keys(node.dirs).sort();
   for(const d of dirNames){ const path=prefix?prefix+'/'+d:d, open=openDirs.has(path);
-    h+='<div class="frow fdirrow" data-d="'+esc(path)+'" style="padding-left:'+(depth*13+6)+'px"><span class="fchev">'+(open?'▾':'▸')+'</span><span class="fname">'+esc(d)+'</span></div>';
+    const fic=DATA.iconSvg&&DATA.iconSvg[open?'_folder_open':'_folder'];
+    h+='<div class="frow fdirrow" data-d="'+esc(path)+'" style="padding-left:'+(depth*13+6)+'px"><span class="fchev">'+(open?'▾':'▸')+'</span>'+(fic?'<span class="fic-svg">'+fic+'</span>':'')+'<span class="fname">'+esc(d)+'</span></div>';
     if(open) h+=treeHTML(node.dirs[d], path, depth+1); }
   for(const f of node.files){ h+='<div class="frow fitem" data-i="'+f.i+'" style="padding-left:'+(depth*13+20)+'px">'+extBadge(f.name,f.color)+'<span class="fname">'+esc(f.name)+'</span></div>'; }
   return h; }

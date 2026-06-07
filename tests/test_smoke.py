@@ -89,6 +89,15 @@ def test_terraform_blocks_extracted():
     assert "resource aws_instance.web" in names and "module net" in names
 
 
+def test_file_type_icons_inlined():
+    from understand_anything.render import build_view_model
+    from understand_anything.render.icons import ICON_SVG, EXT_TO_KEY
+    assert ICON_SVG.get("_folder") and ICON_SVG.get("python") and EXT_TO_KEY.get("tf") == "terraform"
+    vm = build_view_model(_sample_graph())
+    assert "_folder" in vm["iconSvg"] and "_folder_open" in vm["iconSvg"]  # folder glyphs always present
+    assert "iconExt" in vm and "iconName" in vm
+
+
 def test_render_static_has_no_javascript():
     html = render_static(_sample_graph())
     assert "<svg" in html and "</svg>" in html
