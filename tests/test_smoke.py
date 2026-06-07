@@ -69,6 +69,9 @@ def test_overview_layer_cards_and_drilldown():
     for marker in ("catFilters", "layerChips", "detailSeg", "fnToggle", "Start Tour"):
         assert marker in html, f"missing header chrome: {marker}"
     assert 'id="types"' not in html and 'id="legend"' not in html  # left panels removed
+    # sidebar Info/Files tabs + file explorer
+    for marker in ("ptab", "filesHTML", "fitem", 'data-tab="files"'):
+        assert marker in html, f"missing sidebar feature: {marker}"
     # a graph WITH layers yields exactly one layer card per layer
     g = analyze(FIXTURES, use_llm=False)
     if g.layers:

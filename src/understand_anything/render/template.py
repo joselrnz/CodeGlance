@@ -125,6 +125,13 @@ _HTML = r"""<!doctype html>
   .tstep { font-size:12px; padding:6px 9px; background:#1a1a1a; border:1px solid rgba(212,165,116,0.12);
     border-radius:7px; margin:4px 0; cursor:pointer; color:#d9cdbf; }
   .tstep:hover{ border-color:rgba(212,165,116,0.4); } .tstep .tn{ color:#d4a574; font-family:ui-monospace,monospace; }
+  .ptabs { display:flex; gap:6px; margin:0 0 12px; border-bottom:1px solid rgba(212,165,116,0.14); padding-bottom:8px; }
+  .ptab { flex:1; background:transparent; border:none; color:#a39787; font-size:11px; text-transform:uppercase;
+    letter-spacing:.06em; padding:6px; border-radius:6px; cursor:pointer; } .ptab.on { background:rgba(212,165,116,0.15); color:#d4a574; }
+  .ftree .fdir { font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:#6b5f53; margin:10px 0 4px;
+    font-family:ui-monospace,monospace; word-break:break-all; }
+  .fitem { display:flex; align-items:center; gap:7px; font-size:12px; padding:3px 7px; border-radius:6px; cursor:pointer; color:#d9cdbf; }
+  .fitem:hover { background:#241c14; color:#fff; } .fitem .d { width:8px; height:8px; border-radius:99px; flex:none; }
   .hidden { display:none !important; }
 </style>
 </head>
@@ -193,7 +200,8 @@ const DATA = __DATA_JSON__;
 const N=DATA.nodes, E=DATA.edges, L=DATA.layers, TY=DATA.types, TOUR=DATA.tour, CT=DATA.containers;
 const LC=DATA.layerCards||[], LE=DATA.layerEdges||[], lcW=DATA.layerCardW||300, lcH=DATA.layerCardH||172;
 const cardW=DATA.cardW, cardH=DATA.cardH;
-let view='overview', lhover=-1;   // 'overview' shows layer cards; a number drills into that layer
+const FILE_LEVEL=new Set(['file','config','document','service','pipeline','table','schema','resource','endpoint']);
+let view='overview', lhover=-1, sidebarTab='info';   // 'overview' shows layer cards; a number drills into that layer
 const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
 const nbr=N.map(()=>new Set()), etype={};
 for(const e of E){ const a=e[0],b=e[1]; nbr[a].add(b); nbr[b].add(a); etype[a+'_'+b]=e[2]; }
@@ -358,12 +366,27 @@ function infoHTML(i){ const n=N[i]; let h='<span class="close" onclick="select(-
   const src=DATA.sources[n.path];
   if(src){ h+='<div class="ov-h">Source · '+esc(n.path)+'</div>'+codeHTML(src, n.lineRange); }
   return h; }
-function renderPanel(){ panel.innerHTML = sel>=0 ? infoHTML(sel) : overviewHTML();
-  panel.querySelectorAll('.nb[data-i]').forEach(el=>el.onclick=()=>select(+el.dataset.i));
+function filesHTML(){ const files=N.map((n,i)=>({i,n})).filter(o=>FILE_LEVEL.has(o.n.type)&&o.n.path);
+  files.sort((a,b)=>a.n.path.localeCompare(b.n.path));
+  if(!files.length) return '<div class="ov-desc">No files.</div>';
+  let h='<div class="ftree">', lastDir=null;
+  for(const o of files){ const p=o.n.path, dir=p.includes('/')?p.slice(0,p.lastIndexOf('/')):'(root)';
+    if(dir!==lastDir){ h+='<div class="fdir">'+esc(dir)+'/</div>'; lastDir=dir; }
+    h+='<div class="fitem" data-i="'+o.i+'"><span class="d" style="background:'+o.n.color+'"></span>'+esc(p.split('/').pop())+'</div>'; }
+  return h+'</div>'; }
+function renderPanel(){
+  const tabs='<div class="ptabs"><button class="ptab'+(sidebarTab==='info'?' on':'')+'" data-tab="info">Info</button>'
+    +'<button class="ptab'+(sidebarTab==='files'?' on':'')+'" data-tab="files">Files</button></div>';
+  const body = sidebarTab==='files' ? filesHTML() : (sel>=0 ? infoHTML(sel) : overviewHTML());
+  panel.innerHTML = tabs + body;
+  panel.querySelectorAll('.ptab').forEach(el=>el.onclick=()=>{ sidebarTab=el.dataset.tab; renderPanel(); });
+  panel.querySelectorAll('.nb[data-i]').forEach(el=>el.onclick=()=>goToNode(+el.dataset.i));
+  panel.querySelectorAll('.fitem[data-i]').forEach(el=>el.onclick=()=>goToNode(+el.dataset.i));
   panel.querySelectorAll('.tstep').forEach(el=>el.onclick=()=>{ startTour(); tIdx=+el.dataset.t; showStep(); });
   const hl=panel.querySelector('.ct tr.hl'); if(hl) hl.scrollIntoView({block:'center'}); }
 function select(i){ sel=i; renderPanel(); if(i>=0) center([i],false); draw(); }
-window.select=select;
+function goToNode(i){ if(i<0)return; if(N[i]&&N[i].layer>=0) view=N[i].layer; sidebarTab='info'; sel=i; renderPanel(); center([i],true); draw(); }
+window.select=select; window.goToNode=goToNode;
 
 document.getElementById('search').addEventListener('input',e=>{ const q=e.target.value.trim().toLowerCase();
   if(!q){matched=null;} else { matched=new Set(); for(let i=0;i<N.length;i++){const n=N[i];
