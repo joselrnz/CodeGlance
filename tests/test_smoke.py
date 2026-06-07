@@ -72,6 +72,13 @@ def test_overview_layer_cards_and_drilldown():
     # sidebar Info/Files tabs + collapsible file tree + panel collapse
     for marker in ("ptab", "filesHTML", "treeHTML", "fdirrow", "extBadge", "togglePanel", 'data-tab="files"'):
         assert marker in html, f"missing sidebar feature: {marker}"
+    # a graph WITH layers yields exactly one layer card per layer
+    g = analyze(FIXTURES, use_llm=False)
+    if g.layers:
+        vm = build_view_model(g)
+        assert len(vm["layerCards"]) == len(vm["layers"]) >= 1
+        assert all("complexity" in c and "x" in c and "description" in c for c in vm["layerCards"])
+        assert "layerEdges" in vm
 
 
 def test_terraform_blocks_extracted():
@@ -80,13 +87,6 @@ def test_terraform_blocks_extracted():
     src = 'resource "aws_instance" "web" {}\nmodule "net" {}\nvariable "r" {}\n'
     names = {s["name"] for s in (ts.extract_symbols("terraform", "m.tf", src) or [])}
     assert "resource aws_instance.web" in names and "module net" in names
-    # a graph WITH layers yields exactly one layer card per layer
-    g = analyze(FIXTURES, use_llm=False)
-    if g.layers:
-        vm = build_view_model(g)
-        assert len(vm["layerCards"]) == len(vm["layers"]) >= 1
-        assert all("complexity" in c and "x" in c and "description" in c for c in vm["layerCards"])
-        assert "layerEdges" in vm
 
 
 def test_render_static_has_no_javascript():
