@@ -63,6 +63,7 @@ class Node:
     lineRange: list[int] | None = None   # [startLine, endLine], 1-indexed (functions/classes)
     signature: str = ""                  # declaration line, e.g. "def f(x: int) -> str"
     docstring: str = ""                  # docstring / leading doc-comment pulled from source
+    languageNotes: str = ""              # language-specific notes (preserved from original graphs)
 
     def to_dict(self) -> dict[str, Any]:
         """Serialise to a plain dict; optional fields are omitted when empty."""
@@ -81,6 +82,8 @@ class Node:
             d["signature"] = self.signature
         if self.docstring:
             d["docstring"] = self.docstring
+        if self.languageNotes:
+            d["languageNotes"] = self.languageNotes
         return d
 
     @classmethod
@@ -98,6 +101,7 @@ class Node:
             lineRange=list(lr) if isinstance(lr, (list, tuple)) and lr else None,
             signature=d.get("signature", "") or "",
             docstring=d.get("docstring", "") or "",
+            languageNotes=d.get("languageNotes", "") or "",
         )
 
 

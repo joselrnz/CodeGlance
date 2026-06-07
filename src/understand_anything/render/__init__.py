@@ -100,6 +100,7 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None) -> dict:
             "color": TYPE_COLORS.get(n.type, DEFAULT_TYPE_COLOR),
             "complexity": n.complexity, "tags": n.tags,
             "lineRange": n.lineRange, "signature": n.signature, "docstring": n.docstring,
+            "languageNotes": n.languageNotes,
             "x": x, "y": y, "deg": deg.get(n.id, 0),
         })
 

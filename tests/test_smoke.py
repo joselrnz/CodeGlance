@@ -51,6 +51,13 @@ def test_render_uses_cards_containers_and_type_colors():
     assert "<script" not in html_s and "marker-end" in html_s  # zero-JS + directional edges
 
 
+def test_interactive_has_toolbar_features():
+    html = render_interactive(_sample_graph())
+    # export menu, path finder (BFS), syntax highlighter, help, edge labels
+    for marker in ("btnExport", "buildSVG", "pathFind", "hl_code", "tok-kw", "helpModal"):
+        assert marker in html, f"missing feature: {marker}"
+
+
 def test_render_static_has_no_javascript():
     html = render_static(_sample_graph())
     assert "<svg" in html and "</svg>" in html

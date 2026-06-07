@@ -79,6 +79,20 @@ _HTML = r"""<!doctype html>
   button { background:#1e293b; color:#e8edf5; border:1px solid #334155; border-radius:8px; padding:6px 12px; font-size:12px; cursor:pointer; }
   button:hover { background:#334155; } #tcount { flex:1; text-align:center; color:#93a1b5; font-size:12px; }
   #tourstart { position:fixed; right:240px; bottom:14px; z-index:5; }
+  #topbar .bar { display:flex; gap:6px; flex:none; }
+  #topbar .bar button { padding:5px 9px; font-size:11px; }
+  #exportMenu { position:fixed; top:56px; right:14px; z-index:8; display:flex; flex-direction:column; padding:6px; gap:2px; min-width:130px; }
+  #exportMenu button { text-align:left; }
+  .modal { position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:20; display:flex; align-items:center; justify-content:center; }
+  .modal .mbox { width:440px; max-width:92vw; max-height:80vh; overflow:auto; padding:18px; position:relative; }
+  .modal h4 { margin:0 0 12px; font-size:15px; }
+  .modal select { width:100%; margin:5px 0; background:#0b1220; color:#e8edf5; border:1px solid #334155; border-radius:6px; padding:7px; font-size:12px; }
+  #pathResult { margin-top:12px; font-size:12px; }
+  #pathResult .step { display:flex; align-items:center; gap:8px; padding:4px 6px; border-radius:6px; cursor:pointer; }
+  #pathResult .step:hover { background:#1e293b; } #pathResult .num { color:#0b1220; background:#d4a574; border-radius:99px; width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; }
+  .kb { display:grid; grid-template-columns:auto 1fr; gap:7px 14px; font-size:12px; align-items:center; }
+  .kb kbd { font-family:ui-monospace,monospace; background:#0b1220; border:1px solid #334155; border-radius:4px; padding:1px 7px; color:#d4a574; justify-self:start; }
+  .tok-cm{color:#6b7f8e;font-style:italic} .tok-st{color:#c9a06c} .tok-nu{color:#d19a66} .tok-kw{color:#c084fc}
   .hidden { display:none !important; }
 </style>
 </head>
@@ -89,6 +103,12 @@ _HTML = r"""<!doctype html>
   <span class="sub">__SUBTITLE__</span>
   <input id="search" placeholder="Search…" autocomplete="off"/>
   <span class="hint">scroll zoom · drag pan · click a card</span>
+  <span class="bar">
+    <button id="btnFit" title="Fit to view (f)">⤢ Fit</button>
+    <button id="btnPath" title="Path finder (p)">↦ Path</button>
+    <button id="btnExport" title="Export">⬇ Export</button>
+    <button id="btnHelp" title="Shortcuts (?)">?</button>
+  </span>
 </div>
 <div id="types" class="leg card"></div>
 <div id="legend" class="leg card"></div>
@@ -100,6 +120,28 @@ _HTML = r"""<!doctype html>
   <h4 id="ttitle"></h4><div class="desc" id="tdesc"></div>
   <div class="tourbtns"><button id="tprev">‹</button><span id="tcount"></span><button id="tnext">›</button><button id="tclose">Done</button></div>
 </div>
+<div id="exportMenu" class="card hidden">
+  <button data-x="png">⬇ PNG image</button><button data-x="svg">⬇ SVG vector</button><button data-x="json">⬇ JSON data</button>
+</div>
+<div id="pathModal" class="modal hidden"><div class="mbox card">
+  <span class="close" onclick="closePath()">✕</span><h4>Dependency Path Finder</h4>
+  <select id="pathFrom"></select><select id="pathTo"></select>
+  <div class="tourbtns"><button id="pathFind">Find path</button><button id="pathClear">Clear</button></div>
+  <div id="pathResult"></div>
+</div></div>
+<div id="helpModal" class="modal hidden"><div class="mbox card">
+  <span class="close" onclick="document.getElementById('helpModal').classList.add('hidden')">✕</span>
+  <h4>Keyboard shortcuts</h4>
+  <div class="kb">
+    <kbd>/</kbd><span>Focus search</span>
+    <kbd>f</kbd><span>Fit graph to view</span>
+    <kbd>p</kbd><span>Open path finder</span>
+    <kbd>e</kbd><span>Export menu</span>
+    <kbd>?</kbd><span>This help</span>
+    <kbd>Esc</kbd><span>Close panel / tour / modal</span>
+    <kbd>← →</kbd><span>Prev / next tour step</span>
+  </div>
+</div></div>
 <script>
 const DATA = __DATA_JSON__;
 const N=DATA.nodes, E=DATA.edges, L=DATA.layers, TY=DATA.types, TOUR=DATA.tour, CT=DATA.containers;
@@ -110,12 +152,21 @@ for(const e of E){ const a=e[0],b=e[1]; nbr[a].add(b); nbr[b].add(a); etype[a+'_
 const edgeBetween=(i,j)=>etype[i+'_'+j]||etype[j+'_'+i]||'related';
 let DPR=1, scale=1, ox=0, oy=0;
 const hidden=new Set(), hiddenTypes=new Set();
-let hover=-1, sel=-1, matched=null, focusSet=null, tIdx=-1;
+let hover=-1, sel=-1, matched=null, focusSet=null, tIdx=-1, pathNodes=null, pathEdges=null;
 const esc=s=>(s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 const SX=x=>x*scale+ox, SY=y=>y*scale+oy;
 const vis=i=>!hidden.has(N[i].layer)&&!hiddenTypes.has(N[i].type);
 function dim(i){ if(matched&&!matched.has(i))return true; if(focusSet&&!focusSet.has(i))return true;
+  if(pathNodes&&!pathNodes.has(i))return true;
   if(hover>=0&&i!==hover&&!nbr[hover].has(i))return true; return false; }
+// Lightweight per-line syntax highlighter (comments, strings, numbers, keywords).
+const _KW=/\b(function|class|def|return|if|else|elif|for|while|do|switch|case|import|from|export|const|let|var|new|public|private|protected|static|void|int|float|double|string|str|bool|boolean|async|await|yield|self|this|super|struct|enum|impl|trait|fn|module|package|namespace|using|type|interface|extends|implements|try|catch|finally|throw|raise|with|as|in|is|not|and|or|None|True|False|null|nil|true|false|begin|end|then|elsif|require|include|pub|mut|match|where|lambda)\b/g;
+function hl_code(line){ const rx=/(\/\/[^\n]*|#[^\n]*|--[^\n]*|\/\*[\s\S]*?\*\/)|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`)|\b(\d[\d_.]*)\b/g;
+  let out='', last=0, m;
+  while((m=rx.exec(line))){ out+=_kw(line.slice(last,m.index)); const t=m[0];
+    const cls=m[1]?'tok-cm':m[2]?'tok-st':'tok-nu'; out+='<span class="'+cls+'">'+esc(t)+'</span>'; last=m.index+t.length; }
+  return out+_kw(line.slice(last)); }
+function _kw(s){ return esc(s).replace(_KW, '<span class="tok-kw">$1</span>'); }
 
 function bounds(){ if(CT.length){ let a=1e9,b=1e9,c=-1e9,d=-1e9; for(const k of CT){a=Math.min(a,k.x);b=Math.min(b,k.y);c=Math.max(c,k.x+k.w);d=Math.max(d,k.y+k.h);} return [a,b,c,d]; }
   let a=1e9,b=1e9,c=-1e9,d=-1e9; for(const n of N){a=Math.min(a,n.x);b=Math.min(b,n.y);c=Math.max(c,n.x);d=Math.max(d,n.y);} return [a,b,c,d]; }
@@ -145,14 +196,19 @@ function draw(){
       ctx.fillText(c.name+'  ('+c.count+')', x+12, y+21); } }
   // edges
   for(const e of E){ const a=e[0],b=e[1]; if(!vis(a)||!vis(b))continue;
-    const lit=(hover===a||hover===b||sel===a||sel===b);
+    const onpath = pathEdges && (pathEdges.has(a+'_'+b)||pathEdges.has(b+'_'+a));
+    const lit=(hover===a||hover===b||sel===a||sel===b)||onpath;
     const A=N[a],B=N[b], p1=bp(B.x,B.y,A.x,A.y), p2=bp(A.x,A.y,B.x,B.y);
     const x1=SX(p1[0]),y1=SY(p1[1]),x2=SX(p2[0]),y2=SY(p2[1]);
-    ctx.strokeStyle=lit?'rgba(96,165,250,0.8)':((dim(a)&&dim(b))?'rgba(148,163,184,0.05)':'rgba(148,163,184,0.22)');
-    ctx.lineWidth=lit?2:1; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    ctx.strokeStyle=onpath?'rgba(212,165,116,0.95)':lit?'rgba(96,165,250,0.8)':((dim(a)&&dim(b))?'rgba(148,163,184,0.05)':'rgba(148,163,184,0.22)');
+    ctx.lineWidth=onpath?3:lit?2:1; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
     if(scale>0.3){ const ang=Math.atan2(y2-y1,x2-x1),s=6;
       ctx.beginPath(); ctx.moveTo(x2,y2); ctx.lineTo(x2-s*Math.cos(ang-0.42),y2-s*Math.sin(ang-0.42));
-      ctx.lineTo(x2-s*Math.cos(ang+0.42),y2-s*Math.sin(ang+0.42)); ctx.closePath(); ctx.fillStyle=ctx.strokeStyle; ctx.fill(); } }
+      ctx.lineTo(x2-s*Math.cos(ang+0.42),y2-s*Math.sin(ang+0.42)); ctx.closePath(); ctx.fillStyle=ctx.strokeStyle; ctx.fill(); }
+    // edge type label (when zoomed in, hovered, selected, or on a found path)
+    if(e[2] && (lit || scale>0.95)){ const mx=(x1+x2)/2, my=(y1+y2)/2;
+      ctx.font='9px ui-monospace,monospace'; ctx.fillStyle=lit?'#cbd5e1':'rgba(148,163,184,0.55)';
+      ctx.fillText(e[2], mx+3, my-3); } }
   // cards
   for(let i=0;i<N.length;i++){ if(vis(i)) drawCard(i); }
   drawMinimap();
@@ -195,7 +251,7 @@ function overviewHTML(){ const p=DATA.project,s=DATA.stats; let h='<div class="o
 function codeHTML(src, range){ const lines=src.split('\n'); const s=(range&&range[0])||0, e=(range&&range[1])||0;
   let h='<div class="code"><table class="ct">';
   for(let i=0;i<lines.length;i++){ const ln=i+1, hl=(ln>=s&&ln<=e)?' class="hl"':'';
-    h+='<tr'+hl+'><td class="ln">'+ln+'</td><td class="lc">'+esc(lines[i]||' ')+'</td></tr>'; }
+    h+='<tr'+hl+'><td class="ln">'+ln+'</td><td class="lc">'+hl_code(lines[i]||' ')+'</td></tr>'; }
   return h+'</table></div>'; }
 function infoHTML(i){ const n=N[i]; let h='<span class="close" onclick="select(-1)">✕</span>';
   h+='<span class="ptype" style="color:'+n.color+';border-color:'+n.color+'">'+esc(n.type)+'</span> <span class="cx cx-'+esc(n.complexity)+'">●&nbsp;'+esc(n.complexity)+'</span>';
@@ -204,6 +260,7 @@ function infoHTML(i){ const n=N[i]; let h='<span class="close" onclick="select(-
   if(n.signature) h+='<pre class="sig">'+esc(n.signature)+'</pre>';
   if(n.summary) h+='<div class="summary">'+esc(n.summary)+'</div>';
   if(n.docstring && n.docstring!==n.summary) h+='<div class="ov-h">Documentation</div><div class="doc">'+esc(n.docstring)+'</div>';
+  if(n.languageNotes) h+='<div class="ov-h">Language notes</div><div class="doc">'+esc(n.languageNotes)+'</div>';
   if(n.tags&&n.tags.length) h+='<div class="pills">'+n.tags.map(t=>'<span class="pill">'+esc(t)+'</span>').join('')+'</div>';
   if(n.layer>=0) h+='<div class="ov-h">Layer</div><div class="nb" style="cursor:default"><span class="sw" style="background:'+L[n.layer].color+'"></span>&nbsp;'+esc(L[n.layer].name)+'</div>';
   const conns=[...nbr[i]].sort((a,b)=>N[b].deg-N[a].deg);
@@ -270,9 +327,60 @@ document.getElementById('tprev').onclick=()=>{if(tIdx>0){tIdx--;showStep();}};
 document.getElementById('tnext').onclick=()=>{if(tIdx<TOUR.length-1){tIdx++;showStep();}else endTour();};
 document.getElementById('tclose').onclick=endTour;
 if(!TOUR.length) document.getElementById('tourstart').classList.add('hidden');
-window.addEventListener('keydown',e=>{ if(e.key==='Escape'){select(-1);if(tIdx>=0)endTour();}
-  if(tIdx>=0&&e.key==='ArrowRight')document.getElementById('tnext').click();
-  if(tIdx>=0&&e.key==='ArrowLeft')document.getElementById('tprev').click(); });
+// --- toolbar: fit / export / path finder / help ---
+const $=id=>document.getElementById(id);
+function fitAll(){ matched=null; pathNodes=null; pathEdges=null; focusSet=null; fit(); draw(); }
+$('btnFit').onclick=fitAll;
+
+// export (PNG of current view, full-graph SVG, or the graph data as JSON)
+function dl(blob,name){ const u=URL.createObjectURL(blob),a=document.createElement('a'); a.href=u; a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(u),1500); }
+const exMenu=$('exportMenu');
+$('btnExport').onclick=()=>exMenu.classList.toggle('hidden');
+exMenu.querySelectorAll('button').forEach(b=>b.onclick=()=>{ exMenu.classList.add('hidden'); const x=b.dataset.x, nm=(DATA.project.name||'graph');
+  if(x==='png') cv.toBlob(bl=>dl(bl,nm+'.png'));
+  else if(x==='json') dl(new Blob([JSON.stringify(DATA,null,2)],{type:'application/json'}),nm+'.json');
+  else if(x==='svg') dl(new Blob([buildSVG()],{type:'image/svg+xml'}),nm+'.svg'); });
+function buildSVG(){ const bb=bounds(),pad=40,W=(bb[2]-bb[0])+2*pad,H=(bb[3]-bb[1])+2*pad;
+  let s='<svg xmlns="http://www.w3.org/2000/svg" viewBox="'+(bb[0]-pad)+' '+(bb[1]-pad)+' '+W+' '+H+'" font-family="sans-serif">';
+  s+='<rect x="'+(bb[0]-pad)+'" y="'+(bb[1]-pad)+'" width="'+W+'" height="'+H+'" fill="#0b1220"/>';
+  s+='<defs><marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#5b6b86"/></marker></defs>';
+  for(const k of CT) s+='<rect x="'+k.x+'" y="'+k.y+'" width="'+k.w+'" height="'+k.h+'" rx="11" fill="rgba(255,255,255,0.02)" stroke="'+k.color+'" stroke-opacity="0.45"/><text x="'+(k.x+12)+'" y="'+(k.y+21)+'" fill="'+k.color+'" font-size="13" font-weight="600">'+esc(k.name)+' ('+k.count+')</text>';
+  for(const e of E){ const A=N[e[0]],B=N[e[1]]; s+='<line x1="'+A.x+'" y1="'+A.y+'" x2="'+B.x+'" y2="'+B.y+'" stroke="#3a4661" stroke-opacity="0.5" marker-end="url(#ar)"/>'; }
+  for(const n of N){ const x=n.x-cardW/2,y=n.y-cardH/2; s+='<g><rect x="'+x+'" y="'+y+'" width="'+cardW+'" height="'+cardH+'" rx="7" fill="#151b29" stroke="rgba(148,163,184,0.18)"/><rect x="'+x+'" y="'+(y+1)+'" width="4" height="'+(cardH-2)+'" fill="'+n.color+'"/><text x="'+(x+10)+'" y="'+(y+17)+'" fill="'+n.color+'" font-size="9" font-weight="700" font-family="monospace">'+esc(n.type.toUpperCase())+'</text><text x="'+(x+10)+'" y="'+(y+cardH-14)+'" fill="#e8edf5" font-size="12" font-weight="600">'+esc(n.name.length>26?n.name.slice(0,25)+'…':n.name)+'</text></g>'; }
+  return s+'</svg>'; }
+
+// path finder (BFS over the undirected neighbour graph)
+function fillSel(s){ s.innerHTML=N.map((n,i)=>'<option value="'+i+'">'+esc(n.name)+' · '+esc(n.type)+'</option>').join(''); }
+fillSel($('pathFrom')); fillSel($('pathTo'));
+$('btnPath').onclick=()=>$('pathModal').classList.remove('hidden');
+window.closePath=()=>$('pathModal').classList.add('hidden');
+$('pathClear').onclick=()=>{ pathNodes=null; pathEdges=null; $('pathResult').innerHTML=''; draw(); };
+$('pathFind').onclick=()=>{ const a=+$('pathFrom').value, b=+$('pathTo').value;
+  const prev=new Array(N.length).fill(-2); prev[a]=-1; const q=[a];
+  while(q.length){ const u=q.shift(); if(u===b)break; for(const v of nbr[u]) if(prev[v]===-2){prev[v]=u;q.push(v);} }
+  if(prev[b]===-2){ $('pathResult').innerHTML='<div style="color:#fb7185">No path between these nodes.</div>'; pathNodes=null; pathEdges=null; draw(); return; }
+  const path=[]; for(let u=b; u!==-1; u=prev[u]) path.unshift(u);
+  pathNodes=new Set(path); pathEdges=new Set(); for(let i=0;i+1<path.length;i++) pathEdges.add(path[i]+'_'+path[i+1]);
+  let h='<div class="ov-h">'+path.length+' nodes on path</div>';
+  path.forEach((i,k)=>{ h+='<div class="step" data-i="'+i+'"><span class="num">'+(k+1)+'</span> '+esc(N[i].name)+' <span class="muted">'+esc(N[i].type)+'</span></div>'; });
+  $('pathResult').innerHTML=h;
+  $('pathResult').querySelectorAll('.step').forEach(el=>el.onclick=()=>{ closePath(); select(+el.dataset.i); });
+  closePath(); center(path,true); draw(); };
+
+$('btnHelp').onclick=()=>$('helpModal').classList.remove('hidden');
+
+window.addEventListener('keydown',e=>{
+  if(e.target&&e.target.tagName==='INPUT'){ if(e.key==='Escape')e.target.blur(); return; }
+  if(e.key==='Escape'){ select(-1); if(tIdx>=0)endTour();
+    document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden')); exMenu.classList.add('hidden');
+    pathNodes=null; pathEdges=null; draw(); }
+  else if(e.key==='/'){ e.preventDefault(); $('search').focus(); }
+  else if(e.key==='f'){ fitAll(); }
+  else if(e.key==='p'){ $('pathModal').classList.remove('hidden'); }
+  else if(e.key==='e'){ exMenu.classList.toggle('hidden'); }
+  else if(e.key==='?'){ $('helpModal').classList.remove('hidden'); }
+  if(tIdx>=0&&e.key==='ArrowRight')$('tnext').click();
+  if(tIdx>=0&&e.key==='ArrowLeft')$('tprev').click(); });
 
 window.addEventListener('resize',resize);
 renderPanel(); fit(); resize();

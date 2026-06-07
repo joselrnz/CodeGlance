@@ -41,9 +41,10 @@ understand render knowledge-graph.json --static -o graph.svg.html
   **labeled node cards** colored **by type** (with a type badge), **layer container boxes**,
   **directional edge arrows**, a **project-overview** panel, and a rich **node panel** when you
   click a card: the **signature**, the **docstring / leading doc-comment** pulled from the code,
-  tags, complexity, typed connections, and the **source code with line numbers** (the node's own
-  line range highlighted). Plus pan/zoom, search, layer + node-type legends, a minimap, and a
-  guided tour. Fully offline.
+  tags, complexity, typed connections, and the **syntax-highlighted source code with line numbers**
+  (the node's own line range highlighted). Plus pan/zoom, search, layer + node-type legends, a
+  minimap, **directional edge labels**, a **path finder** (shortest path between any two nodes),
+  **export to PNG / SVG / JSON**, a guided tour, and keyboard shortcuts (`/ f p e ?`). Fully offline.
 - **`--static`:** a zero-JavaScript inline-SVG rendering (cards + containers + arrows). A picture,
   but truly no JS.
 
