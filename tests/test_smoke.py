@@ -98,6 +98,14 @@ def test_terraform_dependency_edges():
     assert ("output ip", "resource aws_instance.web") in deps
 
 
+def test_theme_system():
+    html = render_interactive(_sample_graph())
+    # base colors extracted to CSS variables + a theme engine for canvas + DOM
+    for m in ("THEMES", "applyTheme", "readTheme", "btnTheme", "--accent-rgb",
+              "var(--bg)", "var(--accent)", "var(--text)", "Dark Ocean", "Light Minimal"):
+        assert m in html, f"missing theme piece: {m}"
+
+
 def test_file_type_icons_inlined():
     from understand_anything.render import build_view_model
     from understand_anything.render.icons import ICON_SVG, EXT_TO_KEY

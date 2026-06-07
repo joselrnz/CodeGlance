@@ -52,8 +52,9 @@ understand render knowledge-graph.json --static -o graph.svg.html
   filter buttons** (Code/Config/Docs/Infra/Data/Domain/Knowledge), and **inline layer chips**;
   the sidebar has **Info / Files tabs** — a collapsible file explorer with **VS Code-style
   file-type icons** ([vscode-icons](https://github.com/vscode-icons/vscode-icons), MIT, inlined)
-  plus the **guided-tour steps**. Styled to match the original dashboard's **warm black + gold
-  serif** look. Fully offline.
+  plus the **guided-tour steps**. A **theme picker** (Dark Gold / Ocean / Forest / Rose / Light
+  Minimal, 8 accent colors, Serif/Sans/Mono heading font) recolors everything — all base colors
+  are CSS variables, so you can also just open the `.html` and tweak them. Fully offline.
 - **`--static`:** a zero-JavaScript inline-SVG rendering (cards + containers + arrows). A picture,
   but truly no JS.
 
