@@ -103,6 +103,7 @@ _HTML = r"""<!doctype html>
   #searchResults .srbar { width:46px; height:5px; background:var(--bg); border-radius:3px; overflow:hidden; flex:none; }
   #searchResults .srbar>span { display:block; height:100%; background:var(--accent); }
   #panel .fbtn-focus { position:absolute; top:9px; right:34px; font-size:10px; padding:3px 8px; }
+  #panel .fbtn-focus.on { color:var(--accent); border-color:var(--accent); background:rgba(var(--accent-rgb),0.16); }
   #exportMenu button { text-align:left; }
   .modal { position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:20; display:flex; align-items:center; justify-content:center; }
   .modal .mbox { width:440px; max-width:92vw; max-height:80vh; overflow:auto; padding:18px; position:relative; }
@@ -302,7 +303,7 @@ function applyTheme(){ const th=THEMES[THEME_STATE.name]||THEMES.gold, r=documen
 let DPR=1, scale=1, ox=0, oy=0;
 const hidden=new Set(), hiddenTypes=new Set(), hiddenComplex=new Set();
 let hover=-1, sel=-1, matched=null, focusSet=null, tIdx=-1, pathNodes=null, pathEdges=null;
-let searchMode='fuzzy', searchResults=[];
+let searchMode='fuzzy', searchResults=[], focusCenter=-1;
 const DIFFC=new Set(DATA.diffChanged||[]); const hasDiff=!!DATA.hasDiff; let diffOn=false;
 const esc=s=>(s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 const SX=x=>x*scale+ox, SY=y=>y*scale+oy;
@@ -378,7 +379,7 @@ function draw(){
 }
 function drawCard(i){ const n=N[i]; const w=cardW*scale,h=cardH*scale,x=SX(n.x)-w/2,y=SY(n.y)-h/2;
   if(x>innerWidth||y>innerHeight||x+w<0||y+h<0)return;
-  ctx.globalAlpha=dim(i)?0.16:1;
+  ctx.globalAlpha=dim(i)?0.22:1;
   rr(x,y,w,h,7); ctx.fillStyle=T.card; ctx.fill();
   ctx.fillStyle=n.color; ctx.fillRect(x,y+1,Math.max(3,4*scale),h-2);
   if(i===sel){ctx.lineWidth=2;ctx.strokeStyle=T.accent;} else if(i===hover){ctx.lineWidth=1.5;ctx.strokeStyle=n.color;} else {ctx.lineWidth=1;ctx.strokeStyle=ac(0.16);}
@@ -519,7 +520,7 @@ function codeHTML(src, range){ const lines=src.split('\n'); const s=(range&&rang
     h+='<tr'+hl+'><td class="ln">'+ln+'</td><td class="lc">'+hl_code(lines[i]||' ')+'</td></tr>'; }
   return h+'</table></div>'; }
 function infoHTML(i){ const n=N[i]; let h='<span class="close" onclick="select(-1)">✕</span>';
-  h+='<button class="fbtn-focus" onclick="focusOn('+i+')" title="Isolate this node + its neighbors (x)">⊙ Focus</button>';
+  h+='<button class="fbtn-focus'+(focusCenter===i?' on':'')+'" onclick="focusOn('+i+')" title="Isolate this node + its neighbors (x)">⊙ '+(focusCenter===i?'Unfocus':'Focus')+'</button>';
   h+='<span class="ptype" style="color:'+n.color+';border-color:'+n.color+'">'+esc(n.type)+'</span> <span class="cx cx-'+esc(n.complexity)+'">●&nbsp;'+esc(n.complexity)+'</span>';
   h+='<h3>'+esc(n.name)+'</h3>';
   if(n.path){ h+='<div class="path">'+esc(n.path)+(n.lineRange?' <span class="lr">L'+n.lineRange[0]+'–'+n.lineRange[1]+'</span>':'')+'</div>'; }
@@ -591,9 +592,9 @@ function togglePanel(open){ panel.classList.toggle('collapsed', !open);
   document.getElementById('panelReopen').classList.toggle('hidden', open); }
 window.togglePanel=togglePanel;
 document.getElementById('panelReopen').onclick=()=>togglePanel(true);
-function select(i){ sel=i; renderPanel(); if(i>=0) center([i],false); draw(); }
+function select(i){ sel=i; focusSet=null; focusCenter=-1; renderPanel(); if(i>=0) center([i],false); draw(); }
 function goToNode(i){ if(i<0)return; if(graphMode!=='structural'){ graphMode='structural'; selDomain=-1; applyModeUI(); }
-  if(N[i]&&N[i].layer>=0) view=N[i].layer; sidebarTab='info'; sel=i; renderPanel(); center([i],true); draw(); }
+  if(N[i]&&N[i].layer>=0) view=N[i].layer; sidebarTab='info'; sel=i; focusSet=null; focusCenter=-1; renderPanel(); center([i],true); draw(); }
 window.select=select; window.goToNode=goToNode;
 
 // --- search: Fuzzy (text) / Semantic (offline keyword-relevance) + ranked results dropdown ---
@@ -707,9 +708,11 @@ if(!TOUR.length) document.getElementById('tourstart').classList.add('hidden');
 window.startTour=startTour;
 // --- toolbar: fit / export / path finder / help ---
 const $=id=>document.getElementById(id);
-function fitAll(){ matched=null; pathNodes=null; pathEdges=null; focusSet=null; fit(); draw(); }
+function fitAll(){ matched=null; pathNodes=null; pathEdges=null; focusSet=null; focusCenter=-1; fit(); draw(); }
 // focus mode: isolate a node + its 1-hop neighbors (others dim heavily)
-function focusOn(i){ if(i<0)return; focusSet=new Set([i]); nbr[i].forEach(j=>focusSet.add(j));
+function focusOn(i){ if(i<0)return;
+  if(focusCenter===i){ focusSet=null; focusCenter=-1; renderPanel(); draw(); return; }   // toggle off
+  focusCenter=i; focusSet=new Set([i]); nbr[i].forEach(j=>focusSet.add(j));
   if(graphMode==='structural'&&N[i]&&N[i].layer>=0) view=N[i].layer; sel=i; sidebarTab='info'; renderPanel(); center([i],true); draw(); }
 window.focusOn=focusOn;
 // filter popup: node-type + complexity checkboxes (+ reset), syncing the category chips
@@ -814,7 +817,7 @@ window.addEventListener('keydown',e=>{
   if(e.key==='Escape'){ const fm=$('filterMenu'); const anyOpen=[...document.querySelectorAll('.modal')].some(m=>!m.classList.contains('hidden'))||!exMenu.classList.contains('hidden')||!themeMenu.classList.contains('hidden')||!fm.classList.contains('hidden');
     document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden')); exMenu.classList.add('hidden'); themeMenu.classList.add('hidden'); fm.classList.add('hidden'); const sr=$('searchResults'); if(sr)sr.style.display='none';
     if(anyOpen){ return; }
-    if(focusSet){ focusSet=null; draw(); return; }
+    if(focusSet){ focusSet=null; focusCenter=-1; draw(); return; }
     if(sel>=0){ select(-1); }
     else if(tIdx>=0){ endTour(); }
     else if(view!=='overview'){ setView('overview'); }
