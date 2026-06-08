@@ -45,9 +45,11 @@ scopinglang render knowledge-graph.json --static -o graph.svg.html
   (the node's own line range highlighted). Plus pan/zoom, search, layer + node-type legends, a
   minimap, **directional curved edges with type labels**, **animated _marching-ants_ flow edges**
   (dashes glide from source → target; toggle with the **≈ Flow** button or `a`), a **path finder**
-  (shortest path between any two nodes), **export to PNG / SVG / JSON**, **persona tabs**
-  (Deep Dive / Overview / Learn), **zoom controls**, a guided tour, and keyboard shortcuts
-  (`/ f p e a d t ?`). Like the original, it
+  (shortest path between any two nodes), a **Filter popup** (by node type & complexity), a
+  **Fuzzy / Semantic search** with a ranked results dropdown, a **Focus mode** (isolate a node +
+  its 1-hop neighbors), a **Diff overlay** (highlight files changed since the last analysis),
+  **export to PNG / SVG / JSON**, **persona tabs** (Deep Dive / Overview / Learn), **zoom
+  controls**, a guided tour, and keyboard shortcuts (`/ f p e a d t i x b ?`). Like the original, it
   opens on an **overview of layer cards** (name, description, complexity, file count) and you
   **click a layer to drill into its files**, with a breadcrumb back to the overview. The header
   mirrors the original: **persona tabs**, a **Files/+Classes/`fn`** detail toggle, **category
