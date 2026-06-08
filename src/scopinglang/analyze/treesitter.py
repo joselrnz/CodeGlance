@@ -10,22 +10,10 @@ from __future__ import annotations
 import re
 from functools import lru_cache
 
-# our scan language id -> tree-sitter-language-pack grammar name
-_TS_NAME = {
-    # Tuned (explicit specs below)
-    "javascript": "javascript", "typescript": "typescript", "go": "go", "rust": "rust",
-    "java": "java", "ruby": "ruby", "php": "php", "csharp": "csharp", "c": "c", "cpp": "cpp",
-    "kotlin": "kotlin", "swift": "swift", "lua": "lua", "scala": "scala",
-    # Extra coverage (handled by the generic node-kind classifier)
-    "vhdl": "vhdl", "cobol": "cobol", "fortran": "fortran", "ada": "ada", "verilog": "verilog",
-    "haskell": "haskell", "ocaml": "ocaml", "erlang": "erlang", "elixir": "elixir",
-    "julia": "julia", "dart": "dart", "solidity": "solidity", "objc": "objc", "groovy": "groovy",
-    "perl": "perl", "pascal": "pascal", "zig": "zig", "nim": "nim", "crystal": "crystal", "d": "d",
-    "clojure": "clojure", "elm": "elm", "r": "r", "matlab": "matlab", "powershell": "powershell",
-    "tcl": "tcl", "commonlisp": "commonlisp", "scheme": "scheme", "racket": "racket",
-    "gleam": "gleam", "odin": "odin", "glsl": "glsl", "hlsl": "hlsl", "wgsl": "wgsl",
-    "shell": "bash", "terraform": "terraform", "hcl": "hcl",
-}
+from . import registry
+
+# language id -> tree-sitter grammar name, assembled from the languages/ package
+_TS_NAME = registry.grammars()
 
 # Per-language node types. func = standalone callable; cls = type-like container;
 # method = callable defined directly inside a class body.
@@ -33,89 +21,8 @@ _F = "func"
 _C = "cls"
 _M = "method"
 _V = "var"   # top-level variable / constant declaration
-_SPECS: dict[str, dict[str, set[str]]] = {
-    "javascript": {
-        _F: {"function_declaration", "generator_function_declaration", "method_definition"},
-        _C: {"class_declaration"},
-        _M: {"method_definition"},
-        _V: {"lexical_declaration", "variable_declaration"},
-    },
-    "typescript": {
-        _F: {"function_declaration", "generator_function_declaration", "method_definition",
-             "function_signature", "method_signature"},
-        _C: {"class_declaration", "interface_declaration", "abstract_class_declaration",
-             "enum_declaration"},
-        _M: {"method_definition", "method_signature"},
-        _V: {"lexical_declaration", "variable_declaration"},
-    },
-    "go": {
-        _F: {"function_declaration", "method_declaration"},
-        _C: {"type_spec"},
-        _M: set(),
-        _V: {"var_declaration", "const_declaration"},
-    },
-    "rust": {
-        _F: {"function_item"},
-        _C: {"struct_item", "enum_item", "trait_item", "union_item"},
-        _M: set(),
-        _V: {"const_item", "static_item"},
-    },
-    "java": {
-        _F: {"method_declaration", "constructor_declaration"},
-        _C: {"class_declaration", "interface_declaration", "enum_declaration", "record_declaration"},
-        _M: {"method_declaration", "constructor_declaration"},
-    },
-    "ruby": {
-        _F: {"method", "singleton_method"},
-        _C: {"class", "module"},
-        _M: {"method", "singleton_method"},
-    },
-    "php": {
-        _F: {"function_definition", "method_declaration"},
-        _C: {"class_declaration", "interface_declaration", "trait_declaration", "enum_declaration"},
-        _M: {"method_declaration"},
-        _V: {"const_declaration"},
-    },
-    "csharp": {
-        _F: {"method_declaration", "constructor_declaration", "local_function_statement"},
-        _C: {"class_declaration", "interface_declaration", "struct_declaration",
-             "enum_declaration", "record_declaration"},
-        _M: {"method_declaration", "constructor_declaration"},
-    },
-    "c": {
-        _F: {"function_definition"},
-        _C: {"struct_specifier", "union_specifier", "enum_specifier"},
-        _M: set(),
-    },
-    "cpp": {
-        _F: {"function_definition"},
-        _C: {"class_specifier", "struct_specifier", "union_specifier", "enum_specifier"},
-        _M: {"function_definition"},
-    },
-    "kotlin": {
-        _F: {"function_declaration"},
-        _C: {"class_declaration", "object_declaration", "interface_declaration"},
-        _M: {"function_declaration"},
-        _V: {"property_declaration"},
-    },
-    "swift": {
-        _F: {"function_declaration"},
-        _C: {"class_declaration", "protocol_declaration", "struct_declaration"},
-        _M: {"function_declaration"},
-        _V: {"property_declaration"},
-    },
-    "lua": {
-        _F: {"function_declaration", "function_definition"},
-        _C: set(),
-        _M: set(),
-    },
-    "scala": {
-        _F: {"function_definition"},
-        _C: {"class_definition", "object_definition", "trait_definition"},
-        _M: {"function_definition"},
-        _V: {"val_definition", "var_definition"},
-    },
-}
+# Per-language node-kind specs, assembled from the languages/ package (keyed func/cls/method/var).
+_SPECS = registry.specs()
 
 # Node types whose text is a usable identifier (fallback when no 'name' field).
 _NAME_NODE_TYPES = {
