@@ -1,4 +1,4 @@
-# CodeScape
+# ScopingLang
 
 A **pure-Python**, `pip`-installable port of [Understand-Anything](https://github.com/Lum1104/Understand-Anything).
 
@@ -7,16 +7,16 @@ classes and their relationships — rendered to a **single self-contained HTML f
 double-click to open. No Node, no npm, no Vite, no server, no hosting.
 
 ```bash
-pip install codescape
+pip install scopinglang
 
-# Analyze a project -> writes .codescape/knowledge-graph.json -> opens an HTML graph
-codescape /path/to/project
+# Analyze a project -> writes .scopinglang/knowledge-graph.json -> opens an HTML graph
+scopinglang /path/to/project
 
 # Re-render an existing graph to HTML
-codescape render /path/to/project/.codescape/knowledge-graph.json -o graph.html
+scopinglang render /path/to/project/.scopinglang/knowledge-graph.json -o graph.html
 
 # Zero-JavaScript static image instead (inline SVG, no interactivity)
-codescape render knowledge-graph.json --static -o graph.svg.html
+scopinglang render knowledge-graph.json --static -o graph.svg.html
 ```
 
 ## How it differs from the original
@@ -43,20 +43,32 @@ codescape render knowledge-graph.json --static -o graph.svg.html
   click a card: the **signature**, the **docstring / leading doc-comment** pulled from the code,
   tags, complexity, typed connections, and the **syntax-highlighted source code with line numbers**
   (the node's own line range highlighted). Plus pan/zoom, search, layer + node-type legends, a
-  minimap, **directional curved edges with type labels**, a **path finder** (shortest path between
-  any two nodes), **export to PNG / SVG / JSON**, **persona tabs** (Deep Dive / Overview / Learn),
-  **zoom controls**, a guided tour, and keyboard shortcuts (`/ f p e ?`). Like the original, it
+  minimap, **directional curved edges with type labels**, **animated _marching-ants_ flow edges**
+  (dashes glide from source → target; toggle with the **≈ Flow** button or `a`), a **path finder**
+  (shortest path between any two nodes), **export to PNG / SVG / JSON**, **persona tabs**
+  (Deep Dive / Overview / Learn), **zoom controls**, a guided tour, and keyboard shortcuts
+  (`/ f p e a d t ?`). Like the original, it
   opens on an **overview of layer cards** (name, description, complexity, file count) and you
   **click a layer to drill into its files**, with a breadcrumb back to the overview. The header
   mirrors the original: **persona tabs**, a **Files/+Classes/`fn`** detail toggle, **category
-  filter buttons** (Code/Config/Docs/Infra/Data/Domain/Knowledge), and **inline layer chips**;
+  filter buttons** (Code/Config/Docs/Infra/Data/Domain/Knowledge), a **Domain / Structural** view
+  toggle, and **inline layer chips**;
   the sidebar has **Info / Files tabs** — a collapsible file explorer with **VS Code-style
   file-type icons** ([vscode-icons](https://github.com/vscode-icons/vscode-icons), MIT, inlined)
-  plus the **guided-tour steps**. A **theme picker** (Dark Gold / Ocean / Forest / Rose / Light
-  Minimal, 8 accent colors, Serif/Sans/Mono heading font) recolors everything — all base colors
-  are CSS variables, so you can also just open the `.html` and tweak them. Fully offline.
+  plus the **guided-tour steps**. A **theme picker** (**Dark Ocean** by default, plus Dark Gold /
+  Forest / Rose / Light Minimal, 8 accent colors, Serif/Sans/Mono heading font) recolors
+  everything — all base colors are CSS variables, so you can also just open the `.html` and tweak
+  them. Fully offline.
 - **`--static`:** a zero-JavaScript inline-SVG rendering (cards + containers + arrows). A picture,
   but truly no JS.
+
+### Domain view
+
+Toggle **Domain** in the header (or press `d`) for a higher-level **domain map**: each top-level
+package / service directory becomes a **domain card** (its classes/types listed as **entities**),
+and the imports/calls between domains become **animated flow edges**. It's inferred deterministically
+from the project structure — no LLM required — so a microservices repo shows each service and how
+they depend on one another. Try `scopinglang examples/microservices` then click **Domain**.
 
 ## Knowledge graph schema
 
@@ -91,7 +103,7 @@ Go (go.mod module + packages), Rust (`mod` / `use crate::`), Java (dotted path),
 
 ## Incremental updates
 
-Re-running `codescape .` is cheap: per-file content fingerprints (`.codescape/fingerprints.json`)
+Re-running `scopinglang .` is cheap: per-file content fingerprints (`.scopinglang/fingerprints.json`)
 detect what changed. Unchanged files keep their existing summaries (so prior `--llm` enrichment is
 preserved for free), and `--llm` only re-summarizes changed/added files. Pass `--full` to force a
 complete rebuild.

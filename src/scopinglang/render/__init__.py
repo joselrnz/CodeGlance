@@ -168,6 +168,101 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None) -> dict:
     used_keys |= {"_folder", "_folder_open", "_file"}  # folder/file glyphs for the tree
     icon_svg = {k: ICON_SVG[k] for k in used_keys if k in ICON_SVG}
 
+    # --- Domain map (deterministic): group nodes by top-level package/service directory ---
+    # A "domain" approximates a business area or microservice: the first meaningful path
+    # segment of a file. Entities are the types/classes it defines; flows are the
+    # cross-domain edges (imports/calls/depends_on) between domains.
+    import re as _re
+    _ROOTS = {"src", "app", "lib", "libs", "pkg", "internal", "cmd", "services", "service",
+              "packages", "apps", "modules", "components", "source", "sources", "srcs"}
+
+    def _domain_key(path: str | None) -> str | None:
+        if not path:
+            return None
+        parts = path.replace("\\", "/").split("/")
+        dirs = parts[:-1]
+        if not dirs:
+            return "(root)"
+        for d in dirs:
+            if d.lower() not in _ROOTS and not d.startswith("."):
+                return d
+        return dirs[-1]
+
+    def _pretty(d: str) -> str:
+        if d == "(root)":
+            return "Project Root"
+        s = _re.sub(r"[_\-]+", " ", d)
+        s = _re.sub(r"(?<=[a-z0-9])(?=[A-Z])", " ", s)
+        return s.strip().title() or d
+
+    node_domain: dict[str, str] = {}
+    for n in graph.nodes:
+        k = _domain_key(n.filePath)
+        if k is not None:
+            node_domain[n.id] = k
+
+    dom_keys: list[str] = []
+    _seen_dom: set[str] = set()
+    for n in graph.nodes:  # stable order = first appearance
+        k = node_domain.get(n.id)
+        if k and k not in _seen_dom:
+            _seen_dom.add(k)
+            dom_keys.append(k)
+    dom_index = {k: i for i, k in enumerate(dom_keys)}
+
+    _ENTITY_TYPES = {"class", "schema", "table", "resource"}
+    dom_files: dict[str, list] = {k: [] for k in dom_keys}
+    dom_members: dict[str, list] = {k: [] for k in dom_keys}
+    dom_entities: dict[str, list] = {k: [] for k in dom_keys}
+    dom_desc: dict[str, str] = {k: "" for k in dom_keys}
+    for n in graph.nodes:
+        k = node_domain.get(n.id)
+        if not k:
+            continue
+        idx = index_of[n.id]
+        dom_members[k].append(idx)
+        if n.type in FILE_LEVEL_TYPES:
+            dom_files[k].append(idx)
+            s = (n.summary or "").strip()
+            if s and len(s) > len(dom_desc[k]):
+                dom_desc[k] = s
+        if n.type in _ENTITY_TYPES:
+            dom_entities[k].append((n.name, deg.get(n.id, 0)))
+
+    flow_pair: dict[tuple, Counter] = {}
+    for s, t, ty in clean_edges:
+        ds, dt = node_domain.get(s), node_domain.get(t)
+        if ds and dt and ds != dt:
+            flow_pair.setdefault((ds, dt), Counter())[ty] += 1
+    incident: Counter = Counter()
+    for (ds, dt) in flow_pair:
+        incident[ds] += 1
+        incident[dt] += 1
+
+    DW, DH, DGX, DGY = 300.0, 150.0, 60.0, 70.0
+    dcols = max(1, int(_math.ceil(_math.sqrt(len(dom_keys) or 1))))
+    domains_vm = []
+    for i, k in enumerate(dom_keys):
+        r, c = divmod(i, dcols)
+        ranked = sorted(dom_entities[k], key=lambda x: -x[1])
+        _se: set[str] = set()
+        ents = [name for name, _d in ranked if not (name in _se or _se.add(name))]
+        nfiles = len(dom_files[k])
+        desc = dom_desc[k] or f"{nfiles} file(s), {len(ents)} entit{'y' if len(ents) == 1 else 'ies'}."
+        domains_vm.append({
+            "i": i, "key": k, "name": _pretty(k), "description": desc[:200],
+            "entities": ents[:8], "nEntities": len(ents), "nFiles": nfiles,
+            "flowCount": incident.get(k, 0),
+            "color": LAYER_PALETTE[i % len(LAYER_PALETTE)],
+            "members": dom_members[k][:60],
+            "x": round(60 + c * (DW + DGX) + DW / 2, 1),
+            "y": round(60 + r * (DH + DGY) + DH / 2, 1),
+        })
+    domain_edges_vm = []
+    for (ds, dt), cnt in flow_pair.items():
+        domain_edges_vm.append({"a": dom_index[ds], "b": dom_index[dt],
+                                "label": cnt.most_common(1)[0][0], "count": sum(cnt.values())})
+
     return {
         "project": graph.project.to_dict(),
         "stats": graph.stats(),
@@ -188,6 +283,10 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None) -> dict:
         "iconSvg": icon_svg,
         "iconExt": EXT_TO_KEY,
         "iconName": NAME_TO_KEY,
+        "domains": domains_vm,
+        "domainEdges": domain_edges_vm,
+        "domainCardW": DW,
+        "domainCardH": DH,
     }
 
 

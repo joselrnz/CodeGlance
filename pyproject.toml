@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "codescape"
+name = "scopinglang"
 version = "0.1.0"
 description = "Turn any codebase into an interactive knowledge graph you can open as a single HTML file. Pure-Python port of Understand-Anything."
 readme = "README.md"
@@ -33,10 +33,10 @@ fast = ["numpy>=1.24"]
 all = ["anthropic>=0.40", "numpy>=1.24"]
 
 [project.scripts]
-codescape = "codescape.cli:main"
+scopinglang = "scopinglang.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/Lum1104/Understand-Anything"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/codescape"]
+packages = ["src/scopinglang"]

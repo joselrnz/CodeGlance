@@ -12,6 +12,7 @@ dist/
 venv/
 
 # Generated graphs and rendered HTML (examples kept in demo/ are fine to regenerate)
+.scopinglang/
 .codescape/
 .understand-anything/
 demo/*.html

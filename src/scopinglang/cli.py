@@ -1,8 +1,8 @@
 """Command-line interface.
 
-    understand [path]                 analyze a project, write the graph, open an HTML view
-    understand render <graph.json>    re-render an existing knowledge-graph.json to HTML
-    understand dashboard [path]       open the HTML view for a project's existing graph
+    scopinglang [path]                 analyze a project, write the graph, open an HTML view
+    scopinglang render <graph.json>    re-render an existing knowledge-graph.json to HTML
+    scopinglang dashboard [path]       open the HTML view for a project's existing graph
 
 Flags: --static (zero-JS SVG), --llm (LLM enrichment), -o/--output, --no-open, --graph-only.
 """
@@ -19,7 +19,7 @@ from .graph import analyze
 from .render import render_interactive, render_static
 from .schema import KnowledgeGraph
 
-GRAPH_DIR = ".codescape"
+GRAPH_DIR = ".scopinglang"
 GRAPH_FILE = "knowledge-graph.json"
 
 # Recognized subcommands; used to make `analyze` the implicit default command.
@@ -108,7 +108,7 @@ def cmd_render(args: argparse.Namespace) -> int:
         _emit(f"Error: file not found: {graph_path}")
         return 1
     graph = KnowledgeGraph.load(graph_path)
-    # graph lives at <root>/.codescape/knowledge-graph.json → root is two levels up
+    # graph lives at <root>/.scopinglang/knowledge-graph.json → root is two levels up
     root = graph_path.parent.parent if graph_path.parent.name == GRAPH_DIR else None
     out = Path(args.output) if args.output else graph_path.with_name(_default_html_name(args.static))
     _render_to_file(graph, out, args.static, root)
@@ -123,7 +123,7 @@ def cmd_dashboard(args: argparse.Namespace) -> int:
     root = Path(args.path).resolve()
     graph_path = root / GRAPH_DIR / GRAPH_FILE
     if not graph_path.is_file():
-        _emit(f"No knowledge graph found at {graph_path}.\nRun `understand {root}` first to analyze this project.")
+        _emit(f"No knowledge graph found at {graph_path}.\nRun `scopinglang {root}` first to analyze this project.")
         return 1
     graph = KnowledgeGraph.load(graph_path)
     out = Path(args.output) if args.output else root / GRAPH_DIR / _default_html_name(args.static)
@@ -136,10 +136,10 @@ def cmd_dashboard(args: argparse.Namespace) -> int:
 def build_parser() -> argparse.ArgumentParser:
     """Construct the argparse parser with the analyze/render/dashboard subcommands and flags."""
     p = argparse.ArgumentParser(
-        prog="understand",
+        prog="scopinglang",
         description="Turn a codebase into an interactive knowledge-graph HTML file (pure Python).",
     )
-    p.add_argument("--version", action="version", version=f"codescape {__version__}")
+    p.add_argument("--version", action="version", version=f"scopinglang {__version__}")
     sub = p.add_subparsers(dest="command")
 
     a = sub.add_parser("analyze", help="analyze a project and render an HTML graph")
@@ -173,7 +173,7 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     """CLI entry point: parse args (defaulting to `analyze`) and dispatch. Returns an exit code."""
     argv = list(sys.argv[1:] if argv is None else argv)
-    # Make `analyze` the default command: `understand .` == `understand analyze .`
+    # Make `analyze` the default command: `scopinglang .` == `scopinglang analyze .`
     if argv and argv[0] not in _SUBCOMMANDS and argv[0] not in ("-h", "--help", "--version"):
         argv = ["analyze", *argv]
     parser = build_parser()

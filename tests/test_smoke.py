@@ -2,10 +2,10 @@
 
 from pathlib import Path
 
-from codescape.analyze import treesitter as ts
-from codescape.graph import analyze
-from codescape.render import render_interactive, render_static
-from codescape.schema import Edge, KnowledgeGraph, Node, Project
+from scopinglang.analyze import treesitter as ts
+from scopinglang.graph import analyze
+from scopinglang.render import render_interactive, render_static
+from scopinglang.schema import Edge, KnowledgeGraph, Node, Project
 
 FIXTURES = Path(__file__).parent / "fixtures" / "multilang"
 FIXTURES_IMPORTS = Path(__file__).parent / "fixtures" / "imports"
@@ -40,7 +40,7 @@ def test_render_interactive_is_self_contained():
 
 
 def test_render_uses_cards_containers_and_type_colors():
-    from codescape.render import build_view_model, TYPE_COLORS
+    from scopinglang.render import build_view_model, TYPE_COLORS
     vm = build_view_model(_sample_graph())
     assert vm["containers"] and vm["types"] and vm["cardW"] > 0
     fn = next(n for n in vm["nodes"] if n["type"] == "function")
@@ -59,7 +59,7 @@ def test_interactive_has_toolbar_features():
 
 
 def test_overview_layer_cards_and_drilldown():
-    from codescape.render import build_view_model
+    from scopinglang.render import build_view_model
     # the template always carries the overview/drill-down machinery
     html = render_interactive(_sample_graph())
     for marker in ("drawOverview", "setView", "pickLayer", "updateCrumb"):
@@ -107,8 +107,8 @@ def test_theme_system():
 
 
 def test_file_type_icons_inlined():
-    from codescape.render import build_view_model
-    from codescape.render.icons import ICON_SVG, EXT_TO_KEY
+    from scopinglang.render import build_view_model
+    from scopinglang.render.icons import ICON_SVG, EXT_TO_KEY
     assert ICON_SVG.get("_folder") and ICON_SVG.get("python") and EXT_TO_KEY.get("tf") == "terraform"
     vm = build_view_model(_sample_graph())
     assert "_folder" in vm["iconSvg"] and "_folder_open" in vm["iconSvg"]  # folder glyphs always present
@@ -186,7 +186,7 @@ def test_legacy_and_esoteric_languages():
 
 
 def test_python_captures_signature_linerange_docstring():
-    from codescape.analyze.structural import _python_extract
+    from scopinglang.analyze.structural import _python_extract
     _doc, _full, syms, _imp = _python_extract(
         'def f(x: int) -> str:\n    """Doc here."""\n    return str(x)\n'
     )
@@ -206,6 +206,33 @@ def test_treesitter_captures_linerange_and_jsdoc():
 
 
 def test_incremental_writes_fingerprints():
-    from codescape import fingerprint as fp
+    from scopinglang import fingerprint as fp
     analyze(FIXTURES_IMPORTS, use_llm=False)
     assert fp.load(FIXTURES_IMPORTS)  # fingerprints.json persisted and non-empty
+
+
+def test_domain_view_built_with_cross_domain_flows():
+    from scopinglang.render import build_view_model
+    # imports fixture has main.go at root + store/store.go + util/Helper.java → 3 domains, 2 flows
+    g = analyze(FIXTURES_IMPORTS, use_llm=False, full=True)
+    vm = build_view_model(g)
+    assert "domains" in vm and "domainEdges" in vm
+    assert vm["domains"] and vm["domainCardW"] > 0
+    keys = {d["key"] for d in vm["domains"]}
+    assert "store" in keys and "util" in keys  # subdirectory domains detected
+    for d in vm["domains"]:
+        assert {"i", "name", "entities", "nFiles", "flowCount", "x", "y", "members"} <= set(d)
+    if ts.is_available():  # imports only resolve with tree-sitter/ast
+        assert vm["domainEdges"], "expected cross-domain flows"
+        e = vm["domainEdges"][0]
+        assert {"a", "b", "label", "count"} <= set(e)
+
+
+def test_default_theme_is_ocean_and_flow_animation_present():
+    html = render_interactive(_sample_graph())
+    # Dark Ocean is the default (first paint + JS state)
+    assert "--accent:#5ba4cf" in html and "name:'ocean'" in html
+    # marching-ants edge-flow animation + Domain/Structural mode toggle are wired in
+    for marker in ("drawDomain", "setMode", "modeSeg", "btnAnim", "setAnim",
+                   "dashPhase", "lineDashOffset", "DATA.domains", "domainInfoHTML"):
+        assert marker in html, f"missing: {marker}"

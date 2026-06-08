@@ -12,7 +12,7 @@ _HTML = r"""<!doctype html>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>__TITLE__</title>
 <style>
-  :root { color-scheme: dark; --bg:#0a0a0a; --surface:#141414; --elevated:#241c14; --card:#1a1a1a; --code-bg:#0f0d0b; --text:#f5f0eb; --text2:#a39787; --muted:#6b5f53; --accent:#d4a574; --accent-rgb:212,165,116; --tint:rgba(255,255,255,0.02); --font-heading:Georgia,"Times New Roman",serif; }
+  :root { color-scheme: dark; --bg:#0a0e14; --surface:#1b2530; --elevated:#1b2530; --card:#1a222c; --code-bg:#0b0f15; --text:#e8edf2; --text2:#87939f; --muted:#536b7a; --accent:#5ba4cf; --accent-rgb:91,164,207; --tint:rgba(255,255,255,0.02); --font-heading:Georgia,"Times New Roman",serif; }
   * { box-sizing: border-box; }
   html,body { margin:0; height:100%; overflow:hidden; background:var(--bg); color:var(--text);
     font-family: ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
@@ -84,6 +84,7 @@ _HTML = r"""<!doctype html>
   #tourstart { position:fixed; right:240px; bottom:14px; z-index:5; }
   #topbar .bar { display:flex; gap:6px; flex:none; }
   #topbar .bar button { padding:5px 9px; font-size:11px; }
+  #topbar .bar button.on { color:var(--accent); border-color:rgba(var(--accent-rgb),0.5); background:rgba(var(--accent-rgb),0.12); }
   #exportMenu { position:fixed; top:56px; right:14px; z-index:8; display:flex; flex-direction:column; padding:6px; gap:2px; min-width:130px; }
   #exportMenu button { text-align:left; }
   .modal { position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:20; display:flex; align-items:center; justify-content:center; }
@@ -168,6 +169,10 @@ _HTML = r"""<!doctype html>
     <button class="pa" data-p="overview" title="High-level architecture view">Overview</button>
     <button class="pa" data-p="learn" title="Guided learning tour">Learn</button>
   </span>
+  <span class="seg" id="modeSeg">
+    <button data-m="structural" class="on" title="Code structure graph">Structural</button>
+    <button data-m="domain" title="Business domain map">Domain</button>
+  </span>
   <span class="seg" id="detailSeg">
     <button data-d="file" title="Files only — architecture-level">Files</button>
     <button data-d="class" class="on" title="Files + Classes">+Classes</button>
@@ -181,6 +186,7 @@ _HTML = r"""<!doctype html>
     <button id="btnFit" title="Fit to view (f)">⤢ Fit</button>
     <button id="btnPath" title="Path finder (p)">↦ Path</button>
     <button id="btnExport" title="Export (e)">⬇ Export</button>
+    <button id="btnAnim" class="on" title="Toggle edge flow animation (a)">≈ Flow</button>
     <button id="btnTheme" title="Theme (t)">◑ Theme</button>
     <button id="btnHelp" title="Shortcuts (?)">?</button>
   </span>
@@ -217,6 +223,8 @@ _HTML = r"""<!doctype html>
     <kbd>f</kbd><span>Fit graph to view</span>
     <kbd>p</kbd><span>Open path finder</span>
     <kbd>e</kbd><span>Export menu</span>
+    <kbd>a</kbd><span>Toggle edge-flow animation</span>
+    <kbd>d</kbd><span>Toggle Domain / Structural view</span>
     <kbd>?</kbd><span>This help</span>
     <kbd>Esc</kbd><span>Close panel / tour / modal</span>
     <kbd>← →</kbd><span>Prev / next tour step</span>
@@ -226,9 +234,12 @@ _HTML = r"""<!doctype html>
 const DATA = __DATA_JSON__;
 const N=DATA.nodes, E=DATA.edges, L=DATA.layers, TY=DATA.types, TOUR=DATA.tour, CT=DATA.containers;
 const LC=DATA.layerCards||[], LE=DATA.layerEdges||[], lcW=DATA.layerCardW||300, lcH=DATA.layerCardH||172;
+const DM=DATA.domains||[], DE=DATA.domainEdges||[], dW=DATA.domainCardW||300, dH=DATA.domainCardH||150;
 const cardW=DATA.cardW, cardH=DATA.cardH;
 const FILE_LEVEL=new Set(['file','config','document','service','pipeline','table','schema','resource','endpoint']);
 let view='overview', lhover=-1, sidebarTab='info';   // 'overview' shows layer cards; a number drills into that layer
+let graphMode='structural', dhover=-1, selDomain=-1; // graphMode: 'structural' | 'domain'
+let animOn=true, dashPhase=0, _animRunning=false;    // marching-ants edge-flow animation
 const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
 const nbr=N.map(()=>new Set()), etype={};
 for(const e of E){ const a=e[0],b=e[1]; nbr[a].add(b); nbr[b].add(a); etype[a+'_'+b]=e[2]; }
@@ -241,7 +252,7 @@ function hexToRgb(h){ h=(h||'').replace('#',''); if(h.length===3)h=h.split('').m
 function readTheme(){ const s=getComputedStyle(document.documentElement), g=(k,d)=>(s.getPropertyValue(k).trim()||d);
   T.bg=g('--bg','#0a0a0a'); T.card=g('--card','#1a1a1a'); T.text=g('--text','#f5f0eb');
   T.text2=g('--text2','#a39787'); T.muted=g('--muted','#6b5f53'); T.accent=g('--accent','#d4a574');
-  T.accentRgb=g('--accent-rgb','212,165,116'); T.tint=g('--tint','rgba(255,255,255,0.02)'); }
+  T.accentRgb=g('--accent-rgb','91,164,207'); T.tint=g('--tint','rgba(255,255,255,0.02)'); T.fontHeading=g('--font-heading','Georgia,serif'); }
 const THEMES={
  gold:{label:'Dark Gold',bg:'#0a0a0a',elevated:'#241c14',card:'#1a1a1a',codeBg:'#0f0d0b',text:'#f5f0eb',text2:'#a39787',muted:'#6b5f53',accent:'#d4a574',tint:'rgba(255,255,255,0.02)',light:false},
  ocean:{label:'Dark Ocean',bg:'#0a0e14',elevated:'#1b2530',card:'#1a222c',codeBg:'#0b0f15',text:'#e8edf2',text2:'#87939f',muted:'#536b7a',accent:'#5ba4cf',tint:'rgba(255,255,255,0.02)',light:false},
@@ -251,7 +262,7 @@ const THEMES={
 };
 const FONTS={Serif:'Georgia,"Times New Roman",serif',Sans:'ui-sans-serif,system-ui,sans-serif',Mono:'ui-monospace,SFMono-Regular,Menlo,monospace'};
 const ACCENTS=['#d4a574','#5ba4cf','#5fb389','#cf7a8a','#a78bfa','#e0a96a','#2dd4bf','#9aa3ad'];
-let THEME_STATE={name:'gold',accent:'',font:''};
+let THEME_STATE={name:'ocean',accent:'',font:''};
 function applyTheme(){ const th=THEMES[THEME_STATE.name]||THEMES.gold, r=document.documentElement.style;
   r.setProperty('--bg',th.bg); r.setProperty('--surface',th.elevated); r.setProperty('--elevated',th.elevated);
   r.setProperty('--card',th.card); r.setProperty('--code-bg',th.codeBg); r.setProperty('--text',th.text);
@@ -259,7 +270,7 @@ function applyTheme(){ const th=THEMES[THEME_STATE.name]||THEMES.gold, r=documen
   const acc=THEME_STATE.accent||th.accent; r.setProperty('--accent',acc); r.setProperty('--accent-rgb',hexToRgb(acc));
   r.setProperty('--font-heading', FONTS[THEME_STATE.font]||FONTS.Serif);
   document.documentElement.style.colorScheme=th.light?'light':'dark';
-  try{localStorage.setItem('ua-theme',JSON.stringify(THEME_STATE));}catch(e){}
+  try{localStorage.setItem('sl-theme',JSON.stringify(THEME_STATE));}catch(e){}
   readTheme(); if(typeof draw==='function') draw(); }
 let DPR=1, scale=1, ox=0, oy=0;
 const hidden=new Set(), hiddenTypes=new Set();
@@ -280,6 +291,8 @@ function hl_code(line){ const rx=/(\/\/[^\n]*|#[^\n]*|--[^\n]*|\/\*[\s\S]*?\*\/)
 function _kw(s){ return esc(s).replace(_KW, '<span class="tok-kw">$1</span>'); }
 
 function bounds(){
+  if(graphMode==='domain'){ if(!DM.length)return[0,0,800,600]; let a=1e9,b=1e9,c=-1e9,d=-1e9;
+    for(const k of DM){a=Math.min(a,k.x-dW/2);b=Math.min(b,k.y-dH/2);c=Math.max(c,k.x+dW/2);d=Math.max(d,k.y+dH/2);} return [a,b,c,d]; }
   if(view==='overview'){ if(!LC.length)return[0,0,800,600]; let a=1e9,b=1e9,c=-1e9,d=-1e9;
     for(const k of LC){a=Math.min(a,k.x-lcW/2);b=Math.min(b,k.y-lcH/2);c=Math.max(c,k.x+lcW/2);d=Math.max(d,k.y+lcH/2);} return [a,b,c,d]; }
   const c0=CT.find(k=>k.layer===view); if(c0) return [c0.x,c0.y,c0.x+c0.w,c0.y+c0.h];
@@ -296,11 +309,14 @@ function clipText(t,maxw){ if(ctx.measureText(t).width<=maxw)return t; let s=t;
   while(s.length>1 && ctx.measureText(s+'…').width>maxw) s=s.slice(0,-1); return s+'…'; }
 function bp(fx,fy,cx,cy){ const dx=fx-cx,dy=fy-cy; if(!dx&&!dy)return[cx,cy];
   const sx=dx?(cardW/2)/Math.abs(dx):1e9, sy=dy?(cardH/2)/Math.abs(dy):1e9, s=Math.min(sx,sy); return [cx+dx*s,cy+dy*s]; }
+function dbp(fx,fy,cx,cy){ const dx=fx-cx,dy=fy-cy; if(!dx&&!dy)return[cx,cy];
+  const sx=dx?(dW/2)/Math.abs(dx):1e9, sy=dy?(dH/2)/Math.abs(dy):1e9, s=Math.min(sx,sy); return [cx+dx*s,cy+dy*s]; }
 
 function draw(){
   ctx.setTransform(DPR,0,0,DPR,0,0);
   ctx.fillStyle=T.bg; ctx.fillRect(0,0,innerWidth,innerHeight);
   updateCrumb();
+  if(graphMode==='domain'){ drawDomain(); drawMinimap(); return; }
   if(view==='overview'){ drawOverview(); drawMinimap(); return; }
   // layer containers (only the drilled-in layer)
   for(const c of CT){ if(c.layer!==view)continue;
@@ -309,7 +325,8 @@ function draw(){
     ctx.lineWidth=1.2; ctx.strokeStyle=c.color+'66'; ctx.stroke();
     if(scale>0.28){ ctx.fillStyle=c.color; ctx.font='600 13px ui-sans-serif';
       ctx.fillText(c.name+'  ('+c.count+')', x+12, y+21); } }
-  // edges
+  // edges (dashed + animated "marching ants" when flow animation is on)
+  ctx.setLineDash(animOn?[7,7]:[]); ctx.lineDashOffset=animOn?-dashPhase:0;
   for(const e of E){ const a=e[0],b=e[1]; if(!vis(a)||!vis(b))continue;
     const onpath = pathEdges && (pathEdges.has(a+'_'+b)||pathEdges.has(b+'_'+a));
     const lit=(hover===a||hover===b||sel===a||sel===b)||onpath;
@@ -325,6 +342,7 @@ function draw(){
       ctx.lineTo(x2-s*Math.cos(ang+0.42),y2-s*Math.sin(ang+0.42)); ctx.closePath(); ctx.fillStyle=ctx.strokeStyle; ctx.fill(); }
     if(e[2] && (lit || scale>0.95)){ ctx.font='9px ui-monospace,monospace'; ctx.fillStyle=lit?T.text:ac(0.55);
       ctx.fillText(e[2], (mx+cxp)/2+3, (my+cyp)/2-3); } }
+  ctx.setLineDash([]);
   // cards
   for(let i=0;i<N.length;i++){ if(vis(i)) drawCard(i); }
   drawMinimap();
@@ -356,12 +374,14 @@ function wrapText(text,x,y,maxw,lh,maxLines){ const words=(text||'').split(/\s+/
     else line=t; }
   if(line&&ln<maxLines) ctx.fillText(line,x,y+ln*lh); }
 function drawOverview(){
+  ctx.setLineDash(animOn?[7,7]:[]); ctx.lineDashOffset=animOn?-dashPhase:0;
   for(const e of LE){ const A=LC[e.a],B=LC[e.b]; if(!A||!B)continue;
     const x1=SX(A.x),y1=SY(A.y),x2=SX(B.x),y2=SY(B.y),mx=(x1+x2)/2,my=(y1+y2)/2;
     const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy)||1,off=Math.min(46,len*0.16),cxp=mx-dy/len*off,cyp=my+dx/len*off;
     ctx.strokeStyle=ac(0.4); ctx.lineWidth=Math.min(5,1+Math.log2(e.count+1));
     ctx.beginPath();ctx.moveTo(x1,y1);ctx.quadraticCurveTo(cxp,cyp,x2,y2);ctx.stroke();
     ctx.fillStyle=T.text2; ctx.font='11px ui-monospace,monospace'; ctx.fillText(e.count,(mx+cxp)/2+2,(my+cyp)/2); }
+  ctx.setLineDash([]);
   for(const l of LC){ const w=lcW*scale,h=lcH*scale,x=SX(l.x)-w/2,y=SY(l.y)-h/2;
     if(x>innerWidth||y>innerHeight||x+w<0||y+h<0)continue;
     rr(x,y,w,h,13); ctx.fillStyle=T.card; ctx.fill();
@@ -373,13 +393,76 @@ function drawOverview(){
       ctx.fillStyle=T.text2; ctx.font=Math.round(6.5*scale+4)+'px ui-sans-serif'; wrapText(l.description||'', x+pad, y+Math.round(58*scale)+4, w-pad*2, Math.round(7*scale+6), 4);
       ctx.fillStyle=T.muted; ctx.font=Math.round(6.5*scale+3)+'px ui-sans-serif'; ctx.fillText(l.count+' files   ·   click to explore →', x+pad, y+h-Math.round(12*scale)); } }
 }
-function setView(v){ view=v; sel=-1; matched=null; pathNodes=null; pathEdges=null; focusSet=null; lhover=-1;
+function setView(v){ if(graphMode!=='structural'){ graphMode='structural'; selDomain=-1; applyModeUI(); }
+  view=v; sel=-1; matched=null; pathNodes=null; pathEdges=null; focusSet=null; lhover=-1;
   const s=document.getElementById('search'); if(s)s.value=''; renderPanel(); fit(); draw(); }
 window.setView=setView;
 function updateCrumb(){ const cr=document.getElementById('crumb'); if(!cr)return;
+  if(graphMode==='domain'){ cr.innerHTML='Domain Map'+(selDomain>=0?' &nbsp;›&nbsp; '+esc(DM[selDomain].name):''); return; }
   if(view==='overview') cr.innerHTML='Project Overview';
   else cr.innerHTML='<button onclick="setView(\'overview\')">‹ Project</button> &nbsp;›&nbsp; '+esc((L[view]&&L[view].name)||'Layer');
   if(typeof refreshChips==='function') refreshChips(); }
+
+// --- Domain map: business-domain cards + cross-domain flows (animated) ---
+function applyModeUI(){ const struct=graphMode==='structural';
+  document.querySelectorAll('#modeSeg button').forEach(b=>b.classList.toggle('on', b.dataset.m===graphMode));
+  ['detailSeg','fnToggle','catFilters','layerChips'].forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.toggle('hidden', !struct); }); }
+function setMode(m){ if(m===graphMode)return; graphMode=m; selDomain=-1; dhover=-1; sel=-1; matched=null;
+  applyModeUI(); renderPanel(); fit(); draw(); }
+window.setMode=setMode;
+function pickDomain(mx,my){ const wx=(mx-ox)/scale, wy=(my-oy)/scale;
+  for(let i=DM.length-1;i>=0;i--){ const d=DM[i]; if(Math.abs(wx-d.x)<=dW/2 && Math.abs(wy-d.y)<=dH/2) return i; } return -1; }
+function centerDomain(i){ const d=DM[i]; if(!d)return; ox=innerWidth/2-d.x*scale; oy=innerHeight/2-d.y*scale; }
+function selectDomain(i){ selDomain=i; sidebarTab='info'; renderPanel(); if(i>=0) centerDomain(i); draw(); }
+window.selectDomain=selectDomain;
+function drawDomain(){
+  ctx.setLineDash(animOn?[8,8]:[]); ctx.lineDashOffset=animOn?-dashPhase:0;
+  for(const e of DE){ const A=DM[e.a],B=DM[e.b]; if(!A||!B)continue;
+    const p1=dbp(B.x,B.y,A.x,A.y), p2=dbp(A.x,A.y,B.x,B.y);
+    const x1=SX(p1[0]),y1=SY(p1[1]),x2=SX(p2[0]),y2=SY(p2[1]);
+    const lit=(dhover===e.a||dhover===e.b||selDomain===e.a||selDomain===e.b);
+    const mx=(x1+x2)/2,my=(y1+y2)/2,dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy)||1,off=Math.min(54,len*0.16),cxp=mx-dy/len*off,cyp=my+dx/len*off;
+    ctx.strokeStyle=lit?ac(0.92):ac(0.32); ctx.lineWidth=lit?2.6:Math.min(4,1.2+Math.log2(e.count+1));
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.quadraticCurveTo(cxp,cyp,x2,y2);ctx.stroke();
+    ctx.setLineDash([]);
+    if(scale>0.22){ const ang=Math.atan2(y2-cyp,x2-cxp),s=8; ctx.beginPath();ctx.moveTo(x2,y2);
+      ctx.lineTo(x2-s*Math.cos(ang-0.4),y2-s*Math.sin(ang-0.4));ctx.lineTo(x2-s*Math.cos(ang+0.4),y2-s*Math.sin(ang+0.4));ctx.closePath();ctx.fillStyle=ctx.strokeStyle;ctx.fill(); }
+    if(e.label&&(lit||scale>0.45)){ ctx.font='10px ui-monospace,monospace'; ctx.fillStyle=lit?T.text:ac(0.6); ctx.fillText(e.label,(mx+cxp)/2+3,(my+cyp)/2-2); }
+    if(animOn){ctx.setLineDash([8,8]);ctx.lineDashOffset=-dashPhase;}
+  }
+  ctx.setLineDash([]);
+  for(const d of DM){ const w=dW*scale,h=dH*scale,x=SX(d.x)-w/2,y=SY(d.y)-h/2;
+    if(x>innerWidth||y>innerHeight||x+w<0||y+h<0)continue;
+    const on=(dhover===d.i||selDomain===d.i);
+    rr(x,y,w,h,12); ctx.fillStyle=T.card; ctx.fill();
+    ctx.fillStyle=d.color; ctx.fillRect(x,y+2,Math.max(4,5*scale),h-4);
+    ctx.lineWidth=on?2:1; ctx.strokeStyle=on?T.accent:ac(0.22); rr(x,y,w,h,12); ctx.stroke();
+    if(scale>0.16){ const pad=14*scale+5;
+      ctx.fillStyle=d.color; ctx.font='700 '+Math.round(6.5*scale+3)+'px ui-monospace,monospace'; ctx.fillText('DOMAIN', x+pad, y+Math.round(15*scale)+2);
+      ctx.fillStyle=T.text; ctx.font=Math.round(9*scale+5)+'px '+(T.fontHeading||'Georgia,serif'); ctx.fillText(clipText(d.name,w-pad*2), x+pad, y+Math.round(37*scale)+2);
+      ctx.fillStyle=T.text2; ctx.font=Math.round(6*scale+4)+'px ui-sans-serif'; wrapText(d.description||'', x+pad, y+Math.round(53*scale), w-pad*2, Math.round(6*scale+6), 2);
+      if(scale>0.34 && d.entities && d.entities.length){ ctx.fillStyle=T.muted; ctx.font='9px ui-sans-serif'; ctx.fillText('ENTITIES', x+pad, y+h-Math.round(32*scale)-2);
+        ctx.fillStyle=T.text2; ctx.font='10px ui-monospace,monospace'; ctx.fillText(clipText(d.entities.slice(0,4).join('   '), w-pad*2), x+pad, y+h-Math.round(18*scale)); }
+      ctx.fillStyle=T.muted; ctx.font=Math.round(6*scale+3)+'px ui-sans-serif'; ctx.fillText(d.nFiles+' files  ·  '+d.flowCount+' flows', x+pad, y+h-Math.round(6*scale)); }
+  }
+}
+function domainOverHTML(){ let h='<div class="ov-title">Domain Map</div><div class="ov-desc">Business domains inferred from the project structure, linked by cross-domain flows. Click a domain for details.</div>';
+  h+='<div class="ov-grid">'+stat('Domains',DM.length)+stat('Flows',DE.length)+'</div>';
+  if(DM.length){ h+='<div class="ov-h">Domains</div>';
+    for(const d of DM) h+='<div class="nb" data-dom="'+d.i+'"><span class="sw" style="display:inline-block;width:10px;height:10px;border-radius:3px;background:'+d.color+'"></span> '+esc(d.name)+' <span class="muted">· '+d.nFiles+' files</span></div>'; }
+  else h+='<div class="ov-desc" style="margin-top:10px">No domains detected (no nested directories to group by).</div>';
+  return h; }
+function domainInfoHTML(i){ const d=DM[i]; let h='<span class="close" onclick="selectDomain(-1)">✕</span>';
+  h+='<span class="ptype" style="color:'+d.color+';border-color:'+d.color+'">domain</span>';
+  h+='<h3>'+esc(d.name)+'</h3>';
+  if(d.description) h+='<div class="summary">'+esc(d.description)+'</div>';
+  h+='<div class="ov-grid">'+stat('Files',d.nFiles)+stat('Entities',d.nEntities)+stat('Flows',d.flowCount)+'</div>';
+  if(d.entities&&d.entities.length) h+='<div class="ov-h">Entities</div><div class="pills">'+d.entities.map(e=>'<span class="pill">'+esc(e)+'</span>').join('')+'</div>';
+  const outs=DE.filter(e=>e.a===i), ins=DE.filter(e=>e.b===i);
+  if(outs.length){ h+='<div class="ov-h">Flows out ('+outs.length+')</div>'; for(const e of outs) h+='<div class="nb" data-dom="'+e.b+'"><span class="et">'+esc(e.label||'flow')+'</span> '+esc(DM[e.b].name)+' <span class="muted">· '+e.count+'</span></div>'; }
+  if(ins.length){ h+='<div class="ov-h">Flows in ('+ins.length+')</div>'; for(const e of ins) h+='<div class="nb" data-dom="'+e.a+'"><span class="et">'+esc(e.label||'flow')+'</span> '+esc(DM[e.a].name)+' <span class="muted">· '+e.count+'</span></div>'; }
+  if(d.members&&d.members.length){ h+='<div class="ov-h">Files ('+d.nFiles+')</div>'; for(const idx of d.members.slice(0,40)){ const n=N[idx]; if(!n||!FILE_LEVEL.has(n.type))continue; h+='<div class="nb" data-i="'+idx+'">'+esc(n.name)+' <span class="muted">· '+esc(n.type)+'</span></div>'; } }
+  return h; }
 
 const tip=document.getElementById('tip');
 function tooltip(i,e){ if(i<0){tip.style.display='none';return;} const n=N[i];
@@ -460,10 +543,13 @@ function renderPanel(){
   const tabs='<div class="ptabs"><button class="ptab'+(sidebarTab==='info'?' on':'')+'" data-tab="info">Info</button>'
     +'<button class="ptab'+(sidebarTab==='files'?' on':'')+'" data-tab="files">Files</button>'
     +'<button class="pclose" title="Hide panel">⟩</button></div>';
-  const body = sidebarTab==='files' ? filesHTML() : (sel>=0 ? infoHTML(sel) : overviewHTML());
+  const body = sidebarTab==='files' ? filesHTML()
+    : graphMode==='domain' ? (selDomain>=0 ? domainInfoHTML(selDomain) : domainOverHTML())
+    : (sel>=0 ? infoHTML(sel) : overviewHTML());
   panel.innerHTML = tabs + body;
   panel.querySelectorAll('.ptab').forEach(el=>el.onclick=()=>{ sidebarTab=el.dataset.tab; renderPanel(); });
   panel.querySelector('.pclose').onclick=()=>togglePanel(false);
+  panel.querySelectorAll('.nb[data-dom]').forEach(el=>el.onclick=()=>selectDomain(+el.dataset.dom));
   panel.querySelectorAll('.nb[data-i]').forEach(el=>el.onclick=()=>goToNode(+el.dataset.i));
   panel.querySelectorAll('.fitem[data-i]').forEach(el=>el.onclick=()=>goToNode(+el.dataset.i));
   panel.querySelectorAll('.fdirrow').forEach(el=>el.onclick=()=>{ const p=el.dataset.d;
@@ -475,7 +561,8 @@ function togglePanel(open){ panel.classList.toggle('collapsed', !open);
 window.togglePanel=togglePanel;
 document.getElementById('panelReopen').onclick=()=>togglePanel(true);
 function select(i){ sel=i; renderPanel(); if(i>=0) center([i],false); draw(); }
-function goToNode(i){ if(i<0)return; if(N[i]&&N[i].layer>=0) view=N[i].layer; sidebarTab='info'; sel=i; renderPanel(); center([i],true); draw(); }
+function goToNode(i){ if(i<0)return; if(graphMode!=='structural'){ graphMode='structural'; selDomain=-1; applyModeUI(); }
+  if(N[i]&&N[i].layer>=0) view=N[i].layer; sidebarTab='info'; sel=i; renderPanel(); center([i],true); draw(); }
 window.select=select; window.goToNode=goToNode;
 
 document.getElementById('search').addEventListener('input',e=>{ const q=e.target.value.trim().toLowerCase();
@@ -518,10 +605,12 @@ document.getElementById('fnToggle').onclick=()=>{ showFns=!showFns; if(showFns)d
 let drag=false,lx,ly,moved=false;
 cv.addEventListener('mousedown',e=>{drag=true;moved=false;lx=e.clientX;ly=e.clientY;});
 window.addEventListener('mousemove',e=>{ if(drag){ox+=e.clientX-lx;oy+=e.clientY-ly;lx=e.clientX;ly=e.clientY;moved=true;draw();return;}
+  if(graphMode==='domain'){ const h=pickDomain(e.clientX,e.clientY); if(h!==dhover){dhover=h;cv.style.cursor=h>=0?'pointer':'grab';draw();} tooltip(-1,e); return; }
   if(view==='overview'){ const h=pickLayer(e.clientX,e.clientY); if(h!==lhover){lhover=h;cv.style.cursor=h>=0?'pointer':'grab';draw();} tooltip(-1,e); return; }
   const h=pick(e.clientX,e.clientY); if(h!==hover){hover=h;cv.style.cursor=h>=0?'pointer':'grab';draw();} tooltip(h,e); });
 window.addEventListener('mouseup',e=>{ if(drag&&!moved){
-    if(view==='overview'){ const h=pickLayer(e.clientX,e.clientY); if(h>=0) setView(h); }
+    if(graphMode==='domain'){ const h=pickDomain(e.clientX,e.clientY); selectDomain(h); }
+    else if(view==='overview'){ const h=pickLayer(e.clientX,e.clientY); if(h>=0) setView(h); }
     else { const h=pick(e.clientX,e.clientY); select(h); } } drag=false; });
 cv.addEventListener('wheel',e=>{e.preventDefault();const f=Math.exp(-e.deltaY*0.0016);
   ox=e.clientX-(e.clientX-ox)*f; oy=e.clientY-(e.clientY-oy)*f; scale*=f; draw();},{passive:false});
@@ -533,7 +622,8 @@ function mmInit(){ const[a,b,c,d]=bounds(); const gw=(c-a)||1,gh=(d-b)||1,p=8;
   MM.s=Math.min((MM.w-2*p)/gw,(MM.h-2*p)/gh); MM.ox=p-a*MM.s+(MM.w-2*p-gw*MM.s)/2; MM.oy=p-b*MM.s+(MM.h-2*p-gh*MM.s)/2; }
 const mmPt=(x,y)=>[x*MM.s+MM.ox,y*MM.s+MM.oy];
 function drawMinimap(){ if(!mm.width)return; mmx.setTransform(DPR,0,0,DPR,0,0); mmx.fillStyle=T.bg; mmx.fillRect(0,0,MM.w,MM.h);
-  if(view==='overview'){ for(const l of LC){ const q=mmPt(l.x-lcW/2,l.y-lcH/2); mmx.fillStyle=l.color; mmx.globalAlpha=0.9; mmx.fillRect(q[0],q[1],Math.max(3,lcW*MM.s),Math.max(2,lcH*MM.s)); } mmx.globalAlpha=1; }
+  if(graphMode==='domain'){ for(const d of DM){ const q=mmPt(d.x-dW/2,d.y-dH/2); mmx.fillStyle=d.color; mmx.globalAlpha=0.9; mmx.fillRect(q[0],q[1],Math.max(3,dW*MM.s),Math.max(2,dH*MM.s)); } mmx.globalAlpha=1; }
+  else if(view==='overview'){ for(const l of LC){ const q=mmPt(l.x-lcW/2,l.y-lcH/2); mmx.fillStyle=l.color; mmx.globalAlpha=0.9; mmx.fillRect(q[0],q[1],Math.max(3,lcW*MM.s),Math.max(2,lcH*MM.s)); } mmx.globalAlpha=1; }
   else { for(let i=0;i<N.length;i++){ if(!vis(i))continue; const n=N[i],q=mmPt(n.x,n.y); mmx.globalAlpha=dim(i)?0.25:0.95; mmx.fillStyle=n.color; mmx.fillRect(q[0]-1,q[1]-0.6,Math.max(2,cardW*MM.s),Math.max(1.4,cardH*MM.s)); } mmx.globalAlpha=1; }
   const p0=mmPt((0-ox)/scale,(0-oy)/scale),p1=mmPt((innerWidth-ox)/scale,(innerHeight-oy)/scale);
   mmx.strokeStyle=T.accent; mmx.lineWidth=1; mmx.strokeRect(p0[0],p0[1],p1[0]-p0[0],p1[1]-p0[1]); }
@@ -612,6 +702,14 @@ $('pathFind').onclick=()=>{ const a=+$('pathFrom').value, b=+$('pathTo').value;
 
 $('btnHelp').onclick=()=>$('helpModal').classList.remove('hidden');
 
+// edge-flow animation (marching ants) + domain/structural mode toggle
+function startAnim(){ if(_animRunning)return; _animRunning=true; requestAnimationFrame(stepAnim); }
+function stepAnim(){ if(!animOn){ _animRunning=false; return; } dashPhase+=0.6; draw(); requestAnimationFrame(stepAnim); }
+function setAnim(on){ animOn=on; const b=$('btnAnim'); if(b)b.classList.toggle('on',on); if(on) startAnim(); else draw(); }
+$('btnAnim').onclick=()=>setAnim(!animOn);
+document.querySelectorAll('#modeSeg button').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
+if(!DM.length){ const db=document.querySelector('#modeSeg [data-m="domain"]'); if(db){ db.disabled=true; db.style.opacity=0.4; db.title='No domains detected'; } }
+
 // theme menu (presets + accent swatches + heading font)
 const themeMenu=$('themeMenu');
 function buildThemeMenu(){ let h='<div class="tm-h">Theme</div>';
@@ -646,13 +744,15 @@ window.addEventListener('keydown',e=>{
   else if(e.key==='p'){ $('pathModal').classList.remove('hidden'); }
   else if(e.key==='e'){ exMenu.classList.toggle('hidden'); }
   else if(e.key==='t'){ themeMenu.classList.toggle('hidden'); refreshThemeMenu(); }
+  else if(e.key==='a'){ setAnim(!animOn); }
+  else if(e.key==='d'){ setMode(graphMode==='domain'?'structural':'domain'); }
   else if(e.key==='?'){ $('helpModal').classList.remove('hidden'); }
   if(tIdx>=0&&e.key==='ArrowRight')$('tnext').click();
   if(tIdx>=0&&e.key==='ArrowLeft')$('tprev').click(); });
 
 window.addEventListener('resize',resize);
-try{ const sv=JSON.parse(localStorage.getItem('ua-theme')||'null'); if(sv&&THEMES[sv.name]) THEME_STATE=sv; }catch(e){}
-applyTheme(); applyDetail(); renderPanel(); fit(); resize();
+try{ const sv=JSON.parse(localStorage.getItem('sl-theme')||'null'); if(sv&&THEMES[sv.name]) THEME_STATE=sv; }catch(e){}
+applyTheme(); applyDetail(); applyModeUI(); renderPanel(); fit(); resize(); if(animOn) startAnim();
 </script>
 </body>
 </html>
