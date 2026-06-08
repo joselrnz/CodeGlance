@@ -1,0 +1,765 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "taskman",
+    "languages": [
+      "python"
+    ],
+    "frameworks": [],
+    "description": "taskman: 9 files (7 code, 2 docs). Primary languages: python.",
+    "analyzedAt": "2026-06-07T21:47:18.817707+00:00",
+    "gitCommitHash": "7e72be41fb73068390750a34b0128dd6e5011e52"
+  },
+  "nodes": [
+    {
+      "id": "document:README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "README.md",
+      "summary": "Markdown documentation (11 lines).",
+      "tags": [
+        "markdown",
+        "docs"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:app/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "app/__init__.py",
+      "summary": "Task Manager — a tiny example app used to exercise understand-anything-py.",
+      "tags": [
+        "python",
+        "code",
+        "app"
+      ],
+      "complexity": "simple",
+      "docstring": "Task Manager — a tiny example app used to exercise understand-anything-py."
+    },
+    {
+      "id": "class:app/config.py:Config",
+      "type": "class",
+      "name": "Config",
+      "filePath": "app/config.py",
+      "summary": "Class Config in app/config.py",
+      "tags": [
+        "class",
+        "python"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        7,
+        8
+      ],
+      "signature": "class Config"
+    },
+    {
+      "id": "function:app/config.py:load_config",
+      "type": "function",
+      "name": "load_config",
+      "filePath": "app/config.py",
+      "summary": "Function load_config in app/config.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        11,
+        12
+      ],
+      "signature": "def load_config() -> Config"
+    },
+    {
+      "id": "file:app/config.py",
+      "type": "file",
+      "name": "config.py",
+      "filePath": "app/config.py",
+      "summary": "Configuration loading.",
+      "tags": [
+        "python",
+        "code",
+        "app"
+      ],
+      "complexity": "simple",
+      "docstring": "Configuration loading."
+    },
+    {
+      "id": "class:app/db.py:Database",
+      "type": "class",
+      "name": "Database",
+      "filePath": "app/db.py",
+      "summary": "Stores tasks and users in memory.",
+      "tags": [
+        "class",
+        "python"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        6,
+        21
+      ],
+      "signature": "class Database",
+      "docstring": "Stores tasks and users in memory."
+    },
+    {
+      "id": "function:app/db.py:Database.__init__",
+      "type": "function",
+      "name": "Database.__init__",
+      "filePath": "app/db.py",
+      "summary": "Method Database.__init__ in app/db.py",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        9,
+        12
+      ],
+      "signature": "def __init__(self, path: str)"
+    },
+    {
+      "id": "function:app/db.py:Database.save",
+      "type": "function",
+      "name": "Database.save",
+      "filePath": "app/db.py",
+      "summary": "Method Database.save in app/db.py",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        14,
+        15
+      ],
+      "signature": "def save(self, task: Task) -> None"
+    },
+    {
+      "id": "function:app/db.py:Database.save_user",
+      "type": "function",
+      "name": "Database.save_user",
+      "filePath": "app/db.py",
+      "summary": "Method Database.save_user in app/db.py",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        17,
+        18
+      ],
+      "signature": "def save_user(self, user: User) -> None"
+    },
+    {
+      "id": "function:app/db.py:Database.all_tasks",
+      "type": "function",
+      "name": "Database.all_tasks",
+      "filePath": "app/db.py",
+      "summary": "Method Database.all_tasks in app/db.py",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        20,
+        21
+      ],
+      "signature": "def all_tasks(self) -> list[Task]"
+    },
+    {
+      "id": "file:app/db.py",
+      "type": "file",
+      "name": "db.py",
+      "filePath": "app/db.py",
+      "summary": "A tiny in-memory database.",
+      "tags": [
+        "python",
+        "code",
+        "app"
+      ],
+      "complexity": "simple",
+      "docstring": "A tiny in-memory database."
+    },
+    {
+      "id": "function:app/main.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "app/main.py",
+      "summary": "Function main in app/main.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        8,
+        12
+      ],
+      "signature": "def main() -> None"
+    },
+    {
+      "id": "file:app/main.py",
+      "type": "file",
+      "name": "main.py",
+      "filePath": "app/main.py",
+      "summary": "Application entry point: wires the task-manager API together and starts it.",
+      "tags": [
+        "python",
+        "code",
+        "app"
+      ],
+      "complexity": "simple",
+      "docstring": "Application entry point: wires the task-manager API together and starts it."
+    },
+    {
+      "id": "class:app/models.py:Task",
+      "type": "class",
+      "name": "Task",
+      "filePath": "app/models.py",
+      "summary": "A single to-do item.",
+      "tags": [
+        "class",
+        "python"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        4,
+        12
+      ],
+      "signature": "class Task",
+      "docstring": "A single to-do item."
+    },
+    {
+      "id": "function:app/models.py:Task.__init__",
+      "type": "function",
+      "name": "Task.__init__",
+      "filePath": "app/models.py",
+      "summary": "Method Task.__init__ in app/models.py",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        7,
+        9
+      ],
+      "signature": "def __init__(self, title: str)"
+    },
+    {
+      "id": "function:app/models.py:Task.complete",
+      "type": "function",
+      "name": "Task.complete",
+      "filePath": "app/models.py",
+      "summary": "Method Task.complete in app/models.py",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        11,
+        12
+      ],
+      "signature": "def complete(self) -> None"
+    },
+    {
+      "id": "class:app/models.py:User",
+      "type": "class",
+      "name": "User",
+      "filePath": "app/models.py",
+      "summary": "An account that owns tasks.",
+      "tags": [
+        "class",
+        "python"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        15,
+        19
+      ],
+      "signature": "class User",
+      "docstring": "An account that owns tasks."
+    },
+    {
+      "id": "function:app/models.py:User.__init__",
+      "type": "function",
+      "name": "User.__init__",
+      "filePath": "app/models.py",
+      "summary": "Method User.__init__ in app/models.py",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        18,
+        19
+      ],
+      "signature": "def __init__(self, name: str)"
+    },
+    {
+      "id": "file:app/models.py",
+      "type": "file",
+      "name": "models.py",
+      "filePath": "app/models.py",
+      "summary": "Domain models for the task manager.",
+      "tags": [
+        "python",
+        "code",
+        "app"
+      ],
+      "complexity": "simple",
+      "docstring": "Domain models for the task manager."
+    },
+    {
+      "id": "class:app/routes.py:Router",
+      "type": "class",
+      "name": "Router",
+      "filePath": "app/routes.py",
+      "summary": "Dispatches task operations to the database.",
+      "tags": [
+        "class",
+        "python"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        7,
+        27
+      ],
+      "signature": "class Router",
+      "docstring": "Dispatches task operations to the database."
+    },
+    {
+      "id": "function:app/routes.py:Router.__init__",
+      "type": "function",
+      "name": "Router.__init__",
+      "filePath": "app/routes.py",
+      "summary": "Method Router.__init__ in app/routes.py",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        10,
+        11
+      ],
+      "signature": "def __init__(self, db: Database)"
+    },
+    {
+      "id": "function:app/routes.py:Router.serve",
+      "type": "function",
+      "name": "Router.serve",
+      "filePath": "app/routes.py",
+      "summary": "Method Router.serve in app/routes.py",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        13,
+        14
+      ],
+      "signature": "def serve(self) -> None"
+    },
+    {
+      "id": "function:app/routes.py:Router.list_tasks",
+      "type": "function",
+      "name": "Router.list_tasks",
+      "filePath": "app/routes.py",
+      "summary": "Method Router.list_tasks in app/routes.py",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        16,
+        17
+      ],
+      "signature": "def list_tasks(self) -> list"
+    },
+    {
+      "id": "function:app/routes.py:Router.create_task",
+      "type": "function",
+      "name": "Router.create_task",
+      "filePath": "app/routes.py",
+      "summary": "Method Router.create_task in app/routes.py",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        19,
+        22
+      ],
+      "signature": "def create_task(self, title: str) -> Task"
+    },
+    {
+      "id": "function:app/routes.py:Router.add_user",
+      "type": "function",
+      "name": "Router.add_user",
+      "filePath": "app/routes.py",
+      "summary": "Method Router.add_user in app/routes.py",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        24,
+        27
+      ],
+      "signature": "def add_user(self, name: str) -> User"
+    },
+    {
+      "id": "file:app/routes.py",
+      "type": "file",
+      "name": "routes.py",
+      "filePath": "app/routes.py",
+      "summary": "HTTP-style routes for the task manager.",
+      "tags": [
+        "python",
+        "code",
+        "app"
+      ],
+      "complexity": "simple",
+      "docstring": "HTTP-style routes for the task manager."
+    },
+    {
+      "id": "document:requirements.txt",
+      "type": "document",
+      "name": "requirements.txt",
+      "filePath": "requirements.txt",
+      "summary": "Plaintext documentation (1 lines).",
+      "tags": [
+        "plaintext",
+        "docs"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/test_routes.py:test_create_task",
+      "type": "function",
+      "name": "test_create_task",
+      "filePath": "tests/test_routes.py",
+      "summary": "Function test_create_task in tests/test_routes.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        7,
+        11
+      ],
+      "signature": "def test_create_task()"
+    },
+    {
+      "id": "file:tests/test_routes.py",
+      "type": "file",
+      "name": "test_routes.py",
+      "filePath": "tests/test_routes.py",
+      "summary": "Tests for the router.",
+      "tags": [
+        "python",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple",
+      "docstring": "Tests for the router."
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:app/config.py",
+      "target": "class:app/config.py:Config",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:app/config.py",
+      "target": "function:app/config.py:load_config",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:app/db.py",
+      "target": "class:app/db.py:Database",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:app/db.py:Database",
+      "target": "function:app/db.py:Database.__init__",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:app/db.py:Database",
+      "target": "function:app/db.py:Database.save",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:app/db.py:Database",
+      "target": "function:app/db.py:Database.save_user",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:app/db.py:Database",
+      "target": "function:app/db.py:Database.all_tasks",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:app/db.py",
+      "target": "file:app/models.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:app/main.py",
+      "target": "function:app/main.py:main",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:app/main.py",
+      "target": "file:app/config.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:app/main.py",
+      "target": "file:app/db.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:app/main.py",
+      "target": "file:app/routes.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:app/models.py",
+      "target": "class:app/models.py:Task",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:app/models.py:Task",
+      "target": "function:app/models.py:Task.__init__",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:app/models.py:Task",
+      "target": "function:app/models.py:Task.complete",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:app/models.py",
+      "target": "class:app/models.py:User",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:app/models.py:User",
+      "target": "function:app/models.py:User.__init__",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:app/routes.py",
+      "target": "class:app/routes.py:Router",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:app/routes.py:Router",
+      "target": "function:app/routes.py:Router.__init__",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:app/routes.py:Router",
+      "target": "function:app/routes.py:Router.serve",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:app/routes.py:Router",
+      "target": "function:app/routes.py:Router.list_tasks",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:app/routes.py:Router",
+      "target": "function:app/routes.py:Router.create_task",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:app/routes.py:Router",
+      "target": "function:app/routes.py:Router.add_user",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:app/routes.py",
+      "target": "file:app/db.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:app/routes.py",
+      "target": "file:app/models.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/test_routes.py",
+      "target": "function:tests/test_routes.py:test_create_task",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/test_routes.py",
+      "target": "file:app/db.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/test_routes.py",
+      "target": "file:app/routes.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer:app",
+      "name": "App",
+      "description": "App layer — 4 files (4 file).",
+      "nodeIds": [
+        "file:app/db.py",
+        "file:app/models.py",
+        "file:app/routes.py",
+        "file:tests/test_routes.py"
+      ]
+    },
+    {
+      "id": "layer:python",
+      "name": "Python",
+      "description": "Python layer — 2 files (2 file).",
+      "nodeIds": [
+        "file:app/config.py",
+        "file:app/main.py"
+      ]
+    },
+    {
+      "id": "layer:shared",
+      "name": "Shared / Misc",
+      "description": "Cross-cutting and standalone files (3 files).",
+      "nodeIds": [
+        "document:requirements.txt",
+        "file:app/__init__.py",
+        "document:README.md"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "Project Overview",
+      "description": "Start with the project's documentation to understand its purpose.",
+      "nodeIds": [
+        "document:README.md"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Entry Point",
+      "description": "`app/main.py` is where execution begins.",
+      "nodeIds": [
+        "file:app/main.py"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "App",
+      "description": "The App layer centers on `app/db.py`. A tiny in-memory database.",
+      "nodeIds": [
+        "file:app/db.py"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "Shared / Misc",
+      "description": "The Shared / Misc layer centers on `requirements.txt`. Plaintext documentation (1 lines).",
+      "nodeIds": [
+        "document:requirements.txt"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "Python",
+      "description": "The Python layer centers on `app/config.py`. Configuration loading.",
+      "nodeIds": [
+        "file:app/config.py"
+      ]
+    }
+  ]
+}

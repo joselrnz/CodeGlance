@@ -1,0 +1,1172 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "multilang",
+    "languages": [
+      "cpp",
+      "csharp",
+      "go",
+      "java",
+      "javascript",
+      "lua",
+      "php",
+      "ruby",
+      "rust",
+      "typescript"
+    ],
+    "frameworks": [],
+    "description": "multilang: 11 files (11 code). Primary languages: cpp, csharp, go, java, javascript.",
+    "analyzedAt": "2026-06-06T22:32:38.166927+00:00",
+    "gitCommitHash": "4de7afbc850ec184885a7d7bde598b17a3194520"
+  },
+  "nodes": [
+    {
+      "id": "class:Program.cs:Program",
+      "type": "class",
+      "name": "Program",
+      "filePath": "Program.cs",
+      "summary": "Class Program in Program.cs",
+      "tags": [
+        "class",
+        "csharp"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        2,
+        5
+      ],
+      "signature": "public class Program {"
+    },
+    {
+      "id": "function:Program.cs:Program.Run",
+      "type": "function",
+      "name": "Program.Run",
+      "filePath": "Program.cs",
+      "summary": "Method Program.Run in Program.cs",
+      "tags": [
+        "function",
+        "csharp",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        3,
+        3
+      ],
+      "signature": "public void Run() { }"
+    },
+    {
+      "id": "function:Program.cs:Program.Add",
+      "type": "function",
+      "name": "Program.Add",
+      "filePath": "Program.cs",
+      "summary": "Method Program.Add in Program.cs",
+      "tags": [
+        "function",
+        "csharp",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        4,
+        4
+      ],
+      "signature": "public static int Add(int a, int b) { return a + b; }"
+    },
+    {
+      "id": "file:Program.cs",
+      "type": "file",
+      "name": "Program.cs",
+      "filePath": "Program.cs",
+      "summary": "Csharp source file (6 lines).",
+      "tags": [
+        "csharp",
+        "code"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:Server.java:Server",
+      "type": "class",
+      "name": "Server",
+      "filePath": "Server.java",
+      "summary": "Class Server in Server.java",
+      "tags": [
+        "class",
+        "java"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        1,
+        9
+      ],
+      "signature": "public class Server {"
+    },
+    {
+      "id": "function:Server.java:Server.Server",
+      "type": "function",
+      "name": "Server.Server",
+      "filePath": "Server.java",
+      "summary": "Method Server.Server in Server.java",
+      "tags": [
+        "function",
+        "java",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        4,
+        4
+      ],
+      "signature": "public Server(int port) { this.port = port; }"
+    },
+    {
+      "id": "function:Server.java:Server.start",
+      "type": "function",
+      "name": "Server.start",
+      "filePath": "Server.java",
+      "summary": "Method Server.start in Server.java",
+      "tags": [
+        "function",
+        "java",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        6,
+        6
+      ],
+      "signature": "public void start() { System.out.println(\"start\"); }"
+    },
+    {
+      "id": "function:Server.java:Server.getPort",
+      "type": "function",
+      "name": "Server.getPort",
+      "filePath": "Server.java",
+      "summary": "Method Server.getPort in Server.java",
+      "tags": [
+        "function",
+        "java",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        8,
+        8
+      ],
+      "signature": "public int getPort() { return port; }"
+    },
+    {
+      "id": "file:Server.java",
+      "type": "file",
+      "name": "Server.java",
+      "filePath": "Server.java",
+      "summary": "Java source file (9 lines).",
+      "tags": [
+        "java",
+        "code"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:app.js:greet",
+      "type": "function",
+      "name": "greet",
+      "filePath": "app.js",
+      "summary": "Function greet in app.js",
+      "tags": [
+        "function",
+        "javascript"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        3,
+        5
+      ],
+      "signature": "function greet(name) {"
+    },
+    {
+      "id": "class:app.js:Widget",
+      "type": "class",
+      "name": "Widget",
+      "filePath": "app.js",
+      "summary": "Class Widget in app.js",
+      "tags": [
+        "class",
+        "javascript"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        7,
+        10
+      ],
+      "signature": "class Widget {"
+    },
+    {
+      "id": "function:app.js:Widget.render",
+      "type": "function",
+      "name": "Widget.render",
+      "filePath": "app.js",
+      "summary": "Method Widget.render in app.js",
+      "tags": [
+        "function",
+        "javascript",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        8,
+        8
+      ],
+      "signature": "render() { return \"<div>\"; }"
+    },
+    {
+      "id": "function:app.js:Widget.destroy",
+      "type": "function",
+      "name": "Widget.destroy",
+      "filePath": "app.js",
+      "summary": "Method Widget.destroy in app.js",
+      "tags": [
+        "function",
+        "javascript",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        9,
+        9
+      ],
+      "signature": "destroy() { return true; }"
+    },
+    {
+      "id": "file:app.js",
+      "type": "file",
+      "name": "app.js",
+      "filePath": "app.js",
+      "summary": "Javascript source file (10 lines).",
+      "tags": [
+        "javascript",
+        "code"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:helper.js:Helper",
+      "type": "class",
+      "name": "Helper",
+      "filePath": "helper.js",
+      "summary": "Class Helper in helper.js",
+      "tags": [
+        "class",
+        "javascript"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        1,
+        3
+      ],
+      "signature": "class Helper {"
+    },
+    {
+      "id": "function:helper.js:Helper.format",
+      "type": "function",
+      "name": "Helper.format",
+      "filePath": "helper.js",
+      "summary": "Method Helper.format in helper.js",
+      "tags": [
+        "function",
+        "javascript",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        2,
+        2
+      ],
+      "signature": "format(x) { return String(x); }"
+    },
+    {
+      "id": "file:helper.js",
+      "type": "file",
+      "name": "helper.js",
+      "filePath": "helper.js",
+      "summary": "Javascript source file (3 lines).",
+      "tags": [
+        "javascript",
+        "code"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:index.php:Router",
+      "type": "class",
+      "name": "Router",
+      "filePath": "index.php",
+      "summary": "Class Router in index.php",
+      "tags": [
+        "class",
+        "php"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        2,
+        5
+      ],
+      "signature": "class Router {"
+    },
+    {
+      "id": "function:index.php:Router.dispatch",
+      "type": "function",
+      "name": "Router.dispatch",
+      "filePath": "index.php",
+      "summary": "Method Router.dispatch in index.php",
+      "tags": [
+        "function",
+        "php",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        3,
+        3
+      ],
+      "signature": "public function dispatch($path) { return $path; }"
+    },
+    {
+      "id": "function:index.php:Router.add",
+      "type": "function",
+      "name": "Router.add",
+      "filePath": "index.php",
+      "summary": "Method Router.add in index.php",
+      "tags": [
+        "function",
+        "php",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        4,
+        4
+      ],
+      "signature": "public function add($route) { return true; }"
+    },
+    {
+      "id": "function:index.php:bootstrap",
+      "type": "function",
+      "name": "bootstrap",
+      "filePath": "index.php",
+      "summary": "Function bootstrap in index.php",
+      "tags": [
+        "function",
+        "php"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        7,
+        9
+      ],
+      "signature": "function bootstrap() {"
+    },
+    {
+      "id": "file:index.php",
+      "type": "file",
+      "name": "index.php",
+      "filePath": "index.php",
+      "summary": "Php source file (9 lines).",
+      "tags": [
+        "php",
+        "code"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:lib.rs:Config",
+      "type": "class",
+      "name": "Config",
+      "filePath": "lib.rs",
+      "summary": "Class Config in lib.rs",
+      "tags": [
+        "class",
+        "rust"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        1,
+        3
+      ],
+      "signature": "pub struct Config {"
+    },
+    {
+      "id": "function:lib.rs:Config.new",
+      "type": "function",
+      "name": "Config.new",
+      "filePath": "lib.rs",
+      "summary": "Method Config.new in lib.rs",
+      "tags": [
+        "function",
+        "rust",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        6,
+        8
+      ],
+      "signature": "pub fn new() -> Self {"
+    },
+    {
+      "id": "function:lib.rs:run",
+      "type": "function",
+      "name": "run",
+      "filePath": "lib.rs",
+      "summary": "Function run in lib.rs",
+      "tags": [
+        "function",
+        "rust"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        11,
+        13
+      ],
+      "signature": "pub fn run(cfg: &Config) -> bool {"
+    },
+    {
+      "id": "file:lib.rs",
+      "type": "file",
+      "name": "lib.rs",
+      "filePath": "lib.rs",
+      "summary": "Rust source file (13 lines).",
+      "tags": [
+        "rust",
+        "code"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:main.go:Server",
+      "type": "class",
+      "name": "Server",
+      "filePath": "main.go",
+      "summary": "Class Server in main.go",
+      "tags": [
+        "class",
+        "go"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        3,
+        5
+      ],
+      "signature": "Server struct {"
+    },
+    {
+      "id": "function:main.go:Start",
+      "type": "function",
+      "name": "Start",
+      "filePath": "main.go",
+      "summary": "Function Start in main.go",
+      "tags": [
+        "function",
+        "go"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        7,
+        9
+      ],
+      "signature": "func (s *Server) Start() error {"
+    },
+    {
+      "id": "function:main.go:NewServer",
+      "type": "function",
+      "name": "NewServer",
+      "filePath": "main.go",
+      "summary": "Function NewServer in main.go",
+      "tags": [
+        "function",
+        "go"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        11,
+        13
+      ],
+      "signature": "func NewServer(port int) *Server {"
+    },
+    {
+      "id": "file:main.go",
+      "type": "file",
+      "name": "main.go",
+      "filePath": "main.go",
+      "summary": "Go source file (13 lines).",
+      "tags": [
+        "go",
+        "code"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:model.rb:User",
+      "type": "class",
+      "name": "User",
+      "filePath": "model.rb",
+      "summary": "Class User in model.rb",
+      "tags": [
+        "class",
+        "ruby"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        1,
+        9
+      ],
+      "signature": "class User"
+    },
+    {
+      "id": "function:model.rb:User.initialize",
+      "type": "function",
+      "name": "User.initialize",
+      "filePath": "model.rb",
+      "summary": "Method User.initialize in model.rb",
+      "tags": [
+        "function",
+        "ruby",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        2,
+        4
+      ],
+      "signature": "def initialize(name)"
+    },
+    {
+      "id": "function:model.rb:User.greeting",
+      "type": "function",
+      "name": "User.greeting",
+      "filePath": "model.rb",
+      "summary": "Method User.greeting in model.rb",
+      "tags": [
+        "function",
+        "ruby",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        6,
+        8
+      ],
+      "signature": "def greeting"
+    },
+    {
+      "id": "function:model.rb:standalone",
+      "type": "function",
+      "name": "standalone",
+      "filePath": "model.rb",
+      "summary": "Function standalone in model.rb",
+      "tags": [
+        "function",
+        "ruby"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        11,
+        13
+      ],
+      "signature": "def standalone"
+    },
+    {
+      "id": "file:model.rb",
+      "type": "file",
+      "name": "model.rb",
+      "filePath": "model.rb",
+      "summary": "Ruby source file (13 lines).",
+      "tags": [
+        "ruby",
+        "code"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:script.lua:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "script.lua",
+      "summary": "Function compute in script.lua",
+      "tags": [
+        "function",
+        "lua"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        1,
+        3
+      ],
+      "signature": "local function compute(x)"
+    },
+    {
+      "id": "function:script.lua:Greeter",
+      "type": "function",
+      "name": "Greeter",
+      "filePath": "script.lua",
+      "summary": "Function Greeter in script.lua",
+      "tags": [
+        "function",
+        "lua"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        5,
+        7
+      ],
+      "signature": "function Greeter(name)"
+    },
+    {
+      "id": "file:script.lua",
+      "type": "file",
+      "name": "script.lua",
+      "filePath": "script.lua",
+      "summary": "Lua source file (7 lines).",
+      "tags": [
+        "lua",
+        "code"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:service.ts:Repo",
+      "type": "class",
+      "name": "Repo",
+      "filePath": "service.ts",
+      "summary": "Class Repo in service.ts",
+      "tags": [
+        "class",
+        "typescript"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        1,
+        3
+      ],
+      "signature": "interface Repo {"
+    },
+    {
+      "id": "function:service.ts:Repo.find",
+      "type": "function",
+      "name": "Repo.find",
+      "filePath": "service.ts",
+      "summary": "Method Repo.find in service.ts",
+      "tags": [
+        "function",
+        "typescript",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        2,
+        2
+      ],
+      "signature": "find(id: number): string"
+    },
+    {
+      "id": "class:service.ts:UserService",
+      "type": "class",
+      "name": "UserService",
+      "filePath": "service.ts",
+      "summary": "Class UserService in service.ts",
+      "tags": [
+        "class",
+        "typescript"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        5,
+        8
+      ],
+      "signature": "class UserService {"
+    },
+    {
+      "id": "function:service.ts:UserService.constructor",
+      "type": "function",
+      "name": "UserService.constructor",
+      "filePath": "service.ts",
+      "summary": "Method UserService.constructor in service.ts",
+      "tags": [
+        "function",
+        "typescript",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        6,
+        6
+      ],
+      "signature": "constructor(private repo: Repo) {}"
+    },
+    {
+      "id": "function:service.ts:UserService.load",
+      "type": "function",
+      "name": "UserService.load",
+      "filePath": "service.ts",
+      "summary": "Method UserService.load in service.ts",
+      "tags": [
+        "function",
+        "typescript",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        7,
+        7
+      ],
+      "signature": "load(id: number): string { return this.repo.find(id); }"
+    },
+    {
+      "id": "function:service.ts:makeService",
+      "type": "function",
+      "name": "makeService",
+      "filePath": "service.ts",
+      "summary": "Function makeService in service.ts",
+      "tags": [
+        "function",
+        "typescript"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        10,
+        12
+      ],
+      "signature": "function makeService(repo: Repo): UserService {"
+    },
+    {
+      "id": "file:service.ts",
+      "type": "file",
+      "name": "service.ts",
+      "filePath": "service.ts",
+      "summary": "Typescript source file (12 lines).",
+      "tags": [
+        "typescript",
+        "code"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:util.cpp:Buffer",
+      "type": "class",
+      "name": "Buffer",
+      "filePath": "util.cpp",
+      "summary": "Class Buffer in util.cpp",
+      "tags": [
+        "class",
+        "cpp"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        3,
+        9
+      ],
+      "signature": "class Buffer {"
+    },
+    {
+      "id": "function:util.cpp:Buffer.append",
+      "type": "function",
+      "name": "Buffer.append",
+      "filePath": "util.cpp",
+      "summary": "Method Buffer.append in util.cpp",
+      "tags": [
+        "function",
+        "cpp",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        5,
+        5
+      ],
+      "signature": "void append(const std::string& s) { data_ += s; }"
+    },
+    {
+      "id": "function:util.cpp:Buffer.size",
+      "type": "function",
+      "name": "Buffer.size",
+      "filePath": "util.cpp",
+      "summary": "Method Buffer.size in util.cpp",
+      "tags": [
+        "function",
+        "cpp",
+        "method"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        6,
+        6
+      ],
+      "signature": "int size() const { return data_.size(); }"
+    },
+    {
+      "id": "function:util.cpp:add",
+      "type": "function",
+      "name": "add",
+      "filePath": "util.cpp",
+      "summary": "Function add in util.cpp",
+      "tags": [
+        "function",
+        "cpp"
+      ],
+      "complexity": "simple",
+      "lineRange": [
+        11,
+        13
+      ],
+      "signature": "int add(int a, int b) {"
+    },
+    {
+      "id": "file:util.cpp",
+      "type": "file",
+      "name": "util.cpp",
+      "filePath": "util.cpp",
+      "summary": "Cpp source file (13 lines).",
+      "tags": [
+        "cpp",
+        "code"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:Program.cs",
+      "target": "class:Program.cs:Program",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:Program.cs:Program",
+      "target": "function:Program.cs:Program.Run",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:Program.cs:Program",
+      "target": "function:Program.cs:Program.Add",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:Server.java",
+      "target": "class:Server.java:Server",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:Server.java:Server",
+      "target": "function:Server.java:Server.Server",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:Server.java:Server",
+      "target": "function:Server.java:Server.start",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:Server.java:Server",
+      "target": "function:Server.java:Server.getPort",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:app.js",
+      "target": "function:app.js:greet",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:app.js",
+      "target": "class:app.js:Widget",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:app.js:Widget",
+      "target": "function:app.js:Widget.render",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:app.js:Widget",
+      "target": "function:app.js:Widget.destroy",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:app.js",
+      "target": "file:helper.js",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:helper.js",
+      "target": "class:helper.js:Helper",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:helper.js:Helper",
+      "target": "function:helper.js:Helper.format",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:index.php",
+      "target": "class:index.php:Router",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:index.php:Router",
+      "target": "function:index.php:Router.dispatch",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:index.php:Router",
+      "target": "function:index.php:Router.add",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:index.php",
+      "target": "function:index.php:bootstrap",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:lib.rs",
+      "target": "class:lib.rs:Config",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:lib.rs:Config",
+      "target": "function:lib.rs:Config.new",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:lib.rs",
+      "target": "function:lib.rs:run",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:main.go",
+      "target": "class:main.go:Server",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:main.go",
+      "target": "function:main.go:Start",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:main.go",
+      "target": "function:main.go:NewServer",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:model.rb",
+      "target": "class:model.rb:User",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:model.rb:User",
+      "target": "function:model.rb:User.initialize",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:model.rb:User",
+      "target": "function:model.rb:User.greeting",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:model.rb",
+      "target": "function:model.rb:standalone",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:script.lua",
+      "target": "function:script.lua:compute",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:script.lua",
+      "target": "function:script.lua:Greeter",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:service.ts",
+      "target": "class:service.ts:Repo",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:service.ts:Repo",
+      "target": "function:service.ts:Repo.find",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:service.ts",
+      "target": "class:service.ts:UserService",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:service.ts:UserService",
+      "target": "function:service.ts:UserService.constructor",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:service.ts:UserService",
+      "target": "function:service.ts:UserService.load",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:service.ts",
+      "target": "function:service.ts:makeService",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:util.cpp",
+      "target": "class:util.cpp:Buffer",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:util.cpp:Buffer",
+      "target": "function:util.cpp:Buffer.append",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:util.cpp:Buffer",
+      "target": "function:util.cpp:Buffer.size",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:util.cpp",
+      "target": "function:util.cpp:add",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer:javascript",
+      "name": "Javascript",
+      "description": "Javascript layer — 2 files (2 file).",
+      "nodeIds": [
+        "file:app.js",
+        "file:helper.js"
+      ]
+    },
+    {
+      "id": "layer:shared",
+      "name": "Shared / Misc",
+      "description": "Cross-cutting and standalone files (9 files).",
+      "nodeIds": [
+        "file:service.ts",
+        "file:main.go",
+        "file:Program.cs",
+        "file:Server.java",
+        "file:lib.rs",
+        "file:util.cpp",
+        "file:model.rb",
+        "file:index.php",
+        "file:script.lua"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "Entry Point",
+      "description": "`main.go` is where execution begins.",
+      "nodeIds": [
+        "file:main.go"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Shared / Misc",
+      "description": "The Shared / Misc layer centers on `service.ts`. Typescript source file (12 lines).",
+      "nodeIds": [
+        "file:service.ts"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "Javascript",
+      "description": "The Javascript layer centers on `app.js`. Javascript source file (10 lines).",
+      "nodeIds": [
+        "file:app.js"
+      ]
+    }
+  ]
+}

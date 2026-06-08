@@ -1,7 +1,7 @@
 """Lightweight, dependency-free ignore matching (gitignore-ish).
 
 Combines a built-in default set with patterns read from the project's `.gitignore` and
-`.understand-anything/.understandignore`. Good enough for excluding the usual noise; not a full
+`.codescape/.understandignore`. Good enough for excluding the usual noise; not a full
 gitignore implementation (no negation-precedence edge cases), but covers the common patterns.
 """
 
@@ -15,7 +15,7 @@ DEFAULT_IGNORE_DIRS = {
     "node_modules", ".git", ".hg", ".svn", "vendor", "venv", ".venv", "env",
     "__pycache__", ".mypy_cache", ".pytest_cache", ".ruff_cache", "dist", "build",
     "out", "coverage", ".next", ".nuxt", ".cache", ".turbo", "target", "obj", "bin",
-    ".idea", ".vscode", ".gradle", ".terraform", ".understand-anything", "site-packages",
+    ".idea", ".vscode", ".gradle", ".terraform", ".codescape", "site-packages",
     ".tox", ".eggs", "__snapshots__",
 }
 
@@ -81,5 +81,5 @@ def build_matcher(root: Path) -> IgnoreMatcher:
     """Build an IgnoreMatcher from the built-in defaults plus the project's ignore files."""
     patterns: list[str] = []
     patterns += _read_patterns(root / ".gitignore")
-    patterns += _read_patterns(root / ".understand-anything" / ".understandignore")
+    patterns += _read_patterns(root / ".codescape" / ".understandignore")
     return IgnoreMatcher(set(DEFAULT_IGNORE_DIRS), set(DEFAULT_IGNORE_GLOBS), patterns)

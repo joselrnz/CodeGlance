@@ -1,4 +1,4 @@
-"""Package entry point so `python -m understand_anything` runs the CLI."""
+"""Package entry point so `python -m codescape` runs the CLI."""
 
 from .cli import main
 

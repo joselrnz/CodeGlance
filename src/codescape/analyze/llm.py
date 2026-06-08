@@ -39,7 +39,7 @@ def availability_hint() -> str:
     try:
         import anthropic  # noqa: F401
     except Exception:
-        return "The 'anthropic' package is not installed (pip install understand-anything-py[llm])."
+        return "The 'anthropic' package is not installed (pip install codescape[llm])."
     return "available"
 
 

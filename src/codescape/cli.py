@@ -19,7 +19,7 @@ from .graph import analyze
 from .render import render_interactive, render_static
 from .schema import KnowledgeGraph
 
-GRAPH_DIR = ".understand-anything"
+GRAPH_DIR = ".codescape"
 GRAPH_FILE = "knowledge-graph.json"
 
 # Recognized subcommands; used to make `analyze` the implicit default command.
@@ -108,7 +108,7 @@ def cmd_render(args: argparse.Namespace) -> int:
         _emit(f"Error: file not found: {graph_path}")
         return 1
     graph = KnowledgeGraph.load(graph_path)
-    # graph lives at <root>/.understand-anything/knowledge-graph.json → root is two levels up
+    # graph lives at <root>/.codescape/knowledge-graph.json → root is two levels up
     root = graph_path.parent.parent if graph_path.parent.name == GRAPH_DIR else None
     out = Path(args.output) if args.output else graph_path.with_name(_default_html_name(args.static))
     _render_to_file(graph, out, args.static, root)
@@ -139,7 +139,7 @@ def build_parser() -> argparse.ArgumentParser:
         prog="understand",
         description="Turn a codebase into an interactive knowledge-graph HTML file (pure Python).",
     )
-    p.add_argument("--version", action="version", version=f"understand-anything-py {__version__}")
+    p.add_argument("--version", action="version", version=f"codescape {__version__}")
     sub = p.add_subparsers(dest="command")
 
     a = sub.add_parser("analyze", help="analyze a project and render an HTML graph")

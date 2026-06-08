@@ -2,10 +2,10 @@
 
 from pathlib import Path
 
-from understand_anything.analyze import treesitter as ts
-from understand_anything.graph import analyze
-from understand_anything.render import render_interactive, render_static
-from understand_anything.schema import Edge, KnowledgeGraph, Node, Project
+from codescape.analyze import treesitter as ts
+from codescape.graph import analyze
+from codescape.render import render_interactive, render_static
+from codescape.schema import Edge, KnowledgeGraph, Node, Project
 
 FIXTURES = Path(__file__).parent / "fixtures" / "multilang"
 FIXTURES_IMPORTS = Path(__file__).parent / "fixtures" / "imports"
@@ -40,7 +40,7 @@ def test_render_interactive_is_self_contained():
 
 
 def test_render_uses_cards_containers_and_type_colors():
-    from understand_anything.render import build_view_model, TYPE_COLORS
+    from codescape.render import build_view_model, TYPE_COLORS
     vm = build_view_model(_sample_graph())
     assert vm["containers"] and vm["types"] and vm["cardW"] > 0
     fn = next(n for n in vm["nodes"] if n["type"] == "function")
@@ -59,7 +59,7 @@ def test_interactive_has_toolbar_features():
 
 
 def test_overview_layer_cards_and_drilldown():
-    from understand_anything.render import build_view_model
+    from codescape.render import build_view_model
     # the template always carries the overview/drill-down machinery
     html = render_interactive(_sample_graph())
     for marker in ("drawOverview", "setView", "pickLayer", "updateCrumb"):
@@ -107,8 +107,8 @@ def test_theme_system():
 
 
 def test_file_type_icons_inlined():
-    from understand_anything.render import build_view_model
-    from understand_anything.render.icons import ICON_SVG, EXT_TO_KEY
+    from codescape.render import build_view_model
+    from codescape.render.icons import ICON_SVG, EXT_TO_KEY
     assert ICON_SVG.get("_folder") and ICON_SVG.get("python") and EXT_TO_KEY.get("tf") == "terraform"
     vm = build_view_model(_sample_graph())
     assert "_folder" in vm["iconSvg"] and "_folder_open" in vm["iconSvg"]  # folder glyphs always present
@@ -186,7 +186,7 @@ def test_legacy_and_esoteric_languages():
 
 
 def test_python_captures_signature_linerange_docstring():
-    from understand_anything.analyze.structural import _python_extract
+    from codescape.analyze.structural import _python_extract
     _doc, _full, syms, _imp = _python_extract(
         'def f(x: int) -> str:\n    """Doc here."""\n    return str(x)\n'
     )
@@ -206,6 +206,6 @@ def test_treesitter_captures_linerange_and_jsdoc():
 
 
 def test_incremental_writes_fingerprints():
-    from understand_anything import fingerprint as fp
+    from codescape import fingerprint as fp
     analyze(FIXTURES_IMPORTS, use_llm=False)
     assert fp.load(FIXTURES_IMPORTS)  # fingerprints.json persisted and non-empty

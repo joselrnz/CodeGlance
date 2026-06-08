@@ -1,0 +1,428 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "imports",
+    "languages": [
+      "c",
+      "cpp",
+      "go",
+      "java",
+      "rust"
+    ],
+    "frameworks": [],
+    "description": "imports: 9 files (9 code). Primary languages: c, cpp, go, java, rust.",
+    "analyzedAt": "2026-06-06T21:22:43.840185+00:00",
+    "gitCommitHash": ""
+  },
+  "nodes": [
+    {
+      "id": "class:Main.java:Main",
+      "type": "class",
+      "name": "Main",
+      "filePath": "Main.java",
+      "summary": "Class Main in Main.java",
+      "tags": [
+        "class",
+        "java"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:Main.java:Main.main",
+      "type": "function",
+      "name": "Main.main",
+      "filePath": "Main.java",
+      "summary": "Method of Main",
+      "tags": [
+        "function",
+        "java",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:Main.java",
+      "type": "file",
+      "name": "Main.java",
+      "filePath": "Main.java",
+      "summary": "Java source file (5 lines).",
+      "tags": [
+        "java",
+        "code"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:app.cpp:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "app.cpp",
+      "summary": "Function main in app.cpp",
+      "tags": [
+        "function",
+        "cpp"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:app.cpp",
+      "type": "file",
+      "name": "app.cpp",
+      "filePath": "app.cpp",
+      "summary": "Cpp source file (3 lines).",
+      "tags": [
+        "cpp",
+        "code"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:go.mod",
+      "type": "file",
+      "name": "go.mod",
+      "filePath": "go.mod",
+      "summary": "Go source file (3 lines).",
+      "tags": [
+        "go",
+        "code"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:lib.h",
+      "type": "file",
+      "name": "lib.h",
+      "filePath": "lib.h",
+      "summary": "C source file (1 lines).",
+      "tags": [
+        "c",
+        "code"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:main.go:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "main.go",
+      "summary": "Function main in main.go",
+      "tags": [
+        "function",
+        "go"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:main.go",
+      "type": "file",
+      "name": "main.go",
+      "filePath": "main.go",
+      "summary": "Go source file (9 lines).",
+      "tags": [
+        "go",
+        "code"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:main.rs:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "main.rs",
+      "summary": "Function main in main.rs",
+      "tags": [
+        "function",
+        "rust"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:main.rs",
+      "type": "file",
+      "name": "main.rs",
+      "filePath": "main.rs",
+      "summary": "Rust source file (6 lines).",
+      "tags": [
+        "rust",
+        "code"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:store/store.go:New",
+      "type": "function",
+      "name": "New",
+      "filePath": "store/store.go",
+      "summary": "Function New in store/store.go",
+      "tags": [
+        "function",
+        "go"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:store/store.go",
+      "type": "file",
+      "name": "store.go",
+      "filePath": "store/store.go",
+      "summary": "Go source file (3 lines).",
+      "tags": [
+        "go",
+        "code",
+        "store"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:util.rs:helper",
+      "type": "function",
+      "name": "helper",
+      "filePath": "util.rs",
+      "summary": "Function helper in util.rs",
+      "tags": [
+        "function",
+        "rust"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:util.rs",
+      "type": "file",
+      "name": "util.rs",
+      "filePath": "util.rs",
+      "summary": "Rust source file (1 lines).",
+      "tags": [
+        "rust",
+        "code"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:util/Helper.java:Helper",
+      "type": "class",
+      "name": "Helper",
+      "filePath": "util/Helper.java",
+      "summary": "Class Helper in util/Helper.java",
+      "tags": [
+        "class",
+        "java"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:util/Helper.java:Helper.run",
+      "type": "function",
+      "name": "Helper.run",
+      "filePath": "util/Helper.java",
+      "summary": "Method of Helper",
+      "tags": [
+        "function",
+        "java",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:util/Helper.java",
+      "type": "file",
+      "name": "Helper.java",
+      "filePath": "util/Helper.java",
+      "summary": "Java source file (5 lines).",
+      "tags": [
+        "java",
+        "code",
+        "util"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:Main.java",
+      "target": "class:Main.java:Main",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:Main.java:Main",
+      "target": "function:Main.java:Main.main",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:Main.java",
+      "target": "file:util/Helper.java",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:app.cpp",
+      "target": "function:app.cpp:main",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:app.cpp",
+      "target": "file:lib.h",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:main.go",
+      "target": "function:main.go:main",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:main.go",
+      "target": "file:store/store.go",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:main.rs",
+      "target": "function:main.rs:main",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:main.rs",
+      "target": "file:util.rs",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:store/store.go",
+      "target": "function:store/store.go:New",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:util.rs",
+      "target": "function:util.rs:helper",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:util/Helper.java",
+      "target": "class:util/Helper.java:Helper",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:util/Helper.java:Helper",
+      "target": "function:util/Helper.java:Helper.run",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer:store",
+      "name": "Store",
+      "description": "Store layer — 2 files (2 file).",
+      "nodeIds": [
+        "file:main.go",
+        "file:store/store.go"
+      ]
+    },
+    {
+      "id": "layer:rust",
+      "name": "Rust",
+      "description": "Rust layer — 2 files (2 file).",
+      "nodeIds": [
+        "file:main.rs",
+        "file:util.rs"
+      ]
+    },
+    {
+      "id": "layer:cpp",
+      "name": "Cpp",
+      "description": "Cpp layer — 2 files (2 file).",
+      "nodeIds": [
+        "file:app.cpp",
+        "file:lib.h"
+      ]
+    },
+    {
+      "id": "layer:util",
+      "name": "Util",
+      "description": "Util layer — 2 files (2 file).",
+      "nodeIds": [
+        "file:Main.java",
+        "file:util/Helper.java"
+      ]
+    },
+    {
+      "id": "layer:shared",
+      "name": "Shared / Misc",
+      "description": "Cross-cutting and standalone files (1 files).",
+      "nodeIds": [
+        "file:go.mod"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "Entry Point",
+      "description": "`main.go` is where execution begins.",
+      "nodeIds": [
+        "file:main.go"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Store",
+      "description": "The Store layer centers on `store/store.go`. Go source file (3 lines).",
+      "nodeIds": [
+        "file:store/store.go"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "Rust",
+      "description": "The Rust layer centers on `main.rs`. Rust source file (6 lines).",
+      "nodeIds": [
+        "file:main.rs"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "Cpp",
+      "description": "The Cpp layer centers on `app.cpp`. Cpp source file (3 lines).",
+      "nodeIds": [
+        "file:app.cpp"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "Util",
+      "description": "The Util layer centers on `Main.java`. Java source file (5 lines).",
+      "nodeIds": [
+        "file:Main.java"
+      ]
+    },
+    {
+      "order": 6,
+      "title": "Shared / Misc",
+      "description": "The Shared / Misc layer centers on `go.mod`. Go source file (3 lines).",
+      "nodeIds": [
+        "file:go.mod"
+      ]
+    }
+  ]
+}

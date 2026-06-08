@@ -1,4 +1,4 @@
-# understand-anything-py
+# CodeScape
 
 A **pure-Python**, `pip`-installable port of [Understand-Anything](https://github.com/Lum1104/Understand-Anything).
 
@@ -7,16 +7,16 @@ classes and their relationships — rendered to a **single self-contained HTML f
 double-click to open. No Node, no npm, no Vite, no server, no hosting.
 
 ```bash
-pip install understand-anything-py
+pip install codescape
 
-# Analyze a project -> writes .understand-anything/knowledge-graph.json -> opens an HTML graph
-understand /path/to/project
+# Analyze a project -> writes .codescape/knowledge-graph.json -> opens an HTML graph
+codescape /path/to/project
 
 # Re-render an existing graph to HTML
-understand render /path/to/project/.understand-anything/knowledge-graph.json -o graph.html
+codescape render /path/to/project/.codescape/knowledge-graph.json -o graph.html
 
 # Zero-JavaScript static image instead (inline SVG, no interactivity)
-understand render knowledge-graph.json --static -o graph.svg.html
+codescape render knowledge-graph.json --static -o graph.svg.html
 ```
 
 ## How it differs from the original
@@ -91,7 +91,7 @@ Go (go.mod module + packages), Rust (`mod` / `use crate::`), Java (dotted path),
 
 ## Incremental updates
 
-Re-running `understand .` is cheap: per-file content fingerprints (`.understand-anything/fingerprints.json`)
+Re-running `codescape .` is cheap: per-file content fingerprints (`.codescape/fingerprints.json`)
 detect what changed. Unchanged files keep their existing summaries (so prior `--llm` enrichment is
 preserved for free), and `--llm` only re-summarizes changed/added files. Pass `--full` to force a
 complete rebuild.

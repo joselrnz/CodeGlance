@@ -1,0 +1,5183 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "understand-anything-py",
+    "languages": [
+      "ada",
+      "c",
+      "cobol",
+      "cpp",
+      "csharp",
+      "dart",
+      "fortran",
+      "go",
+      "haskell",
+      "java",
+      "javascript",
+      "julia",
+      "lua",
+      "ocaml",
+      "php",
+      "python",
+      "ruby",
+      "rust",
+      "solidity",
+      "typescript",
+      "verilog",
+      "vhdl"
+    ],
+    "frameworks": [],
+    "description": "understand-anything-py: 53 files (50 code, 2 docs, 1 config). Primary languages: ada, c, cobol, cpp, csharp.",
+    "analyzedAt": "2026-06-06T21:51:21.661640+00:00",
+    "gitCommitHash": "0a90a9d2c2ee7785fc417f563e1c38cba52203b5"
+  },
+  "nodes": [
+    {
+      "id": "document:.gitignore",
+      "type": "document",
+      "name": ".gitignore",
+      "filePath": ".gitignore",
+      "summary": "Plaintext documentation (21 lines).",
+      "tags": [
+        "plaintext",
+        "docs"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "README.md",
+      "summary": "Markdown documentation (78 lines).",
+      "tags": [
+        "markdown",
+        "docs"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:pyproject.toml",
+      "type": "config",
+      "name": "pyproject.toml",
+      "filePath": "pyproject.toml",
+      "summary": "Toml configuration file (42 lines).",
+      "tags": [
+        "toml",
+        "config"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/understand_anything/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "src/understand_anything/__init__.py",
+      "summary": "understand-anything-py — turn any codebase into an interactive knowledge-graph HTML file.",
+      "tags": [
+        "python",
+        "code",
+        "src"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/understand_anything/__main__.py",
+      "type": "file",
+      "name": "__main__.py",
+      "filePath": "src/understand_anything/__main__.py",
+      "summary": "Python source file (4 lines).",
+      "tags": [
+        "python",
+        "code",
+        "src"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/understand_anything/analyze/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "src/understand_anything/analyze/__init__.py",
+      "summary": "Analysis pipeline: deterministic structural extraction + optional LLM enrichment.",
+      "tags": [
+        "python",
+        "code",
+        "src"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/understand_anything/analyze/imports.py:ImportIndex",
+      "type": "class",
+      "name": "ImportIndex",
+      "filePath": "src/understand_anything/analyze/imports.py",
+      "summary": "Class ImportIndex in src/understand_anything/analyze/imports.py",
+      "tags": [
+        "class",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/imports.py:ImportIndex.__init__",
+      "type": "function",
+      "name": "ImportIndex.__init__",
+      "filePath": "src/understand_anything/analyze/imports.py",
+      "summary": "Method of ImportIndex",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/imports.py:build_index",
+      "type": "function",
+      "name": "build_index",
+      "filePath": "src/understand_anything/analyze/imports.py",
+      "summary": "Function build_index in src/understand_anything/analyze/imports.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/imports.py:resolve",
+      "type": "function",
+      "name": "resolve",
+      "filePath": "src/understand_anything/analyze/imports.py",
+      "summary": "Return a list of project-internal target file rel-paths imported by this file.",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/imports.py:_findall",
+      "type": "function",
+      "name": "_findall",
+      "filePath": "src/understand_anything/analyze/imports.py",
+      "summary": "Function _findall in src/understand_anything/analyze/imports.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/imports.py:_resolve_js",
+      "type": "function",
+      "name": "_resolve_js",
+      "filePath": "src/understand_anything/analyze/imports.py",
+      "summary": "Function _resolve_js in src/understand_anything/analyze/imports.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/imports.py:_resolve_go",
+      "type": "function",
+      "name": "_resolve_go",
+      "filePath": "src/understand_anything/analyze/imports.py",
+      "summary": "Function _resolve_go in src/understand_anything/analyze/imports.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/imports.py:_resolve_rust",
+      "type": "function",
+      "name": "_resolve_rust",
+      "filePath": "src/understand_anything/analyze/imports.py",
+      "summary": "Function _resolve_rust in src/understand_anything/analyze/imports.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/imports.py:_resolve_java",
+      "type": "function",
+      "name": "_resolve_java",
+      "filePath": "src/understand_anything/analyze/imports.py",
+      "summary": "Function _resolve_java in src/understand_anything/analyze/imports.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/imports.py:_resolve_relative",
+      "type": "function",
+      "name": "_resolve_relative",
+      "filePath": "src/understand_anything/analyze/imports.py",
+      "summary": "Function _resolve_relative in src/understand_anything/analyze/imports.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/imports.py:_norm",
+      "type": "function",
+      "name": "_norm",
+      "filePath": "src/understand_anything/analyze/imports.py",
+      "summary": "Function _norm in src/understand_anything/analyze/imports.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/understand_anything/analyze/imports.py",
+      "type": "file",
+      "name": "imports.py",
+      "filePath": "src/understand_anything/analyze/imports.py",
+      "summary": "Cross-language import / dependency edge resolution.",
+      "tags": [
+        "python",
+        "code",
+        "src"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/layers.py:detect_layers",
+      "type": "function",
+      "name": "detect_layers",
+      "filePath": "src/understand_anything/analyze/layers.py",
+      "summary": "Function detect_layers in src/understand_anything/analyze/layers.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/layers.py:_name_community",
+      "type": "function",
+      "name": "_name_community",
+      "filePath": "src/understand_anything/analyze/layers.py",
+      "summary": "Function _name_community in src/understand_anything/analyze/layers.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/layers.py:_titleize",
+      "type": "function",
+      "name": "_titleize",
+      "filePath": "src/understand_anything/analyze/layers.py",
+      "summary": "Function _titleize in src/understand_anything/analyze/layers.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/layers.py:_describe",
+      "type": "function",
+      "name": "_describe",
+      "filePath": "src/understand_anything/analyze/layers.py",
+      "summary": "Function _describe in src/understand_anything/analyze/layers.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/layers.py:_fallback_by_directory",
+      "type": "function",
+      "name": "_fallback_by_directory",
+      "filePath": "src/understand_anything/analyze/layers.py",
+      "summary": "Function _fallback_by_directory in src/understand_anything/analyze/layers.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/understand_anything/analyze/layers.py",
+      "type": "file",
+      "name": "layers.py",
+      "filePath": "src/understand_anything/analyze/layers.py",
+      "summary": "Architectural layer detection via community detection (Louvain) over the file graph.",
+      "tags": [
+        "python",
+        "code",
+        "src"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/llm.py:is_available",
+      "type": "function",
+      "name": "is_available",
+      "filePath": "src/understand_anything/analyze/llm.py",
+      "summary": "Function is_available in src/understand_anything/analyze/llm.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/llm.py:availability_hint",
+      "type": "function",
+      "name": "availability_hint",
+      "filePath": "src/understand_anything/analyze/llm.py",
+      "summary": "Function availability_hint in src/understand_anything/analyze/llm.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/llm.py:enrich",
+      "type": "function",
+      "name": "enrich",
+      "filePath": "src/understand_anything/analyze/llm.py",
+      "summary": "Fill in better summaries for file-level nodes. Returns number of summaries updated.",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/llm.py:name_layers",
+      "type": "function",
+      "name": "name_layers",
+      "filePath": "src/understand_anything/analyze/llm.py",
+      "summary": "Improve layer names/descriptions from member files. Mutates layers; returns count updated.",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/llm.py:narrate_tour",
+      "type": "function",
+      "name": "narrate_tour",
+      "filePath": "src/understand_anything/analyze/llm.py",
+      "summary": "Rewrite tour step titles/descriptions into a narrative. Mutates tour; returns count.",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/llm.py:_complete_json",
+      "type": "function",
+      "name": "_complete_json",
+      "filePath": "src/understand_anything/analyze/llm.py",
+      "summary": "Function _complete_json in src/understand_anything/analyze/llm.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/llm.py:_snippet",
+      "type": "function",
+      "name": "_snippet",
+      "filePath": "src/understand_anything/analyze/llm.py",
+      "summary": "Function _snippet in src/understand_anything/analyze/llm.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/llm.py:_build_prompt",
+      "type": "function",
+      "name": "_build_prompt",
+      "filePath": "src/understand_anything/analyze/llm.py",
+      "summary": "Function _build_prompt in src/understand_anything/analyze/llm.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/llm.py:_parse_json_object",
+      "type": "function",
+      "name": "_parse_json_object",
+      "filePath": "src/understand_anything/analyze/llm.py",
+      "summary": "Function _parse_json_object in src/understand_anything/analyze/llm.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/understand_anything/analyze/llm.py",
+      "type": "file",
+      "name": "llm.py",
+      "filePath": "src/understand_anything/analyze/llm.py",
+      "summary": "Optional LLM enrichment (hybrid mode).",
+      "tags": [
+        "python",
+        "code",
+        "src"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/structural.py:node_type_for",
+      "type": "function",
+      "name": "node_type_for",
+      "filePath": "src/understand_anything/analyze/structural.py",
+      "summary": "Function node_type_for in src/understand_anything/analyze/structural.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/structural.py:file_node_id",
+      "type": "function",
+      "name": "file_node_id",
+      "filePath": "src/understand_anything/analyze/structural.py",
+      "summary": "Function file_node_id in src/understand_anything/analyze/structural.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/structural.py:_complexity",
+      "type": "function",
+      "name": "_complexity",
+      "filePath": "src/understand_anything/analyze/structural.py",
+      "summary": "Function _complexity in src/understand_anything/analyze/structural.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/structural.py:_read_text",
+      "type": "function",
+      "name": "_read_text",
+      "filePath": "src/understand_anything/analyze/structural.py",
+      "summary": "Function _read_text in src/understand_anything/analyze/structural.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/structural.py:_first_doc_comment",
+      "type": "function",
+      "name": "_first_doc_comment",
+      "filePath": "src/understand_anything/analyze/structural.py",
+      "summary": "Heuristic one-line summary from the head of a file.",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/structural.py:_fallback_summary",
+      "type": "function",
+      "name": "_fallback_summary",
+      "filePath": "src/understand_anything/analyze/structural.py",
+      "summary": "Function _fallback_summary in src/understand_anything/analyze/structural.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/understand_anything/analyze/structural.py:_PyImport",
+      "type": "class",
+      "name": "_PyImport",
+      "filePath": "src/understand_anything/analyze/structural.py",
+      "summary": "Class _PyImport in src/understand_anything/analyze/structural.py",
+      "tags": [
+        "class",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/structural.py:_PyImport.__init__",
+      "type": "function",
+      "name": "_PyImport.__init__",
+      "filePath": "src/understand_anything/analyze/structural.py",
+      "summary": "Method of _PyImport",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/structural.py:_python_extract",
+      "type": "function",
+      "name": "_python_extract",
+      "filePath": "src/understand_anything/analyze/structural.py",
+      "summary": "Return (module_doc, symbols, imports). symbols: list of dicts; imports: list[_PyImport].",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/structural.py:_name_of",
+      "type": "function",
+      "name": "_name_of",
+      "filePath": "src/understand_anything/analyze/structural.py",
+      "summary": "Function _name_of in src/understand_anything/analyze/structural.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/understand_anything/analyze/structural.py:_ModuleIndex",
+      "type": "class",
+      "name": "_ModuleIndex",
+      "filePath": "src/understand_anything/analyze/structural.py",
+      "summary": "Maps dotted module names (and suffixes) to Python file node ids.",
+      "tags": [
+        "class",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/structural.py:_ModuleIndex.__init__",
+      "type": "function",
+      "name": "_ModuleIndex.__init__",
+      "filePath": "src/understand_anything/analyze/structural.py",
+      "summary": "Method of _ModuleIndex",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/structural.py:_ModuleIndex.add",
+      "type": "function",
+      "name": "_ModuleIndex.add",
+      "filePath": "src/understand_anything/analyze/structural.py",
+      "summary": "Method of _ModuleIndex",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/structural.py:_ModuleIndex.resolve",
+      "type": "function",
+      "name": "_ModuleIndex.resolve",
+      "filePath": "src/understand_anything/analyze/structural.py",
+      "summary": "Method of _ModuleIndex",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/structural.py:_resolve_py_import",
+      "type": "function",
+      "name": "_resolve_py_import",
+      "filePath": "src/understand_anything/analyze/structural.py",
+      "summary": "Function _resolve_py_import in src/understand_anything/analyze/structural.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/structural.py:build_structural",
+      "type": "function",
+      "name": "build_structural",
+      "filePath": "src/understand_anything/analyze/structural.py",
+      "summary": "Function build_structural in src/understand_anything/analyze/structural.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/understand_anything/analyze/structural.py",
+      "type": "file",
+      "name": "structural.py",
+      "filePath": "src/understand_anything/analyze/structural.py",
+      "summary": "Deterministic structural extraction.",
+      "tags": [
+        "python",
+        "code",
+        "src"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/tour.py:build_tour",
+      "type": "function",
+      "name": "build_tour",
+      "filePath": "src/understand_anything/analyze/tour.py",
+      "summary": "Function build_tour in src/understand_anything/analyze/tour.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/understand_anything/analyze/tour.py",
+      "type": "file",
+      "name": "tour.py",
+      "filePath": "src/understand_anything/analyze/tour.py",
+      "summary": "Deterministic guided tour.",
+      "tags": [
+        "python",
+        "code",
+        "src"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/treesitter.py:_ok_generic_name",
+      "type": "function",
+      "name": "_ok_generic_name",
+      "filePath": "src/understand_anything/analyze/treesitter.py",
+      "summary": "Function _ok_generic_name in src/understand_anything/analyze/treesitter.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/treesitter.py:_generic_classify",
+      "type": "function",
+      "name": "_generic_classify",
+      "filePath": "src/understand_anything/analyze/treesitter.py",
+      "summary": "Function _generic_classify in src/understand_anything/analyze/treesitter.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/treesitter.py:supported_languages",
+      "type": "function",
+      "name": "supported_languages",
+      "filePath": "src/understand_anything/analyze/treesitter.py",
+      "summary": "Function supported_languages in src/understand_anything/analyze/treesitter.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/treesitter.py:is_available",
+      "type": "function",
+      "name": "is_available",
+      "filePath": "src/understand_anything/analyze/treesitter.py",
+      "summary": "Function is_available in src/understand_anything/analyze/treesitter.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/treesitter.py:_parser",
+      "type": "function",
+      "name": "_parser",
+      "filePath": "src/understand_anything/analyze/treesitter.py",
+      "summary": "Function _parser in src/understand_anything/analyze/treesitter.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/treesitter.py:_grammar_for",
+      "type": "function",
+      "name": "_grammar_for",
+      "filePath": "src/understand_anything/analyze/treesitter.py",
+      "summary": "Function _grammar_for in src/understand_anything/analyze/treesitter.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/treesitter.py:_call",
+      "type": "function",
+      "name": "_call",
+      "filePath": "src/understand_anything/analyze/treesitter.py",
+      "summary": "Function _call in src/understand_anything/analyze/treesitter.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/treesitter.py:_kind",
+      "type": "function",
+      "name": "_kind",
+      "filePath": "src/understand_anything/analyze/treesitter.py",
+      "summary": "Function _kind in src/understand_anything/analyze/treesitter.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/treesitter.py:_children",
+      "type": "function",
+      "name": "_children",
+      "filePath": "src/understand_anything/analyze/treesitter.py",
+      "summary": "Function _children in src/understand_anything/analyze/treesitter.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/treesitter.py:_text",
+      "type": "function",
+      "name": "_text",
+      "filePath": "src/understand_anything/analyze/treesitter.py",
+      "summary": "Function _text in src/understand_anything/analyze/treesitter.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/treesitter.py:_root",
+      "type": "function",
+      "name": "_root",
+      "filePath": "src/understand_anything/analyze/treesitter.py",
+      "summary": "Function _root in src/understand_anything/analyze/treesitter.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/treesitter.py:_name_of",
+      "type": "function",
+      "name": "_name_of",
+      "filePath": "src/understand_anything/analyze/treesitter.py",
+      "summary": "Function _name_of in src/understand_anything/analyze/treesitter.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/treesitter.py:_dfs_first_name",
+      "type": "function",
+      "name": "_dfs_first_name",
+      "filePath": "src/understand_anything/analyze/treesitter.py",
+      "summary": "Function _dfs_first_name in src/understand_anything/analyze/treesitter.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/treesitter.py:_body_of",
+      "type": "function",
+      "name": "_body_of",
+      "filePath": "src/understand_anything/analyze/treesitter.py",
+      "summary": "Function _body_of in src/understand_anything/analyze/treesitter.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/treesitter.py:extract_symbols",
+      "type": "function",
+      "name": "extract_symbols",
+      "filePath": "src/understand_anything/analyze/treesitter.py",
+      "summary": "Return list of {kind, name, methods, doc} or None if extraction is unavailable.",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/treesitter.py:_extract_generic",
+      "type": "function",
+      "name": "_extract_generic",
+      "filePath": "src/understand_anything/analyze/treesitter.py",
+      "summary": "Paradigm-agnostic flat extraction for languages without an explicit spec.",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/analyze/treesitter.py:_impl_type_name",
+      "type": "function",
+      "name": "_impl_type_name",
+      "filePath": "src/understand_anything/analyze/treesitter.py",
+      "summary": "Function _impl_type_name in src/understand_anything/analyze/treesitter.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/understand_anything/analyze/treesitter.py",
+      "type": "file",
+      "name": "treesitter.py",
+      "filePath": "src/understand_anything/analyze/treesitter.py",
+      "summary": "Multi-language symbol extraction via tree-sitter (optional `[treesitter]` extra).",
+      "tags": [
+        "python",
+        "code",
+        "src"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/understand_anything/cli.py:_emit",
+      "type": "function",
+      "name": "_emit",
+      "filePath": "src/understand_anything/cli.py",
+      "summary": "Function _emit in src/understand_anything/cli.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/cli.py:_render_to_file",
+      "type": "function",
+      "name": "_render_to_file",
+      "filePath": "src/understand_anything/cli.py",
+      "summary": "Function _render_to_file in src/understand_anything/cli.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/cli.py:_write_meta",
+      "type": "function",
+      "name": "_write_meta",
+      "filePath": "src/understand_anything/cli.py",
+      "summary": "Function _write_meta in src/understand_anything/cli.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/cli.py:_open",
+      "type": "function",
+      "name": "_open",
+      "filePath": "src/understand_anything/cli.py",
+      "summary": "Function _open in src/understand_anything/cli.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/cli.py:_default_html_name",
+      "type": "function",
+      "name": "_default_html_name",
+      "filePath": "src/understand_anything/cli.py",
+      "summary": "Function _default_html_name in src/understand_anything/cli.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/cli.py:cmd_analyze",
+      "type": "function",
+      "name": "cmd_analyze",
+      "filePath": "src/understand_anything/cli.py",
+      "summary": "Function cmd_analyze in src/understand_anything/cli.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/cli.py:cmd_render",
+      "type": "function",
+      "name": "cmd_render",
+      "filePath": "src/understand_anything/cli.py",
+      "summary": "Function cmd_render in src/understand_anything/cli.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/cli.py:cmd_dashboard",
+      "type": "function",
+      "name": "cmd_dashboard",
+      "filePath": "src/understand_anything/cli.py",
+      "summary": "Function cmd_dashboard in src/understand_anything/cli.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/cli.py:build_parser",
+      "type": "function",
+      "name": "build_parser",
+      "filePath": "src/understand_anything/cli.py",
+      "summary": "Function build_parser in src/understand_anything/cli.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/cli.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "src/understand_anything/cli.py",
+      "summary": "Function main in src/understand_anything/cli.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/understand_anything/cli.py",
+      "type": "file",
+      "name": "cli.py",
+      "filePath": "src/understand_anything/cli.py",
+      "summary": "Command-line interface.",
+      "tags": [
+        "python",
+        "code",
+        "src"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/understand_anything/fingerprint.py:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "src/understand_anything/fingerprint.py",
+      "summary": "Function compute in src/understand_anything/fingerprint.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/fingerprint.py:load",
+      "type": "function",
+      "name": "load",
+      "filePath": "src/understand_anything/fingerprint.py",
+      "summary": "Function load in src/understand_anything/fingerprint.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/fingerprint.py:save",
+      "type": "function",
+      "name": "save",
+      "filePath": "src/understand_anything/fingerprint.py",
+      "summary": "Function save in src/understand_anything/fingerprint.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/fingerprint.py:diff",
+      "type": "function",
+      "name": "diff",
+      "filePath": "src/understand_anything/fingerprint.py",
+      "summary": "Return (changed, added, removed) relative paths.",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/understand_anything/fingerprint.py",
+      "type": "file",
+      "name": "fingerprint.py",
+      "filePath": "src/understand_anything/fingerprint.py",
+      "summary": "Per-file content fingerprints for incremental re-analysis.",
+      "tags": [
+        "python",
+        "code",
+        "src"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/understand_anything/graph.py:_git_commit",
+      "type": "function",
+      "name": "_git_commit",
+      "filePath": "src/understand_anything/graph.py",
+      "summary": "Function _git_commit in src/understand_anything/graph.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/graph.py:_normalize_layers",
+      "type": "function",
+      "name": "_normalize_layers",
+      "filePath": "src/understand_anything/graph.py",
+      "summary": "Cap layer count, fold small communities into a 'Shared' layer, guarantee full coverage.",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/graph.py:analyze",
+      "type": "function",
+      "name": "analyze",
+      "filePath": "src/understand_anything/graph.py",
+      "summary": "Function analyze in src/understand_anything/graph.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/graph.py:_describe_project",
+      "type": "function",
+      "name": "_describe_project",
+      "filePath": "src/understand_anything/graph.py",
+      "summary": "Function _describe_project in src/understand_anything/graph.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/understand_anything/graph.py",
+      "type": "file",
+      "name": "graph.py",
+      "filePath": "src/understand_anything/graph.py",
+      "summary": "Orchestrates the full analysis pipeline into a KnowledgeGraph.",
+      "tags": [
+        "python",
+        "code",
+        "src"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:src/understand_anything/ignore.py:IgnoreMatcher",
+      "type": "class",
+      "name": "IgnoreMatcher",
+      "filePath": "src/understand_anything/ignore.py",
+      "summary": "Class IgnoreMatcher in src/understand_anything/ignore.py",
+      "tags": [
+        "class",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/ignore.py:IgnoreMatcher.__init__",
+      "type": "function",
+      "name": "IgnoreMatcher.__init__",
+      "filePath": "src/understand_anything/ignore.py",
+      "summary": "Method of IgnoreMatcher",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/ignore.py:IgnoreMatcher.is_ignored_dir",
+      "type": "function",
+      "name": "IgnoreMatcher.is_ignored_dir",
+      "filePath": "src/understand_anything/ignore.py",
+      "summary": "Method of IgnoreMatcher",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/ignore.py:IgnoreMatcher.is_ignored",
+      "type": "function",
+      "name": "IgnoreMatcher.is_ignored",
+      "filePath": "src/understand_anything/ignore.py",
+      "summary": "Method of IgnoreMatcher",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/ignore.py:_read_patterns",
+      "type": "function",
+      "name": "_read_patterns",
+      "filePath": "src/understand_anything/ignore.py",
+      "summary": "Function _read_patterns in src/understand_anything/ignore.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/ignore.py:build_matcher",
+      "type": "function",
+      "name": "build_matcher",
+      "filePath": "src/understand_anything/ignore.py",
+      "summary": "Function build_matcher in src/understand_anything/ignore.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/understand_anything/ignore.py",
+      "type": "file",
+      "name": "ignore.py",
+      "filePath": "src/understand_anything/ignore.py",
+      "summary": "Lightweight, dependency-free ignore matching (gitignore-ish).",
+      "tags": [
+        "python",
+        "code",
+        "src"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/understand_anything/layout.py:compute_layout",
+      "type": "function",
+      "name": "compute_layout",
+      "filePath": "src/understand_anything/layout.py",
+      "summary": "node_ids: list[str]; edges: list[(src, tgt, weight)]; layer_of: dict[id->layer_key].",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/layout.py:_iters",
+      "type": "function",
+      "name": "_iters",
+      "filePath": "src/understand_anything/layout.py",
+      "summary": "Function _iters in src/understand_anything/layout.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/layout.py:_layout_numpy",
+      "type": "function",
+      "name": "_layout_numpy",
+      "filePath": "src/understand_anything/layout.py",
+      "summary": "Function _layout_numpy in src/understand_anything/layout.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/layout.py:_layout_python",
+      "type": "function",
+      "name": "_layout_python",
+      "filePath": "src/understand_anything/layout.py",
+      "summary": "Function _layout_python in src/understand_anything/layout.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/understand_anything/layout.py",
+      "type": "file",
+      "name": "layout.py",
+      "filePath": "src/understand_anything/layout.py",
+      "summary": "Pure-Python, layer-aware force-directed layout.",
+      "tags": [
+        "python",
+        "code",
+        "src"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/understand_anything/render/__init__.py:build_view_model",
+      "type": "function",
+      "name": "build_view_model",
+      "filePath": "src/understand_anything/render/__init__.py",
+      "summary": "Function build_view_model in src/understand_anything/render/__init__.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/render/__init__.py:render_interactive",
+      "type": "function",
+      "name": "render_interactive",
+      "filePath": "src/understand_anything/render/__init__.py",
+      "summary": "Function render_interactive in src/understand_anything/render/__init__.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/render/__init__.py:render_static",
+      "type": "function",
+      "name": "render_static",
+      "filePath": "src/understand_anything/render/__init__.py",
+      "summary": "Function render_static in src/understand_anything/render/__init__.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/understand_anything/render/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "src/understand_anything/render/__init__.py",
+      "summary": "Rendering: turn a KnowledgeGraph into a single self-contained HTML file.",
+      "tags": [
+        "python",
+        "code",
+        "src"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/understand_anything/render/static.py:_radius",
+      "type": "function",
+      "name": "_radius",
+      "filePath": "src/understand_anything/render/static.py",
+      "summary": "Function _radius in src/understand_anything/render/static.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/render/static.py:render_static_html",
+      "type": "function",
+      "name": "render_static_html",
+      "filePath": "src/understand_anything/render/static.py",
+      "summary": "Function render_static_html in src/understand_anything/render/static.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/understand_anything/render/static.py",
+      "type": "file",
+      "name": "static.py",
+      "filePath": "src/understand_anything/render/static.py",
+      "summary": "Zero-JavaScript static renderer: inline SVG embedded in HTML. Just a picture, no interactivity.",
+      "tags": [
+        "python",
+        "code",
+        "src"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/understand_anything/render/template.py:render_interactive_html",
+      "type": "function",
+      "name": "render_interactive_html",
+      "filePath": "src/understand_anything/render/template.py",
+      "summary": "Function render_interactive_html in src/understand_anything/render/template.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/render/template.py:_h",
+      "type": "function",
+      "name": "_h",
+      "filePath": "src/understand_anything/render/template.py",
+      "summary": "Function _h in src/understand_anything/render/template.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/understand_anything/render/template.py",
+      "type": "file",
+      "name": "template.py",
+      "filePath": "src/understand_anything/render/template.py",
+      "summary": "Self-contained interactive HTML template (vanilla canvas renderer, inlined data + JS).",
+      "tags": [
+        "python",
+        "code",
+        "src"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/understand_anything/scan.py:categorize",
+      "type": "function",
+      "name": "categorize",
+      "filePath": "src/understand_anything/scan.py",
+      "summary": "Function categorize in src/understand_anything/scan.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/scan.py:detect_language",
+      "type": "function",
+      "name": "detect_language",
+      "filePath": "src/understand_anything/scan.py",
+      "summary": "Function detect_language in src/understand_anything/scan.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/understand_anything/scan.py:ScannedFile",
+      "type": "class",
+      "name": "ScannedFile",
+      "filePath": "src/understand_anything/scan.py",
+      "summary": "Class ScannedFile in src/understand_anything/scan.py",
+      "tags": [
+        "class",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/understand_anything/scan.py:ScanResult",
+      "type": "class",
+      "name": "ScanResult",
+      "filePath": "src/understand_anything/scan.py",
+      "summary": "Class ScanResult in src/understand_anything/scan.py",
+      "tags": [
+        "class",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/scan.py:_count_lines",
+      "type": "function",
+      "name": "_count_lines",
+      "filePath": "src/understand_anything/scan.py",
+      "summary": "Function _count_lines in src/understand_anything/scan.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/scan.py:_detect_frameworks",
+      "type": "function",
+      "name": "_detect_frameworks",
+      "filePath": "src/understand_anything/scan.py",
+      "summary": "Function _detect_frameworks in src/understand_anything/scan.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/scan.py:scan",
+      "type": "function",
+      "name": "scan",
+      "filePath": "src/understand_anything/scan.py",
+      "summary": "Function scan in src/understand_anything/scan.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/scan.py:_walk",
+      "type": "function",
+      "name": "_walk",
+      "filePath": "src/understand_anything/scan.py",
+      "summary": "Function _walk in src/understand_anything/scan.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/understand_anything/scan.py",
+      "type": "file",
+      "name": "scan.py",
+      "filePath": "src/understand_anything/scan.py",
+      "summary": "Project scanner: discover files, detect language/category, count lines, sniff frameworks.",
+      "tags": [
+        "python",
+        "code",
+        "src"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/understand_anything/schema.py:edge_weight",
+      "type": "function",
+      "name": "edge_weight",
+      "filePath": "src/understand_anything/schema.py",
+      "summary": "Function edge_weight in src/understand_anything/schema.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/understand_anything/schema.py:Node",
+      "type": "class",
+      "name": "Node",
+      "filePath": "src/understand_anything/schema.py",
+      "summary": "Class Node in src/understand_anything/schema.py",
+      "tags": [
+        "class",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/schema.py:Node.to_dict",
+      "type": "function",
+      "name": "Node.to_dict",
+      "filePath": "src/understand_anything/schema.py",
+      "summary": "Method of Node",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/schema.py:Node.from_dict",
+      "type": "function",
+      "name": "Node.from_dict",
+      "filePath": "src/understand_anything/schema.py",
+      "summary": "Method of Node",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/understand_anything/schema.py:Edge",
+      "type": "class",
+      "name": "Edge",
+      "filePath": "src/understand_anything/schema.py",
+      "summary": "Class Edge in src/understand_anything/schema.py",
+      "tags": [
+        "class",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/schema.py:Edge.to_dict",
+      "type": "function",
+      "name": "Edge.to_dict",
+      "filePath": "src/understand_anything/schema.py",
+      "summary": "Method of Edge",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/schema.py:Edge.from_dict",
+      "type": "function",
+      "name": "Edge.from_dict",
+      "filePath": "src/understand_anything/schema.py",
+      "summary": "Method of Edge",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/schema.py:Edge.key",
+      "type": "function",
+      "name": "Edge.key",
+      "filePath": "src/understand_anything/schema.py",
+      "summary": "Method of Edge",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/understand_anything/schema.py:Layer",
+      "type": "class",
+      "name": "Layer",
+      "filePath": "src/understand_anything/schema.py",
+      "summary": "Class Layer in src/understand_anything/schema.py",
+      "tags": [
+        "class",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/schema.py:Layer.to_dict",
+      "type": "function",
+      "name": "Layer.to_dict",
+      "filePath": "src/understand_anything/schema.py",
+      "summary": "Method of Layer",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/schema.py:Layer.from_dict",
+      "type": "function",
+      "name": "Layer.from_dict",
+      "filePath": "src/understand_anything/schema.py",
+      "summary": "Method of Layer",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/understand_anything/schema.py:TourStep",
+      "type": "class",
+      "name": "TourStep",
+      "filePath": "src/understand_anything/schema.py",
+      "summary": "Class TourStep in src/understand_anything/schema.py",
+      "tags": [
+        "class",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/schema.py:TourStep.to_dict",
+      "type": "function",
+      "name": "TourStep.to_dict",
+      "filePath": "src/understand_anything/schema.py",
+      "summary": "Method of TourStep",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/schema.py:TourStep.from_dict",
+      "type": "function",
+      "name": "TourStep.from_dict",
+      "filePath": "src/understand_anything/schema.py",
+      "summary": "Method of TourStep",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/understand_anything/schema.py:Project",
+      "type": "class",
+      "name": "Project",
+      "filePath": "src/understand_anything/schema.py",
+      "summary": "Class Project in src/understand_anything/schema.py",
+      "tags": [
+        "class",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/schema.py:Project.to_dict",
+      "type": "function",
+      "name": "Project.to_dict",
+      "filePath": "src/understand_anything/schema.py",
+      "summary": "Method of Project",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/schema.py:Project.from_dict",
+      "type": "function",
+      "name": "Project.from_dict",
+      "filePath": "src/understand_anything/schema.py",
+      "summary": "Method of Project",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/understand_anything/schema.py:KnowledgeGraph",
+      "type": "class",
+      "name": "KnowledgeGraph",
+      "filePath": "src/understand_anything/schema.py",
+      "summary": "Class KnowledgeGraph in src/understand_anything/schema.py",
+      "tags": [
+        "class",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/schema.py:KnowledgeGraph.to_dict",
+      "type": "function",
+      "name": "KnowledgeGraph.to_dict",
+      "filePath": "src/understand_anything/schema.py",
+      "summary": "Method of KnowledgeGraph",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/schema.py:KnowledgeGraph.from_dict",
+      "type": "function",
+      "name": "KnowledgeGraph.from_dict",
+      "filePath": "src/understand_anything/schema.py",
+      "summary": "Method of KnowledgeGraph",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/schema.py:KnowledgeGraph.save",
+      "type": "function",
+      "name": "KnowledgeGraph.save",
+      "filePath": "src/understand_anything/schema.py",
+      "summary": "Method of KnowledgeGraph",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/schema.py:KnowledgeGraph.load",
+      "type": "function",
+      "name": "KnowledgeGraph.load",
+      "filePath": "src/understand_anything/schema.py",
+      "summary": "Method of KnowledgeGraph",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/schema.py:KnowledgeGraph.validate",
+      "type": "function",
+      "name": "KnowledgeGraph.validate",
+      "filePath": "src/understand_anything/schema.py",
+      "summary": "Method of KnowledgeGraph",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/schema.py:KnowledgeGraph.stats",
+      "type": "function",
+      "name": "KnowledgeGraph.stats",
+      "filePath": "src/understand_anything/schema.py",
+      "summary": "Method of KnowledgeGraph",
+      "tags": [
+        "function",
+        "python",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/understand_anything/schema.py:_kebab",
+      "type": "function",
+      "name": "_kebab",
+      "filePath": "src/understand_anything/schema.py",
+      "summary": "Function _kebab in src/understand_anything/schema.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/understand_anything/schema.py",
+      "type": "file",
+      "name": "schema.py",
+      "filePath": "src/understand_anything/schema.py",
+      "summary": "Data model for the knowledge graph.",
+      "tags": [
+        "python",
+        "code",
+        "src"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:tests/fixtures/imports/Main.java:Main",
+      "type": "class",
+      "name": "Main",
+      "filePath": "tests/fixtures/imports/Main.java",
+      "summary": "Class Main in tests/fixtures/imports/Main.java",
+      "tags": [
+        "class",
+        "java"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/imports/Main.java:Main.main",
+      "type": "function",
+      "name": "Main.main",
+      "filePath": "tests/fixtures/imports/Main.java",
+      "summary": "Method of Main",
+      "tags": [
+        "function",
+        "java",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/imports/Main.java",
+      "type": "file",
+      "name": "Main.java",
+      "filePath": "tests/fixtures/imports/Main.java",
+      "summary": "Java source file (5 lines).",
+      "tags": [
+        "java",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/imports/app.cpp:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "tests/fixtures/imports/app.cpp",
+      "summary": "Function main in tests/fixtures/imports/app.cpp",
+      "tags": [
+        "function",
+        "cpp"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/imports/app.cpp",
+      "type": "file",
+      "name": "app.cpp",
+      "filePath": "tests/fixtures/imports/app.cpp",
+      "summary": "Cpp source file (3 lines).",
+      "tags": [
+        "cpp",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/imports/go.mod",
+      "type": "file",
+      "name": "go.mod",
+      "filePath": "tests/fixtures/imports/go.mod",
+      "summary": "Go source file (3 lines).",
+      "tags": [
+        "go",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/imports/lib.h",
+      "type": "file",
+      "name": "lib.h",
+      "filePath": "tests/fixtures/imports/lib.h",
+      "summary": "C source file (1 lines).",
+      "tags": [
+        "c",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/imports/main.go:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "tests/fixtures/imports/main.go",
+      "summary": "Function main in tests/fixtures/imports/main.go",
+      "tags": [
+        "function",
+        "go"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/imports/main.go",
+      "type": "file",
+      "name": "main.go",
+      "filePath": "tests/fixtures/imports/main.go",
+      "summary": "Go source file (7 lines).",
+      "tags": [
+        "go",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/imports/main.rs:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "tests/fixtures/imports/main.rs",
+      "summary": "Function main in tests/fixtures/imports/main.rs",
+      "tags": [
+        "function",
+        "rust"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/imports/main.rs",
+      "type": "file",
+      "name": "main.rs",
+      "filePath": "tests/fixtures/imports/main.rs",
+      "summary": "Rust source file (6 lines).",
+      "tags": [
+        "rust",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/imports/store/store.go:New",
+      "type": "function",
+      "name": "New",
+      "filePath": "tests/fixtures/imports/store/store.go",
+      "summary": "Function New in tests/fixtures/imports/store/store.go",
+      "tags": [
+        "function",
+        "go"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/imports/store/store.go",
+      "type": "file",
+      "name": "store.go",
+      "filePath": "tests/fixtures/imports/store/store.go",
+      "summary": "Go source file (3 lines).",
+      "tags": [
+        "go",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/imports/util.rs:helper",
+      "type": "function",
+      "name": "helper",
+      "filePath": "tests/fixtures/imports/util.rs",
+      "summary": "Function helper in tests/fixtures/imports/util.rs",
+      "tags": [
+        "function",
+        "rust"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/imports/util.rs",
+      "type": "file",
+      "name": "util.rs",
+      "filePath": "tests/fixtures/imports/util.rs",
+      "summary": "Rust source file (1 lines).",
+      "tags": [
+        "rust",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:tests/fixtures/imports/util/Helper.java:Helper",
+      "type": "class",
+      "name": "Helper",
+      "filePath": "tests/fixtures/imports/util/Helper.java",
+      "summary": "Class Helper in tests/fixtures/imports/util/Helper.java",
+      "tags": [
+        "class",
+        "java"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/imports/util/Helper.java:Helper.run",
+      "type": "function",
+      "name": "Helper.run",
+      "filePath": "tests/fixtures/imports/util/Helper.java",
+      "summary": "Method of Helper",
+      "tags": [
+        "function",
+        "java",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/imports/util/Helper.java",
+      "type": "file",
+      "name": "Helper.java",
+      "filePath": "tests/fixtures/imports/util/Helper.java",
+      "summary": "Java source file (5 lines).",
+      "tags": [
+        "java",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:tests/fixtures/legacy/Lib.hs:Shape",
+      "type": "class",
+      "name": "Shape",
+      "filePath": "tests/fixtures/legacy/Lib.hs",
+      "summary": "Class Shape in tests/fixtures/legacy/Lib.hs",
+      "tags": [
+        "class",
+        "haskell"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/legacy/Lib.hs",
+      "type": "file",
+      "name": "Lib.hs",
+      "filePath": "tests/fixtures/legacy/Lib.hs",
+      "summary": "Haskell source file (6 lines).",
+      "tags": [
+        "haskell",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:tests/fixtures/legacy/alu.sv:alu",
+      "type": "class",
+      "name": "alu",
+      "filePath": "tests/fixtures/legacy/alu.sv",
+      "summary": "Class alu in tests/fixtures/legacy/alu.sv",
+      "tags": [
+        "class",
+        "verilog"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/legacy/alu.sv:dbl",
+      "type": "function",
+      "name": "dbl",
+      "filePath": "tests/fixtures/legacy/alu.sv",
+      "summary": "Function dbl in tests/fixtures/legacy/alu.sv",
+      "tags": [
+        "function",
+        "verilog"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/legacy/alu.sv",
+      "type": "file",
+      "name": "alu.sv",
+      "filePath": "tests/fixtures/legacy/alu.sv",
+      "summary": "Verilog source file (5 lines).",
+      "tags": [
+        "verilog",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:tests/fixtures/legacy/calc.adb:Calc",
+      "type": "class",
+      "name": "Calc",
+      "filePath": "tests/fixtures/legacy/calc.adb",
+      "summary": "Class Calc in tests/fixtures/legacy/calc.adb",
+      "tags": [
+        "class",
+        "ada"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/legacy/calc.adb:Add",
+      "type": "function",
+      "name": "Add",
+      "filePath": "tests/fixtures/legacy/calc.adb",
+      "summary": "Function Add in tests/fixtures/legacy/calc.adb",
+      "tags": [
+        "function",
+        "ada"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/legacy/calc.adb:Run",
+      "type": "function",
+      "name": "Run",
+      "filePath": "tests/fixtures/legacy/calc.adb",
+      "summary": "Function Run in tests/fixtures/legacy/calc.adb",
+      "tags": [
+        "function",
+        "ada"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/legacy/calc.adb",
+      "type": "file",
+      "name": "calc.adb",
+      "filePath": "tests/fixtures/legacy/calc.adb",
+      "summary": "Ada source file (11 lines).",
+      "tags": [
+        "ada",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:tests/fixtures/legacy/calc.jl:Calc",
+      "type": "class",
+      "name": "Calc",
+      "filePath": "tests/fixtures/legacy/calc.jl",
+      "summary": "Class Calc in tests/fixtures/legacy/calc.jl",
+      "tags": [
+        "class",
+        "julia"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:tests/fixtures/legacy/calc.jl:Point",
+      "type": "class",
+      "name": "Point",
+      "filePath": "tests/fixtures/legacy/calc.jl",
+      "summary": "Class Point in tests/fixtures/legacy/calc.jl",
+      "tags": [
+        "class",
+        "julia"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/legacy/calc.jl:dist",
+      "type": "function",
+      "name": "dist",
+      "filePath": "tests/fixtures/legacy/calc.jl",
+      "summary": "Function dist in tests/fixtures/legacy/calc.jl",
+      "tags": [
+        "function",
+        "julia"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/legacy/calc.jl",
+      "type": "file",
+      "name": "calc.jl",
+      "filePath": "tests/fixtures/legacy/calc.jl",
+      "summary": "Julia source file (11 lines).",
+      "tags": [
+        "julia",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:tests/fixtures/legacy/counter.vhd:Counter",
+      "type": "class",
+      "name": "Counter",
+      "filePath": "tests/fixtures/legacy/counter.vhd",
+      "summary": "Class Counter in tests/fixtures/legacy/counter.vhd",
+      "tags": [
+        "class",
+        "vhdl"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:tests/fixtures/legacy/counter.vhd:rtl",
+      "type": "class",
+      "name": "rtl",
+      "filePath": "tests/fixtures/legacy/counter.vhd",
+      "summary": "Class rtl in tests/fixtures/legacy/counter.vhd",
+      "tags": [
+        "class",
+        "vhdl"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/legacy/counter.vhd:increment",
+      "type": "function",
+      "name": "increment",
+      "filePath": "tests/fixtures/legacy/counter.vhd",
+      "summary": "Function increment in tests/fixtures/legacy/counter.vhd",
+      "tags": [
+        "function",
+        "vhdl"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/legacy/counter.vhd",
+      "type": "file",
+      "name": "counter.vhd",
+      "filePath": "tests/fixtures/legacy/counter.vhd",
+      "summary": "Vhdl source file (11 lines).",
+      "tags": [
+        "vhdl",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:tests/fixtures/legacy/hello.cob:HELLO",
+      "type": "class",
+      "name": "HELLO",
+      "filePath": "tests/fixtures/legacy/hello.cob",
+      "summary": "Class HELLO in tests/fixtures/legacy/hello.cob",
+      "tags": [
+        "class",
+        "cobol"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/legacy/hello.cob",
+      "type": "file",
+      "name": "hello.cob",
+      "filePath": "tests/fixtures/legacy/hello.cob",
+      "summary": "Cobol source file (6 lines).",
+      "tags": [
+        "cobol",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/legacy/lib.ml:add",
+      "type": "function",
+      "name": "add",
+      "filePath": "tests/fixtures/legacy/lib.ml",
+      "summary": "Function add in tests/fixtures/legacy/lib.ml",
+      "tags": [
+        "function",
+        "ocaml"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:tests/fixtures/legacy/lib.ml:M",
+      "type": "class",
+      "name": "M",
+      "filePath": "tests/fixtures/legacy/lib.ml",
+      "summary": "Class M in tests/fixtures/legacy/lib.ml",
+      "tags": [
+        "class",
+        "ocaml"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/legacy/lib.ml:z",
+      "type": "function",
+      "name": "z",
+      "filePath": "tests/fixtures/legacy/lib.ml",
+      "summary": "Function z in tests/fixtures/legacy/lib.ml",
+      "tags": [
+        "function",
+        "ocaml"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/legacy/lib.ml",
+      "type": "file",
+      "name": "lib.ml",
+      "filePath": "tests/fixtures/legacy/lib.ml",
+      "summary": "Ocaml source file (7 lines).",
+      "tags": [
+        "ocaml",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:tests/fixtures/legacy/mathmod.f90:mathmod",
+      "type": "class",
+      "name": "mathmod",
+      "filePath": "tests/fixtures/legacy/mathmod.f90",
+      "summary": "Class mathmod in tests/fixtures/legacy/mathmod.f90",
+      "tags": [
+        "class",
+        "fortran"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/legacy/mathmod.f90:greet",
+      "type": "function",
+      "name": "greet",
+      "filePath": "tests/fixtures/legacy/mathmod.f90",
+      "summary": "Function greet in tests/fixtures/legacy/mathmod.f90",
+      "tags": [
+        "function",
+        "fortran"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/legacy/mathmod.f90",
+      "type": "file",
+      "name": "mathmod.f90",
+      "filePath": "tests/fixtures/legacy/mathmod.f90",
+      "summary": "Fortran source file (11 lines).",
+      "tags": [
+        "fortran",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:tests/fixtures/legacy/token.sol:Token",
+      "type": "class",
+      "name": "Token",
+      "filePath": "tests/fixtures/legacy/token.sol",
+      "summary": "Class Token in tests/fixtures/legacy/token.sol",
+      "tags": [
+        "class",
+        "solidity"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/legacy/token.sol:transfer",
+      "type": "function",
+      "name": "transfer",
+      "filePath": "tests/fixtures/legacy/token.sol",
+      "summary": "Function transfer in tests/fixtures/legacy/token.sol",
+      "tags": [
+        "function",
+        "solidity"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/legacy/token.sol:balance",
+      "type": "function",
+      "name": "balance",
+      "filePath": "tests/fixtures/legacy/token.sol",
+      "summary": "Function balance in tests/fixtures/legacy/token.sol",
+      "tags": [
+        "function",
+        "solidity"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/legacy/token.sol",
+      "type": "file",
+      "name": "token.sol",
+      "filePath": "tests/fixtures/legacy/token.sol",
+      "summary": "SPDX-License-Identifier: MIT",
+      "tags": [
+        "solidity",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:tests/fixtures/legacy/widget.dart:Widget",
+      "type": "class",
+      "name": "Widget",
+      "filePath": "tests/fixtures/legacy/widget.dart",
+      "summary": "Class Widget in tests/fixtures/legacy/widget.dart",
+      "tags": [
+        "class",
+        "dart"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/legacy/widget.dart:render",
+      "type": "function",
+      "name": "render",
+      "filePath": "tests/fixtures/legacy/widget.dart",
+      "summary": "Function render in tests/fixtures/legacy/widget.dart",
+      "tags": [
+        "function",
+        "dart"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/legacy/widget.dart:size",
+      "type": "function",
+      "name": "size",
+      "filePath": "tests/fixtures/legacy/widget.dart",
+      "summary": "Function size in tests/fixtures/legacy/widget.dart",
+      "tags": [
+        "function",
+        "dart"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/legacy/widget.dart:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "tests/fixtures/legacy/widget.dart",
+      "summary": "Function main in tests/fixtures/legacy/widget.dart",
+      "tags": [
+        "function",
+        "dart"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/legacy/widget.dart",
+      "type": "file",
+      "name": "widget.dart",
+      "filePath": "tests/fixtures/legacy/widget.dart",
+      "summary": "Dart source file (6 lines).",
+      "tags": [
+        "dart",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:tests/fixtures/multilang/Program.cs:Program",
+      "type": "class",
+      "name": "Program",
+      "filePath": "tests/fixtures/multilang/Program.cs",
+      "summary": "Class Program in tests/fixtures/multilang/Program.cs",
+      "tags": [
+        "class",
+        "csharp"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/multilang/Program.cs:Program.Run",
+      "type": "function",
+      "name": "Program.Run",
+      "filePath": "tests/fixtures/multilang/Program.cs",
+      "summary": "Method of Program",
+      "tags": [
+        "function",
+        "csharp",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/multilang/Program.cs:Program.Add",
+      "type": "function",
+      "name": "Program.Add",
+      "filePath": "tests/fixtures/multilang/Program.cs",
+      "summary": "Method of Program",
+      "tags": [
+        "function",
+        "csharp",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/multilang/Program.cs",
+      "type": "file",
+      "name": "Program.cs",
+      "filePath": "tests/fixtures/multilang/Program.cs",
+      "summary": "Csharp source file (6 lines).",
+      "tags": [
+        "csharp",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:tests/fixtures/multilang/Server.java:Server",
+      "type": "class",
+      "name": "Server",
+      "filePath": "tests/fixtures/multilang/Server.java",
+      "summary": "Class Server in tests/fixtures/multilang/Server.java",
+      "tags": [
+        "class",
+        "java"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/multilang/Server.java:Server.Server",
+      "type": "function",
+      "name": "Server.Server",
+      "filePath": "tests/fixtures/multilang/Server.java",
+      "summary": "Method of Server",
+      "tags": [
+        "function",
+        "java",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/multilang/Server.java:Server.start",
+      "type": "function",
+      "name": "Server.start",
+      "filePath": "tests/fixtures/multilang/Server.java",
+      "summary": "Method of Server",
+      "tags": [
+        "function",
+        "java",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/multilang/Server.java:Server.getPort",
+      "type": "function",
+      "name": "Server.getPort",
+      "filePath": "tests/fixtures/multilang/Server.java",
+      "summary": "Method of Server",
+      "tags": [
+        "function",
+        "java",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/multilang/Server.java",
+      "type": "file",
+      "name": "Server.java",
+      "filePath": "tests/fixtures/multilang/Server.java",
+      "summary": "Java source file (9 lines).",
+      "tags": [
+        "java",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/multilang/app.js:greet",
+      "type": "function",
+      "name": "greet",
+      "filePath": "tests/fixtures/multilang/app.js",
+      "summary": "Function greet in tests/fixtures/multilang/app.js",
+      "tags": [
+        "function",
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:tests/fixtures/multilang/app.js:Widget",
+      "type": "class",
+      "name": "Widget",
+      "filePath": "tests/fixtures/multilang/app.js",
+      "summary": "Class Widget in tests/fixtures/multilang/app.js",
+      "tags": [
+        "class",
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/multilang/app.js:Widget.render",
+      "type": "function",
+      "name": "Widget.render",
+      "filePath": "tests/fixtures/multilang/app.js",
+      "summary": "Method of Widget",
+      "tags": [
+        "function",
+        "javascript",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/multilang/app.js:Widget.destroy",
+      "type": "function",
+      "name": "Widget.destroy",
+      "filePath": "tests/fixtures/multilang/app.js",
+      "summary": "Method of Widget",
+      "tags": [
+        "function",
+        "javascript",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/multilang/app.js",
+      "type": "file",
+      "name": "app.js",
+      "filePath": "tests/fixtures/multilang/app.js",
+      "summary": "Javascript source file (10 lines).",
+      "tags": [
+        "javascript",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:tests/fixtures/multilang/helper.js:Helper",
+      "type": "class",
+      "name": "Helper",
+      "filePath": "tests/fixtures/multilang/helper.js",
+      "summary": "Class Helper in tests/fixtures/multilang/helper.js",
+      "tags": [
+        "class",
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/multilang/helper.js:Helper.format",
+      "type": "function",
+      "name": "Helper.format",
+      "filePath": "tests/fixtures/multilang/helper.js",
+      "summary": "Method of Helper",
+      "tags": [
+        "function",
+        "javascript",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/multilang/helper.js",
+      "type": "file",
+      "name": "helper.js",
+      "filePath": "tests/fixtures/multilang/helper.js",
+      "summary": "Javascript source file (3 lines).",
+      "tags": [
+        "javascript",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:tests/fixtures/multilang/index.php:Router",
+      "type": "class",
+      "name": "Router",
+      "filePath": "tests/fixtures/multilang/index.php",
+      "summary": "Class Router in tests/fixtures/multilang/index.php",
+      "tags": [
+        "class",
+        "php"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/multilang/index.php:Router.dispatch",
+      "type": "function",
+      "name": "Router.dispatch",
+      "filePath": "tests/fixtures/multilang/index.php",
+      "summary": "Method of Router",
+      "tags": [
+        "function",
+        "php",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/multilang/index.php:Router.add",
+      "type": "function",
+      "name": "Router.add",
+      "filePath": "tests/fixtures/multilang/index.php",
+      "summary": "Method of Router",
+      "tags": [
+        "function",
+        "php",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/multilang/index.php:bootstrap",
+      "type": "function",
+      "name": "bootstrap",
+      "filePath": "tests/fixtures/multilang/index.php",
+      "summary": "Function bootstrap in tests/fixtures/multilang/index.php",
+      "tags": [
+        "function",
+        "php"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/multilang/index.php",
+      "type": "file",
+      "name": "index.php",
+      "filePath": "tests/fixtures/multilang/index.php",
+      "summary": "Php source file (9 lines).",
+      "tags": [
+        "php",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:tests/fixtures/multilang/lib.rs:Config",
+      "type": "class",
+      "name": "Config",
+      "filePath": "tests/fixtures/multilang/lib.rs",
+      "summary": "Class Config in tests/fixtures/multilang/lib.rs",
+      "tags": [
+        "class",
+        "rust"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/multilang/lib.rs:Config.new",
+      "type": "function",
+      "name": "Config.new",
+      "filePath": "tests/fixtures/multilang/lib.rs",
+      "summary": "Method of Config",
+      "tags": [
+        "function",
+        "rust",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/multilang/lib.rs:run",
+      "type": "function",
+      "name": "run",
+      "filePath": "tests/fixtures/multilang/lib.rs",
+      "summary": "Function run in tests/fixtures/multilang/lib.rs",
+      "tags": [
+        "function",
+        "rust"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/multilang/lib.rs",
+      "type": "file",
+      "name": "lib.rs",
+      "filePath": "tests/fixtures/multilang/lib.rs",
+      "summary": "Rust source file (13 lines).",
+      "tags": [
+        "rust",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:tests/fixtures/multilang/main.go:Server",
+      "type": "class",
+      "name": "Server",
+      "filePath": "tests/fixtures/multilang/main.go",
+      "summary": "Class Server in tests/fixtures/multilang/main.go",
+      "tags": [
+        "class",
+        "go"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/multilang/main.go:Start",
+      "type": "function",
+      "name": "Start",
+      "filePath": "tests/fixtures/multilang/main.go",
+      "summary": "Function Start in tests/fixtures/multilang/main.go",
+      "tags": [
+        "function",
+        "go"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/multilang/main.go:NewServer",
+      "type": "function",
+      "name": "NewServer",
+      "filePath": "tests/fixtures/multilang/main.go",
+      "summary": "Function NewServer in tests/fixtures/multilang/main.go",
+      "tags": [
+        "function",
+        "go"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/multilang/main.go",
+      "type": "file",
+      "name": "main.go",
+      "filePath": "tests/fixtures/multilang/main.go",
+      "summary": "Go source file (13 lines).",
+      "tags": [
+        "go",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:tests/fixtures/multilang/model.rb:User",
+      "type": "class",
+      "name": "User",
+      "filePath": "tests/fixtures/multilang/model.rb",
+      "summary": "Class User in tests/fixtures/multilang/model.rb",
+      "tags": [
+        "class",
+        "ruby"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/multilang/model.rb:User.initialize",
+      "type": "function",
+      "name": "User.initialize",
+      "filePath": "tests/fixtures/multilang/model.rb",
+      "summary": "Method of User",
+      "tags": [
+        "function",
+        "ruby",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/multilang/model.rb:User.greeting",
+      "type": "function",
+      "name": "User.greeting",
+      "filePath": "tests/fixtures/multilang/model.rb",
+      "summary": "Method of User",
+      "tags": [
+        "function",
+        "ruby",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/multilang/model.rb:standalone",
+      "type": "function",
+      "name": "standalone",
+      "filePath": "tests/fixtures/multilang/model.rb",
+      "summary": "Function standalone in tests/fixtures/multilang/model.rb",
+      "tags": [
+        "function",
+        "ruby"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/multilang/model.rb",
+      "type": "file",
+      "name": "model.rb",
+      "filePath": "tests/fixtures/multilang/model.rb",
+      "summary": "Ruby source file (13 lines).",
+      "tags": [
+        "ruby",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/multilang/script.lua:compute",
+      "type": "function",
+      "name": "compute",
+      "filePath": "tests/fixtures/multilang/script.lua",
+      "summary": "Function compute in tests/fixtures/multilang/script.lua",
+      "tags": [
+        "function",
+        "lua"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/multilang/script.lua:Greeter",
+      "type": "function",
+      "name": "Greeter",
+      "filePath": "tests/fixtures/multilang/script.lua",
+      "summary": "Function Greeter in tests/fixtures/multilang/script.lua",
+      "tags": [
+        "function",
+        "lua"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/multilang/script.lua",
+      "type": "file",
+      "name": "script.lua",
+      "filePath": "tests/fixtures/multilang/script.lua",
+      "summary": "Lua source file (7 lines).",
+      "tags": [
+        "lua",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:tests/fixtures/multilang/service.ts:Repo",
+      "type": "class",
+      "name": "Repo",
+      "filePath": "tests/fixtures/multilang/service.ts",
+      "summary": "Class Repo in tests/fixtures/multilang/service.ts",
+      "tags": [
+        "class",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/multilang/service.ts:Repo.find",
+      "type": "function",
+      "name": "Repo.find",
+      "filePath": "tests/fixtures/multilang/service.ts",
+      "summary": "Method of Repo",
+      "tags": [
+        "function",
+        "typescript",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:tests/fixtures/multilang/service.ts:UserService",
+      "type": "class",
+      "name": "UserService",
+      "filePath": "tests/fixtures/multilang/service.ts",
+      "summary": "Class UserService in tests/fixtures/multilang/service.ts",
+      "tags": [
+        "class",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/multilang/service.ts:UserService.constructor",
+      "type": "function",
+      "name": "UserService.constructor",
+      "filePath": "tests/fixtures/multilang/service.ts",
+      "summary": "Method of UserService",
+      "tags": [
+        "function",
+        "typescript",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/multilang/service.ts:UserService.load",
+      "type": "function",
+      "name": "UserService.load",
+      "filePath": "tests/fixtures/multilang/service.ts",
+      "summary": "Method of UserService",
+      "tags": [
+        "function",
+        "typescript",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/multilang/service.ts:makeService",
+      "type": "function",
+      "name": "makeService",
+      "filePath": "tests/fixtures/multilang/service.ts",
+      "summary": "Function makeService in tests/fixtures/multilang/service.ts",
+      "tags": [
+        "function",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/multilang/service.ts",
+      "type": "file",
+      "name": "service.ts",
+      "filePath": "tests/fixtures/multilang/service.ts",
+      "summary": "Typescript source file (12 lines).",
+      "tags": [
+        "typescript",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:tests/fixtures/multilang/util.cpp:Buffer",
+      "type": "class",
+      "name": "Buffer",
+      "filePath": "tests/fixtures/multilang/util.cpp",
+      "summary": "Class Buffer in tests/fixtures/multilang/util.cpp",
+      "tags": [
+        "class",
+        "cpp"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/multilang/util.cpp:Buffer.append",
+      "type": "function",
+      "name": "Buffer.append",
+      "filePath": "tests/fixtures/multilang/util.cpp",
+      "summary": "Method of Buffer",
+      "tags": [
+        "function",
+        "cpp",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/multilang/util.cpp:Buffer.size",
+      "type": "function",
+      "name": "Buffer.size",
+      "filePath": "tests/fixtures/multilang/util.cpp",
+      "summary": "Method of Buffer",
+      "tags": [
+        "function",
+        "cpp",
+        "method"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/fixtures/multilang/util.cpp:add",
+      "type": "function",
+      "name": "add",
+      "filePath": "tests/fixtures/multilang/util.cpp",
+      "summary": "Function add in tests/fixtures/multilang/util.cpp",
+      "tags": [
+        "function",
+        "cpp"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/fixtures/multilang/util.cpp",
+      "type": "file",
+      "name": "util.cpp",
+      "filePath": "tests/fixtures/multilang/util.cpp",
+      "summary": "Cpp source file (13 lines).",
+      "tags": [
+        "cpp",
+        "code",
+        "tests"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/test_smoke.py:_sample_graph",
+      "type": "function",
+      "name": "_sample_graph",
+      "filePath": "tests/test_smoke.py",
+      "summary": "Function _sample_graph in tests/test_smoke.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/test_smoke.py:test_schema_roundtrip",
+      "type": "function",
+      "name": "test_schema_roundtrip",
+      "filePath": "tests/test_smoke.py",
+      "summary": "Function test_schema_roundtrip in tests/test_smoke.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/test_smoke.py:test_render_interactive_is_self_contained",
+      "type": "function",
+      "name": "test_render_interactive_is_self_contained",
+      "filePath": "tests/test_smoke.py",
+      "summary": "Function test_render_interactive_is_self_contained in tests/test_smoke.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/test_smoke.py:test_render_static_has_no_javascript",
+      "type": "function",
+      "name": "test_render_static_has_no_javascript",
+      "filePath": "tests/test_smoke.py",
+      "summary": "Function test_render_static_has_no_javascript in tests/test_smoke.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/test_smoke.py:test_analyze_fixtures_python_only_still_finds_symbols",
+      "type": "function",
+      "name": "test_analyze_fixtures_python_only_still_finds_symbols",
+      "filePath": "tests/test_smoke.py",
+      "summary": "Function test_analyze_fixtures_python_only_still_finds_symbols in tests/test_smoke.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/test_smoke.py:test_treesitter_extraction_when_available",
+      "type": "function",
+      "name": "test_treesitter_extraction_when_available",
+      "filePath": "tests/test_smoke.py",
+      "summary": "Function test_treesitter_extraction_when_available in tests/test_smoke.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/test_smoke.py:test_rust_impl_methods_attach_to_type",
+      "type": "function",
+      "name": "test_rust_impl_methods_attach_to_type",
+      "filePath": "tests/test_smoke.py",
+      "summary": "Function test_rust_impl_methods_attach_to_type in tests/test_smoke.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/test_smoke.py:test_cross_language_imports",
+      "type": "function",
+      "name": "test_cross_language_imports",
+      "filePath": "tests/test_smoke.py",
+      "summary": "Function test_cross_language_imports in tests/test_smoke.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/test_smoke.py:test_legacy_and_esoteric_languages",
+      "type": "function",
+      "name": "test_legacy_and_esoteric_languages",
+      "filePath": "tests/test_smoke.py",
+      "summary": "Function test_legacy_and_esoteric_languages in tests/test_smoke.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/test_smoke.py:test_incremental_writes_fingerprints",
+      "type": "function",
+      "name": "test_incremental_writes_fingerprints",
+      "filePath": "tests/test_smoke.py",
+      "summary": "Function test_incremental_writes_fingerprints in tests/test_smoke.py",
+      "tags": [
+        "function",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/test_smoke.py",
+      "type": "file",
+      "name": "test_smoke.py",
+      "filePath": "tests/test_smoke.py",
+      "summary": "Smoke tests: schema round-trip, multi-language extraction, and rendering.",
+      "tags": [
+        "python",
+        "code",
+        "tests"
+      ],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:src/understand_anything/__init__.py",
+      "target": "file:src/understand_anything/schema.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/understand_anything/__main__.py",
+      "target": "file:src/understand_anything/cli.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/understand_anything/analyze/imports.py",
+      "target": "class:src/understand_anything/analyze/imports.py:ImportIndex",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:src/understand_anything/analyze/imports.py:ImportIndex",
+      "target": "function:src/understand_anything/analyze/imports.py:ImportIndex.__init__",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/imports.py",
+      "target": "function:src/understand_anything/analyze/imports.py:build_index",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/imports.py",
+      "target": "function:src/understand_anything/analyze/imports.py:resolve",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/imports.py",
+      "target": "function:src/understand_anything/analyze/imports.py:_findall",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/imports.py",
+      "target": "function:src/understand_anything/analyze/imports.py:_resolve_js",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/imports.py",
+      "target": "function:src/understand_anything/analyze/imports.py:_resolve_go",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/imports.py",
+      "target": "function:src/understand_anything/analyze/imports.py:_resolve_rust",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/imports.py",
+      "target": "function:src/understand_anything/analyze/imports.py:_resolve_java",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/imports.py",
+      "target": "function:src/understand_anything/analyze/imports.py:_resolve_relative",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/imports.py",
+      "target": "function:src/understand_anything/analyze/imports.py:_norm",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/layers.py",
+      "target": "function:src/understand_anything/analyze/layers.py:detect_layers",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/layers.py",
+      "target": "function:src/understand_anything/analyze/layers.py:_name_community",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/layers.py",
+      "target": "function:src/understand_anything/analyze/layers.py:_titleize",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/layers.py",
+      "target": "function:src/understand_anything/analyze/layers.py:_describe",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/layers.py",
+      "target": "function:src/understand_anything/analyze/layers.py:_fallback_by_directory",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/layers.py",
+      "target": "file:src/understand_anything/schema.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/understand_anything/analyze/llm.py",
+      "target": "function:src/understand_anything/analyze/llm.py:is_available",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/llm.py",
+      "target": "function:src/understand_anything/analyze/llm.py:availability_hint",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/llm.py",
+      "target": "function:src/understand_anything/analyze/llm.py:enrich",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/llm.py",
+      "target": "function:src/understand_anything/analyze/llm.py:name_layers",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/llm.py",
+      "target": "function:src/understand_anything/analyze/llm.py:narrate_tour",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/llm.py",
+      "target": "function:src/understand_anything/analyze/llm.py:_complete_json",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/llm.py",
+      "target": "function:src/understand_anything/analyze/llm.py:_snippet",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/llm.py",
+      "target": "function:src/understand_anything/analyze/llm.py:_build_prompt",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/llm.py",
+      "target": "function:src/understand_anything/analyze/llm.py:_parse_json_object",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/llm.py",
+      "target": "file:src/understand_anything/schema.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/understand_anything/analyze/structural.py",
+      "target": "function:src/understand_anything/analyze/structural.py:node_type_for",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/structural.py",
+      "target": "function:src/understand_anything/analyze/structural.py:file_node_id",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/structural.py",
+      "target": "function:src/understand_anything/analyze/structural.py:_complexity",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/structural.py",
+      "target": "function:src/understand_anything/analyze/structural.py:_read_text",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/structural.py",
+      "target": "function:src/understand_anything/analyze/structural.py:_first_doc_comment",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/structural.py",
+      "target": "function:src/understand_anything/analyze/structural.py:_fallback_summary",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/structural.py",
+      "target": "class:src/understand_anything/analyze/structural.py:_PyImport",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:src/understand_anything/analyze/structural.py:_PyImport",
+      "target": "function:src/understand_anything/analyze/structural.py:_PyImport.__init__",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/structural.py",
+      "target": "function:src/understand_anything/analyze/structural.py:_python_extract",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/structural.py",
+      "target": "function:src/understand_anything/analyze/structural.py:_name_of",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/structural.py",
+      "target": "class:src/understand_anything/analyze/structural.py:_ModuleIndex",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:src/understand_anything/analyze/structural.py:_ModuleIndex",
+      "target": "function:src/understand_anything/analyze/structural.py:_ModuleIndex.__init__",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:src/understand_anything/analyze/structural.py:_ModuleIndex",
+      "target": "function:src/understand_anything/analyze/structural.py:_ModuleIndex.add",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:src/understand_anything/analyze/structural.py:_ModuleIndex",
+      "target": "function:src/understand_anything/analyze/structural.py:_ModuleIndex.resolve",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/structural.py",
+      "target": "function:src/understand_anything/analyze/structural.py:_resolve_py_import",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/structural.py",
+      "target": "function:src/understand_anything/analyze/structural.py:build_structural",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/structural.py",
+      "target": "file:src/understand_anything/schema.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/understand_anything/analyze/structural.py",
+      "target": "file:src/understand_anything/scan.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/understand_anything/analyze/structural.py",
+      "target": "file:src/understand_anything/analyze/treesitter.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/understand_anything/analyze/structural.py",
+      "target": "file:src/understand_anything/analyze/imports.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/understand_anything/analyze/tour.py",
+      "target": "function:src/understand_anything/analyze/tour.py:build_tour",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/tour.py",
+      "target": "file:src/understand_anything/schema.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/understand_anything/analyze/treesitter.py",
+      "target": "function:src/understand_anything/analyze/treesitter.py:_ok_generic_name",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/treesitter.py",
+      "target": "function:src/understand_anything/analyze/treesitter.py:_generic_classify",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/treesitter.py",
+      "target": "function:src/understand_anything/analyze/treesitter.py:supported_languages",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/treesitter.py",
+      "target": "function:src/understand_anything/analyze/treesitter.py:is_available",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/treesitter.py",
+      "target": "function:src/understand_anything/analyze/treesitter.py:_parser",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/treesitter.py",
+      "target": "function:src/understand_anything/analyze/treesitter.py:_grammar_for",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/treesitter.py",
+      "target": "function:src/understand_anything/analyze/treesitter.py:_call",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/treesitter.py",
+      "target": "function:src/understand_anything/analyze/treesitter.py:_kind",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/treesitter.py",
+      "target": "function:src/understand_anything/analyze/treesitter.py:_children",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/treesitter.py",
+      "target": "function:src/understand_anything/analyze/treesitter.py:_text",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/treesitter.py",
+      "target": "function:src/understand_anything/analyze/treesitter.py:_root",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/treesitter.py",
+      "target": "function:src/understand_anything/analyze/treesitter.py:_name_of",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/treesitter.py",
+      "target": "function:src/understand_anything/analyze/treesitter.py:_dfs_first_name",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/treesitter.py",
+      "target": "function:src/understand_anything/analyze/treesitter.py:_body_of",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/treesitter.py",
+      "target": "function:src/understand_anything/analyze/treesitter.py:extract_symbols",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/treesitter.py",
+      "target": "function:src/understand_anything/analyze/treesitter.py:_extract_generic",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/analyze/treesitter.py",
+      "target": "function:src/understand_anything/analyze/treesitter.py:_impl_type_name",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/cli.py",
+      "target": "function:src/understand_anything/cli.py:_emit",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/cli.py",
+      "target": "function:src/understand_anything/cli.py:_render_to_file",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/cli.py",
+      "target": "function:src/understand_anything/cli.py:_write_meta",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/cli.py",
+      "target": "function:src/understand_anything/cli.py:_open",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/cli.py",
+      "target": "function:src/understand_anything/cli.py:_default_html_name",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/cli.py",
+      "target": "function:src/understand_anything/cli.py:cmd_analyze",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/cli.py",
+      "target": "function:src/understand_anything/cli.py:cmd_render",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/cli.py",
+      "target": "function:src/understand_anything/cli.py:cmd_dashboard",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/cli.py",
+      "target": "function:src/understand_anything/cli.py:build_parser",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/cli.py",
+      "target": "function:src/understand_anything/cli.py:main",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/cli.py",
+      "target": "file:src/understand_anything/__init__.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/understand_anything/cli.py",
+      "target": "file:src/understand_anything/graph.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/understand_anything/cli.py",
+      "target": "file:src/understand_anything/render/__init__.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/understand_anything/cli.py",
+      "target": "file:src/understand_anything/schema.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/understand_anything/fingerprint.py",
+      "target": "function:src/understand_anything/fingerprint.py:compute",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/fingerprint.py",
+      "target": "function:src/understand_anything/fingerprint.py:load",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/fingerprint.py",
+      "target": "function:src/understand_anything/fingerprint.py:save",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/fingerprint.py",
+      "target": "function:src/understand_anything/fingerprint.py:diff",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/graph.py",
+      "target": "function:src/understand_anything/graph.py:_git_commit",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/graph.py",
+      "target": "function:src/understand_anything/graph.py:_normalize_layers",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/graph.py",
+      "target": "function:src/understand_anything/graph.py:analyze",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/graph.py",
+      "target": "function:src/understand_anything/graph.py:_describe_project",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/graph.py",
+      "target": "file:src/understand_anything/fingerprint.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/understand_anything/graph.py",
+      "target": "file:src/understand_anything/analyze/__init__.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/understand_anything/graph.py",
+      "target": "file:src/understand_anything/analyze/layers.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/understand_anything/graph.py",
+      "target": "file:src/understand_anything/analyze/llm.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/understand_anything/graph.py",
+      "target": "file:src/understand_anything/analyze/tour.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/understand_anything/graph.py",
+      "target": "file:src/understand_anything/analyze/structural.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/understand_anything/graph.py",
+      "target": "file:src/understand_anything/scan.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/understand_anything/graph.py",
+      "target": "file:src/understand_anything/schema.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/understand_anything/ignore.py",
+      "target": "class:src/understand_anything/ignore.py:IgnoreMatcher",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:src/understand_anything/ignore.py:IgnoreMatcher",
+      "target": "function:src/understand_anything/ignore.py:IgnoreMatcher.__init__",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:src/understand_anything/ignore.py:IgnoreMatcher",
+      "target": "function:src/understand_anything/ignore.py:IgnoreMatcher.is_ignored_dir",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:src/understand_anything/ignore.py:IgnoreMatcher",
+      "target": "function:src/understand_anything/ignore.py:IgnoreMatcher.is_ignored",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/ignore.py",
+      "target": "function:src/understand_anything/ignore.py:_read_patterns",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/ignore.py",
+      "target": "function:src/understand_anything/ignore.py:build_matcher",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/layout.py",
+      "target": "function:src/understand_anything/layout.py:compute_layout",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/layout.py",
+      "target": "function:src/understand_anything/layout.py:_iters",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/layout.py",
+      "target": "function:src/understand_anything/layout.py:_layout_numpy",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/layout.py",
+      "target": "function:src/understand_anything/layout.py:_layout_python",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/render/__init__.py",
+      "target": "function:src/understand_anything/render/__init__.py:build_view_model",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/render/__init__.py",
+      "target": "function:src/understand_anything/render/__init__.py:render_interactive",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/render/__init__.py",
+      "target": "function:src/understand_anything/render/__init__.py:render_static",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/render/__init__.py",
+      "target": "file:src/understand_anything/layout.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/understand_anything/render/__init__.py",
+      "target": "file:src/understand_anything/schema.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/understand_anything/render/static.py",
+      "target": "function:src/understand_anything/render/static.py:_radius",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/render/static.py",
+      "target": "function:src/understand_anything/render/static.py:render_static_html",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/render/template.py",
+      "target": "function:src/understand_anything/render/template.py:render_interactive_html",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/render/template.py",
+      "target": "function:src/understand_anything/render/template.py:_h",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/scan.py",
+      "target": "function:src/understand_anything/scan.py:categorize",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/scan.py",
+      "target": "function:src/understand_anything/scan.py:detect_language",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/scan.py",
+      "target": "class:src/understand_anything/scan.py:ScannedFile",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/scan.py",
+      "target": "class:src/understand_anything/scan.py:ScanResult",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/scan.py",
+      "target": "function:src/understand_anything/scan.py:_count_lines",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/scan.py",
+      "target": "function:src/understand_anything/scan.py:_detect_frameworks",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/scan.py",
+      "target": "function:src/understand_anything/scan.py:scan",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/scan.py",
+      "target": "function:src/understand_anything/scan.py:_walk",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/scan.py",
+      "target": "file:src/understand_anything/ignore.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/understand_anything/schema.py",
+      "target": "function:src/understand_anything/schema.py:edge_weight",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/schema.py",
+      "target": "class:src/understand_anything/schema.py:Node",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:src/understand_anything/schema.py:Node",
+      "target": "function:src/understand_anything/schema.py:Node.to_dict",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:src/understand_anything/schema.py:Node",
+      "target": "function:src/understand_anything/schema.py:Node.from_dict",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/schema.py",
+      "target": "class:src/understand_anything/schema.py:Edge",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:src/understand_anything/schema.py:Edge",
+      "target": "function:src/understand_anything/schema.py:Edge.to_dict",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:src/understand_anything/schema.py:Edge",
+      "target": "function:src/understand_anything/schema.py:Edge.from_dict",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:src/understand_anything/schema.py:Edge",
+      "target": "function:src/understand_anything/schema.py:Edge.key",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/schema.py",
+      "target": "class:src/understand_anything/schema.py:Layer",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:src/understand_anything/schema.py:Layer",
+      "target": "function:src/understand_anything/schema.py:Layer.to_dict",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:src/understand_anything/schema.py:Layer",
+      "target": "function:src/understand_anything/schema.py:Layer.from_dict",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/schema.py",
+      "target": "class:src/understand_anything/schema.py:TourStep",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:src/understand_anything/schema.py:TourStep",
+      "target": "function:src/understand_anything/schema.py:TourStep.to_dict",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:src/understand_anything/schema.py:TourStep",
+      "target": "function:src/understand_anything/schema.py:TourStep.from_dict",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/schema.py",
+      "target": "class:src/understand_anything/schema.py:Project",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:src/understand_anything/schema.py:Project",
+      "target": "function:src/understand_anything/schema.py:Project.to_dict",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:src/understand_anything/schema.py:Project",
+      "target": "function:src/understand_anything/schema.py:Project.from_dict",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/schema.py",
+      "target": "class:src/understand_anything/schema.py:KnowledgeGraph",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:src/understand_anything/schema.py:KnowledgeGraph",
+      "target": "function:src/understand_anything/schema.py:KnowledgeGraph.to_dict",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:src/understand_anything/schema.py:KnowledgeGraph",
+      "target": "function:src/understand_anything/schema.py:KnowledgeGraph.from_dict",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:src/understand_anything/schema.py:KnowledgeGraph",
+      "target": "function:src/understand_anything/schema.py:KnowledgeGraph.save",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:src/understand_anything/schema.py:KnowledgeGraph",
+      "target": "function:src/understand_anything/schema.py:KnowledgeGraph.load",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:src/understand_anything/schema.py:KnowledgeGraph",
+      "target": "function:src/understand_anything/schema.py:KnowledgeGraph.validate",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:src/understand_anything/schema.py:KnowledgeGraph",
+      "target": "function:src/understand_anything/schema.py:KnowledgeGraph.stats",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/understand_anything/schema.py",
+      "target": "function:src/understand_anything/schema.py:_kebab",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/imports/Main.java",
+      "target": "class:tests/fixtures/imports/Main.java:Main",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:tests/fixtures/imports/Main.java:Main",
+      "target": "function:tests/fixtures/imports/Main.java:Main.main",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/imports/Main.java",
+      "target": "file:tests/fixtures/imports/util/Helper.java",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/fixtures/imports/app.cpp",
+      "target": "function:tests/fixtures/imports/app.cpp:main",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/imports/app.cpp",
+      "target": "file:tests/fixtures/imports/lib.h",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/fixtures/imports/main.go",
+      "target": "function:tests/fixtures/imports/main.go:main",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/imports/main.rs",
+      "target": "function:tests/fixtures/imports/main.rs:main",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/imports/main.rs",
+      "target": "file:tests/fixtures/imports/util.rs",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/fixtures/imports/store/store.go",
+      "target": "function:tests/fixtures/imports/store/store.go:New",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/imports/util.rs",
+      "target": "function:tests/fixtures/imports/util.rs:helper",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/imports/util/Helper.java",
+      "target": "class:tests/fixtures/imports/util/Helper.java:Helper",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:tests/fixtures/imports/util/Helper.java:Helper",
+      "target": "function:tests/fixtures/imports/util/Helper.java:Helper.run",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/legacy/Lib.hs",
+      "target": "class:tests/fixtures/legacy/Lib.hs:Shape",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/legacy/alu.sv",
+      "target": "class:tests/fixtures/legacy/alu.sv:alu",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/legacy/alu.sv",
+      "target": "function:tests/fixtures/legacy/alu.sv:dbl",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/legacy/calc.adb",
+      "target": "class:tests/fixtures/legacy/calc.adb:Calc",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/legacy/calc.adb",
+      "target": "function:tests/fixtures/legacy/calc.adb:Add",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/legacy/calc.adb",
+      "target": "function:tests/fixtures/legacy/calc.adb:Run",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/legacy/calc.jl",
+      "target": "class:tests/fixtures/legacy/calc.jl:Calc",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/legacy/calc.jl",
+      "target": "class:tests/fixtures/legacy/calc.jl:Point",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/legacy/calc.jl",
+      "target": "function:tests/fixtures/legacy/calc.jl:dist",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/legacy/counter.vhd",
+      "target": "class:tests/fixtures/legacy/counter.vhd:Counter",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/legacy/counter.vhd",
+      "target": "class:tests/fixtures/legacy/counter.vhd:rtl",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/legacy/counter.vhd",
+      "target": "function:tests/fixtures/legacy/counter.vhd:increment",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/legacy/hello.cob",
+      "target": "class:tests/fixtures/legacy/hello.cob:HELLO",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/legacy/lib.ml",
+      "target": "function:tests/fixtures/legacy/lib.ml:add",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/legacy/lib.ml",
+      "target": "class:tests/fixtures/legacy/lib.ml:M",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/legacy/lib.ml",
+      "target": "function:tests/fixtures/legacy/lib.ml:z",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/legacy/mathmod.f90",
+      "target": "class:tests/fixtures/legacy/mathmod.f90:mathmod",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/legacy/mathmod.f90",
+      "target": "function:tests/fixtures/legacy/mathmod.f90:greet",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/legacy/token.sol",
+      "target": "class:tests/fixtures/legacy/token.sol:Token",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/legacy/token.sol",
+      "target": "function:tests/fixtures/legacy/token.sol:transfer",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/legacy/token.sol",
+      "target": "function:tests/fixtures/legacy/token.sol:balance",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/legacy/widget.dart",
+      "target": "class:tests/fixtures/legacy/widget.dart:Widget",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/legacy/widget.dart",
+      "target": "function:tests/fixtures/legacy/widget.dart:render",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/legacy/widget.dart",
+      "target": "function:tests/fixtures/legacy/widget.dart:size",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/legacy/widget.dart",
+      "target": "function:tests/fixtures/legacy/widget.dart:main",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/multilang/Program.cs",
+      "target": "class:tests/fixtures/multilang/Program.cs:Program",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:tests/fixtures/multilang/Program.cs:Program",
+      "target": "function:tests/fixtures/multilang/Program.cs:Program.Run",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:tests/fixtures/multilang/Program.cs:Program",
+      "target": "function:tests/fixtures/multilang/Program.cs:Program.Add",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/multilang/Server.java",
+      "target": "class:tests/fixtures/multilang/Server.java:Server",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:tests/fixtures/multilang/Server.java:Server",
+      "target": "function:tests/fixtures/multilang/Server.java:Server.Server",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:tests/fixtures/multilang/Server.java:Server",
+      "target": "function:tests/fixtures/multilang/Server.java:Server.start",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:tests/fixtures/multilang/Server.java:Server",
+      "target": "function:tests/fixtures/multilang/Server.java:Server.getPort",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/multilang/app.js",
+      "target": "function:tests/fixtures/multilang/app.js:greet",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/multilang/app.js",
+      "target": "class:tests/fixtures/multilang/app.js:Widget",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:tests/fixtures/multilang/app.js:Widget",
+      "target": "function:tests/fixtures/multilang/app.js:Widget.render",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:tests/fixtures/multilang/app.js:Widget",
+      "target": "function:tests/fixtures/multilang/app.js:Widget.destroy",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/multilang/app.js",
+      "target": "file:tests/fixtures/multilang/helper.js",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/fixtures/multilang/helper.js",
+      "target": "class:tests/fixtures/multilang/helper.js:Helper",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:tests/fixtures/multilang/helper.js:Helper",
+      "target": "function:tests/fixtures/multilang/helper.js:Helper.format",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/multilang/index.php",
+      "target": "class:tests/fixtures/multilang/index.php:Router",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:tests/fixtures/multilang/index.php:Router",
+      "target": "function:tests/fixtures/multilang/index.php:Router.dispatch",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:tests/fixtures/multilang/index.php:Router",
+      "target": "function:tests/fixtures/multilang/index.php:Router.add",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/multilang/index.php",
+      "target": "function:tests/fixtures/multilang/index.php:bootstrap",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/multilang/lib.rs",
+      "target": "class:tests/fixtures/multilang/lib.rs:Config",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:tests/fixtures/multilang/lib.rs:Config",
+      "target": "function:tests/fixtures/multilang/lib.rs:Config.new",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/multilang/lib.rs",
+      "target": "function:tests/fixtures/multilang/lib.rs:run",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/multilang/main.go",
+      "target": "class:tests/fixtures/multilang/main.go:Server",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/multilang/main.go",
+      "target": "function:tests/fixtures/multilang/main.go:Start",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/multilang/main.go",
+      "target": "function:tests/fixtures/multilang/main.go:NewServer",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/multilang/model.rb",
+      "target": "class:tests/fixtures/multilang/model.rb:User",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:tests/fixtures/multilang/model.rb:User",
+      "target": "function:tests/fixtures/multilang/model.rb:User.initialize",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:tests/fixtures/multilang/model.rb:User",
+      "target": "function:tests/fixtures/multilang/model.rb:User.greeting",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/multilang/model.rb",
+      "target": "function:tests/fixtures/multilang/model.rb:standalone",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/multilang/script.lua",
+      "target": "function:tests/fixtures/multilang/script.lua:compute",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/multilang/script.lua",
+      "target": "function:tests/fixtures/multilang/script.lua:Greeter",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/multilang/service.ts",
+      "target": "class:tests/fixtures/multilang/service.ts:Repo",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:tests/fixtures/multilang/service.ts:Repo",
+      "target": "function:tests/fixtures/multilang/service.ts:Repo.find",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/multilang/service.ts",
+      "target": "class:tests/fixtures/multilang/service.ts:UserService",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:tests/fixtures/multilang/service.ts:UserService",
+      "target": "function:tests/fixtures/multilang/service.ts:UserService.constructor",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:tests/fixtures/multilang/service.ts:UserService",
+      "target": "function:tests/fixtures/multilang/service.ts:UserService.load",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/multilang/service.ts",
+      "target": "function:tests/fixtures/multilang/service.ts:makeService",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/multilang/util.cpp",
+      "target": "class:tests/fixtures/multilang/util.cpp:Buffer",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:tests/fixtures/multilang/util.cpp:Buffer",
+      "target": "function:tests/fixtures/multilang/util.cpp:Buffer.append",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "class:tests/fixtures/multilang/util.cpp:Buffer",
+      "target": "function:tests/fixtures/multilang/util.cpp:Buffer.size",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/fixtures/multilang/util.cpp",
+      "target": "function:tests/fixtures/multilang/util.cpp:add",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/test_smoke.py",
+      "target": "function:tests/test_smoke.py:_sample_graph",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/test_smoke.py",
+      "target": "function:tests/test_smoke.py:test_schema_roundtrip",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/test_smoke.py",
+      "target": "function:tests/test_smoke.py:test_render_interactive_is_self_contained",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/test_smoke.py",
+      "target": "function:tests/test_smoke.py:test_render_static_has_no_javascript",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/test_smoke.py",
+      "target": "function:tests/test_smoke.py:test_analyze_fixtures_python_only_still_finds_symbols",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/test_smoke.py",
+      "target": "function:tests/test_smoke.py:test_treesitter_extraction_when_available",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/test_smoke.py",
+      "target": "function:tests/test_smoke.py:test_rust_impl_methods_attach_to_type",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/test_smoke.py",
+      "target": "function:tests/test_smoke.py:test_cross_language_imports",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/test_smoke.py",
+      "target": "function:tests/test_smoke.py:test_legacy_and_esoteric_languages",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/test_smoke.py",
+      "target": "function:tests/test_smoke.py:test_incremental_writes_fingerprints",
+      "type": "contains",
+      "direction": "directed",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/test_smoke.py",
+      "target": "file:src/understand_anything/analyze/__init__.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/test_smoke.py",
+      "target": "file:src/understand_anything/analyze/treesitter.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/test_smoke.py",
+      "target": "file:src/understand_anything/graph.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/test_smoke.py",
+      "target": "file:src/understand_anything/render/__init__.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/test_smoke.py",
+      "target": "file:src/understand_anything/schema.py",
+      "type": "imports",
+      "direction": "directed",
+      "weight": 0.7
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer:understand-anything",
+      "name": "Understand Anything",
+      "description": "Understand Anything layer — 9 files (9 file).",
+      "nodeIds": [
+        "file:src/understand_anything/__init__.py",
+        "file:src/understand_anything/__main__.py",
+        "file:src/understand_anything/analyze/layers.py",
+        "file:src/understand_anything/analyze/llm.py",
+        "file:src/understand_anything/analyze/tour.py",
+        "file:src/understand_anything/cli.py",
+        "file:src/understand_anything/fingerprint.py",
+        "file:src/understand_anything/graph.py",
+        "file:src/understand_anything/schema.py"
+      ]
+    },
+    {
+      "id": "layer:analyze",
+      "name": "Analyze",
+      "description": "Analyze layer — 5 files (5 file).",
+      "nodeIds": [
+        "file:src/understand_anything/analyze/imports.py",
+        "file:src/understand_anything/analyze/structural.py",
+        "file:src/understand_anything/analyze/treesitter.py",
+        "file:src/understand_anything/ignore.py",
+        "file:src/understand_anything/scan.py"
+      ]
+    },
+    {
+      "id": "layer:python",
+      "name": "Python",
+      "description": "Python layer — 4 files (4 file).",
+      "nodeIds": [
+        "file:src/understand_anything/analyze/__init__.py",
+        "file:src/understand_anything/layout.py",
+        "file:src/understand_anything/render/__init__.py",
+        "file:tests/test_smoke.py"
+      ]
+    },
+    {
+      "id": "layer:imports",
+      "name": "Imports",
+      "description": "Imports layer — 2 files (2 file).",
+      "nodeIds": [
+        "file:tests/fixtures/imports/Main.java",
+        "file:tests/fixtures/imports/util/Helper.java"
+      ]
+    },
+    {
+      "id": "layer:tests",
+      "name": "Tests",
+      "description": "Tests layer — 2 files (2 file).",
+      "nodeIds": [
+        "file:tests/fixtures/imports/app.cpp",
+        "file:tests/fixtures/imports/lib.h"
+      ]
+    },
+    {
+      "id": "layer:multilang",
+      "name": "Multilang",
+      "description": "Multilang layer — 2 files (2 file).",
+      "nodeIds": [
+        "file:tests/fixtures/multilang/app.js",
+        "file:tests/fixtures/multilang/helper.js"
+      ]
+    },
+    {
+      "id": "layer:rust",
+      "name": "Rust",
+      "description": "Rust layer — 2 files (2 file).",
+      "nodeIds": [
+        "file:tests/fixtures/imports/main.rs",
+        "file:tests/fixtures/imports/util.rs"
+      ]
+    },
+    {
+      "id": "layer:shared",
+      "name": "Shared / Misc",
+      "description": "Cross-cutting and standalone files (27 files).",
+      "nodeIds": [
+        "file:tests/fixtures/legacy/calc.jl",
+        "file:tests/fixtures/multilang/Server.java",
+        "file:tests/fixtures/multilang/util.cpp",
+        "file:tests/fixtures/legacy/widget.dart",
+        "file:tests/fixtures/legacy/alu.sv",
+        "document:.gitignore",
+        "file:tests/fixtures/legacy/lib.ml",
+        "file:tests/fixtures/multilang/model.rb",
+        "file:tests/fixtures/multilang/main.go",
+        "file:tests/fixtures/imports/main.go",
+        "file:tests/fixtures/multilang/index.php",
+        "document:README.md",
+        "config:pyproject.toml",
+        "file:tests/fixtures/multilang/script.lua",
+        "file:tests/fixtures/legacy/hello.cob",
+        "file:tests/fixtures/legacy/Lib.hs",
+        "file:src/understand_anything/render/template.py",
+        "file:tests/fixtures/multilang/service.ts",
+        "file:tests/fixtures/legacy/calc.adb",
+        "file:tests/fixtures/multilang/lib.rs",
+        "file:tests/fixtures/legacy/mathmod.f90",
+        "file:tests/fixtures/imports/store/store.go",
+        "file:tests/fixtures/imports/go.mod",
+        "file:tests/fixtures/multilang/Program.cs",
+        "file:tests/fixtures/legacy/counter.vhd",
+        "file:tests/fixtures/legacy/token.sol",
+        "file:src/understand_anything/render/static.py"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "Project Overview",
+      "description": "Start with the project's documentation to understand its purpose.",
+      "nodeIds": [
+        "document:README.md"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Entry Point",
+      "description": "`src/understand_anything/__main__.py` is where execution begins.",
+      "nodeIds": [
+        "file:src/understand_anything/__main__.py"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "Shared / Misc",
+      "description": "The Shared / Misc layer centers on `tests/fixtures/legacy/widget.dart`. Dart source file (6 lines).",
+      "nodeIds": [
+        "file:tests/fixtures/legacy/widget.dart"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "Understand Anything",
+      "description": "The Understand Anything layer centers on `src/understand_anything/schema.py`. Data model for the knowledge graph.",
+      "nodeIds": [
+        "file:src/understand_anything/schema.py"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "Analyze",
+      "description": "The Analyze layer centers on `src/understand_anything/analyze/treesitter.py`. Multi-language symbol extraction via tree-sitter (optional `[treesitter]` extra).",
+      "nodeIds": [
+        "file:src/understand_anything/analyze/treesitter.py"
+      ]
+    },
+    {
+      "order": 6,
+      "title": "Python",
+      "description": "The Python layer centers on `tests/test_smoke.py`. Smoke tests: schema round-trip, multi-language extraction, and rendering.",
+      "nodeIds": [
+        "file:tests/test_smoke.py"
+      ]
+    },
+    {
+      "order": 7,
+      "title": "Imports",
+      "description": "The Imports layer centers on `tests/fixtures/imports/Main.java`. Java source file (5 lines).",
+      "nodeIds": [
+        "file:tests/fixtures/imports/Main.java"
+      ]
+    },
+    {
+      "order": 8,
+      "title": "Tests",
+      "description": "The Tests layer centers on `tests/fixtures/imports/app.cpp`. Cpp source file (3 lines).",
+      "nodeIds": [
+        "file:tests/fixtures/imports/app.cpp"
+      ]
+    },
+    {
+      "order": 9,
+      "title": "Multilang",
+      "description": "The Multilang layer centers on `tests/fixtures/multilang/app.js`. Javascript source file (10 lines).",
+      "nodeIds": [
+        "file:tests/fixtures/multilang/app.js"
+      ]
+    },
+    {
+      "order": 10,
+      "title": "Rust",
+      "description": "The Rust layer centers on `tests/fixtures/imports/main.rs`. Rust source file (6 lines).",
+      "nodeIds": [
+        "file:tests/fixtures/imports/main.rs"
+      ]
+    }
+  ]
+}
