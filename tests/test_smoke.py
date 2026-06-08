@@ -392,3 +392,6 @@ def test_card_icons_and_deeplink():
     # file-type icons rasterized onto the canvas cards + shareable deep-link
     for m in ("ICONIMG", "iconForNode", "drawImage", "setHash", "history.replaceState"):
         assert m in html, f"missing polish feature: {m}"
+    # smooth camera fly-to, OS reduced-motion respect, copy-permalink toast
+    for m in ("flyTo", "prefers-reduced-motion", "copyLink", "function toast"):
+        assert m in html, f"missing polish feature: {m}"

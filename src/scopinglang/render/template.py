@@ -104,6 +104,8 @@ _HTML = r"""<!doctype html>
   #searchResults .srbar>span { display:block; height:100%; background:var(--accent); }
   #panel .fbtn-focus { position:absolute; top:9px; right:34px; font-size:10px; padding:3px 8px; }
   #panel .fbtn-focus.on { color:var(--accent); border-color:var(--accent); background:rgba(var(--accent-rgb),0.16); }
+  #toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(12px); padding:9px 16px; font-size:13px; z-index:30; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; }
+  #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
   #exportMenu button { text-align:left; }
   .modal { position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:20; display:flex; align-items:center; justify-content:center; }
   .modal .mbox { width:440px; max-width:92vw; max-height:80vh; overflow:auto; padding:18px; position:relative; }
@@ -283,7 +285,8 @@ function iconForNode(n){ if(!n.path) return null; const low=(n.path.split('/').p
   return (im&&im.complete&&im.naturalWidth>0)?im:null; }
 let view='overview', lhover=-1, sidebarTab='info';   // 'overview' shows layer cards; a number drills into that layer
 let graphMode='structural', dhover=-1, selDomain=-1; // graphMode: 'structural' | 'domain'
-let animOn=true, dashPhase=0, _animRunning=false;    // marching-ants edge-flow animation
+const REDUCED=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+let animOn=!REDUCED, dashPhase=0, _animRunning=false, _flyReq=null;    // marching-ants edge-flow animation
 const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
 const nbr=N.map(()=>new Set()), etype={};
 for(const e of E){ const a=e[0],b=e[1]; nbr[a].add(b); nbr[b].add(a); etype[a+'_'+b]=e[2]; }
@@ -461,7 +464,7 @@ function setMode(m){ if(m===graphMode)return; graphMode=m; selDomain=-1; dhover=
 window.setMode=setMode;
 function pickDomain(mx,my){ const S=CD(); if(!S)return -1; const wx=(mx-ox)/scale, wy=(my-oy)/scale;
   for(let i=S.nodes.length-1;i>=0;i--){ const d=S.nodes[i]; if(Math.abs(wx-d.x)<=S.cw/2 && Math.abs(wy-d.y)<=S.ch/2) return i; } return -1; }
-function centerDomain(i){ const S=CD(); const d=S&&S.nodes[i]; if(!d)return; ox=innerWidth/2-d.x*scale; oy=innerHeight/2-d.y*scale; }
+function centerDomain(i){ const S=CD(); const d=S&&S.nodes[i]; if(!d)return; flyTo(scale, innerWidth/2-d.x*scale, innerHeight/2-d.y*scale, 320); }
 function selectDomain(i){ selDomain=i; sidebarTab='info'; renderPanel(); if(i>=0) centerDomain(i); draw(); }
 window.selectDomain=selectDomain;
 // generic card-graph renderer — shared by the Domain and Knowledge views
@@ -543,6 +546,7 @@ function codeHTML(src, range){ const lines=src.split('\n'); const s=(range&&rang
   return h+'</table></div>'; }
 function infoHTML(i){ const n=N[i]; let h='<span class="close" onclick="select(-1)">✕</span>';
   h+='<button class="fbtn-focus'+(focusCenter===i?' on':'')+'" onclick="focusOn('+i+')" title="Isolate this node + its neighbors (x)">⊙ '+(focusCenter===i?'Unfocus':'Focus')+'</button>';
+  h+='<button class="fbtn-focus" style="right:96px" onclick="copyLink('+i+')" title="Copy a shareable link to this node">⧉ Link</button>';
   h+='<span class="ptype" style="color:'+n.color+';border-color:'+n.color+'">'+esc(n.type)+'</span> <span class="cx cx-'+esc(n.complexity)+'">●&nbsp;'+esc(n.complexity)+'</span>';
   h+='<h3>'+esc(n.name)+'</h3>';
   if(n.path){ h+='<div class="path">'+esc(n.path)+(n.lineRange?' <span class="lr">L'+n.lineRange[0]+'–'+n.lineRange[1]+'</span>':'')+'</div>'; }
@@ -614,7 +618,13 @@ function togglePanel(open){ panel.classList.toggle('collapsed', !open);
   document.getElementById('panelReopen').classList.toggle('hidden', open); }
 window.togglePanel=togglePanel;
 document.getElementById('panelReopen').onclick=()=>togglePanel(true);
-function setHash(){ try{ const h=(sel>=0&&N[sel])?'#n='+encodeURIComponent(N[sel].id):''; history.replaceState(null,'',h||(location.pathname+location.search)); }catch(e){} }
+function setHash(){ try{ history.replaceState(null,'',(sel>=0&&N[sel])?'#n='+encodeURIComponent(N[sel].id):'#'); }catch(e){} }
+function copyLink(i){ const u=location.href.split('#')[0]+'#n='+encodeURIComponent(N[i].id);
+  const done=()=>toast('Link copied'), fb=()=>{ try{ const ta=document.createElement('textarea'); ta.value=u; ta.style.cssText='position:fixed;opacity:0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(); }catch(_){ toast(u); } };
+  try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(u).then(done).catch(fb); } else fb(); }catch(e){ fb(); } }
+window.copyLink=copyLink;
+let _toastT=null; function toast(msg){ let el=document.getElementById('toast'); if(!el){ el=document.createElement('div'); el.id='toast'; el.className='card'; document.body.appendChild(el); }
+  el.textContent=msg; el.classList.add('show'); clearTimeout(_toastT); _toastT=setTimeout(()=>el.classList.remove('show'),1600); }
 function select(i){ sel=i; focusSet=null; focusCenter=-1; renderPanel(); if(i>=0) center([i],false); setHash(); draw(); }
 function goToNode(i){ if(i<0)return; if(graphMode!=='structural'){ graphMode='structural'; selDomain=-1; applyModeUI(); }
   if(N[i]&&N[i].layer>=0) view=N[i].layer; sidebarTab='info'; sel=i; focusSet=null; focusCenter=-1; renderPanel(); center([i],true); setHash(); draw(); }
@@ -712,9 +722,16 @@ mm.addEventListener('mousedown',e=>{ const r=mm.getBoundingClientRect(); const w
   ox=innerWidth/2-wx*scale; oy=innerHeight/2-wy*scale; draw(); });
 
 // tour
+// smooth camera fly-to (eased); instant when the OS requests reduced motion
+function flyTo(ts,tox,toy,ms){ if(REDUCED||!ms){ scale=ts;ox=tox;oy=toy; draw(); return; }
+  const s0=scale,ox0=ox,oy0=oy,start=performance.now(); if(_flyReq) cancelAnimationFrame(_flyReq);
+  (function step(now){ const t=Math.min(1,(now-start)/ms), e=t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+    scale=s0+(ts-s0)*e; ox=ox0+(tox-ox0)*e; oy=oy0+(toy-oy0)*e; draw();
+    if(t<1){ _flyReq=requestAnimationFrame(step); } else { scale=ts;ox=tox;oy=toy; _flyReq=null; draw(); } })(performance.now()); }
 function center(idxs,zoom){ if(!idxs.length)return; let a=1e9,b=1e9,c=-1e9,d=-1e9;
   idxs.forEach(i=>{const n=N[i];a=Math.min(a,n.x);b=Math.min(b,n.y);c=Math.max(c,n.x);d=Math.max(d,n.y);});
-  if(zoom) scale=Math.max(0.5,Math.min(1.2,scale)); ox=innerWidth/2-(a+c)/2*scale; oy=innerHeight/2-(b+d)/2*scale; }
+  const ts=zoom?Math.max(0.5,Math.min(1.2,scale)):scale;
+  flyTo(ts, innerWidth/2-(a+c)/2*ts, innerHeight/2-(b+d)/2*ts, 320); }
 function showStep(){ const s=TOUR[tIdx]; focusSet=new Set(s.nodeIds); s.nodeIds.forEach(i=>nbr[i].forEach(j=>focusSet.add(j)));
   document.getElementById('ttitle').textContent=(tIdx+1)+'. '+s.title; document.getElementById('tdesc').textContent=s.description;
   document.getElementById('tcount').textContent=(tIdx+1)+' / '+TOUR.length;
@@ -857,12 +874,18 @@ window.addEventListener('keydown',e=>{
   else if(e.key==='x'){ if(sel>=0) focusOn(sel); }
   else if(e.key==='b'){ setDiff(!diffOn); }
   else if(e.key==='?'){ $('helpModal').classList.remove('hidden'); }
-  if(tIdx>=0&&e.key==='ArrowRight')$('tnext').click();
-  if(tIdx>=0&&e.key==='ArrowLeft')$('tprev').click(); });
+  else if(e.key==='ArrowRight'){ if(tIdx>=0)$('tnext').click(); else { ox-=60; draw(); } }
+  else if(e.key==='ArrowLeft'){ if(tIdx>=0)$('tprev').click(); else { ox+=60; draw(); } }
+  else if(e.key==='ArrowUp'){ oy+=60; draw(); }
+  else if(e.key==='ArrowDown'){ oy-=60; draw(); }
+  else if(e.key==='+'||e.key==='='){ zoomBy(1.2); }
+  else if(e.key==='-'){ zoomBy(0.8); }
+  else if(e.key==='0'){ fitAll(); } });
 
 window.addEventListener('resize',resize);
 try{ const sv=JSON.parse(localStorage.getItem('sl-theme')||'null'); if(sv&&THEMES[sv.name]) THEME_STATE=sv; }catch(e){}
-applyTheme(); applyDetail(); applyModeUI(); renderPanel(); fit(); resize(); if(animOn) startAnim();
+applyTheme(); applyDetail(); applyModeUI(); renderPanel(); fit(); resize();
+if(animOn) startAnim(); else { const _b=document.getElementById('btnAnim'); if(_b)_b.classList.remove('on'); }
 (function(){ try{ const m=/[#&]n=([^&]+)/.exec(location.hash||''); if(m){ const i=N.findIndex(n=>n.id===decodeURIComponent(m[1])); if(i>=0) goToNode(i); } }catch(e){} })();
 </script>
 </body>
