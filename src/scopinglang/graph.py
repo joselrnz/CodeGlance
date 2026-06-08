@@ -12,7 +12,7 @@ from . import fingerprint as fp
 from .analyze import layers as layers_mod
 from .analyze import llm as llm_mod
 from .analyze import tour as tour_mod
-from .analyze.structural import build_structural
+from .analyze.pipeline import build_structural
 from .scan import ScanResult, scan
 from .schema import KnowledgeGraph, Layer, Node, Project, FILE_LEVEL_TYPES, _kebab
 

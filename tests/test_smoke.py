@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from scopinglang.analyze import treesitter as ts
+from scopinglang.analyze import ts_core as ts
 from scopinglang.graph import analyze
 from scopinglang.render import render_interactive, render_static
 from scopinglang.schema import Edge, KnowledgeGraph, Node, Project
@@ -186,7 +186,7 @@ def test_legacy_and_esoteric_languages():
 
 
 def test_python_captures_signature_linerange_docstring():
-    from scopinglang.analyze.structural import _python_extract
+    from scopinglang.analyze.languages.python import _python_extract
     _doc, _full, syms, _imp = _python_extract(
         'def f(x: int) -> str:\n    """Doc here."""\n    return str(x)\n'
     )
@@ -239,7 +239,7 @@ def test_default_theme_is_ocean_and_flow_animation_present():
 
 
 def test_python_variables_and_constants_extracted():
-    from scopinglang.analyze.structural import _python_extract
+    from scopinglang.analyze.languages.python import _python_extract
     _d, _f, syms, _i = _python_extract(
         "MAX = 10\nname = 'x'\nclass C:\n    field = 1\n    TIMEOUT = 30\n"
         "    def m(self):\n        local = 5\n        return local\n"
