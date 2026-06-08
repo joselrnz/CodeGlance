@@ -331,3 +331,12 @@ def test_language_coverage_broad():
     failures = [lang for lang, (fn, code) in samples.items()
                 if not (ts.extract_symbols(lang, fn, code) or [])]
     assert not failures, f"no symbols extracted for: {failures}"
+
+
+def test_filter_search_focus_features_present():
+    html = render_interactive(_sample_graph())
+    # Filter popup, Fuzzy/Semantic search + ranked dropdown, and Focus mode (original-parity)
+    for m in ("btnFilter", "filterMenu", "buildFilterMenu", "hiddenComplex",
+              "searchResults", "searchMode", "scoreNode", "fuzzySub", "Semantic",
+              "focusOn", "fbtn-focus"):
+        assert m in html, f"missing parity feature: {m}"

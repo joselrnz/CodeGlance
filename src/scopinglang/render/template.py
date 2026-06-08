@@ -86,6 +86,23 @@ _HTML = r"""<!doctype html>
   #topbar .bar button { padding:5px 9px; font-size:11px; }
   #topbar .bar button.on { color:var(--accent); border-color:rgba(var(--accent-rgb),0.5); background:rgba(var(--accent-rgb),0.12); }
   #exportMenu { position:fixed; top:56px; right:14px; z-index:8; display:flex; flex-direction:column; padding:6px; gap:2px; min-width:130px; }
+  #filterMenu { position:fixed; top:56px; right:14px; z-index:9; width:240px; max-height:78vh; overflow:auto; padding:12px; }
+  #filterMenu h5 { margin:11px 2px 5px; font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--text2); }
+  #filterMenu h5:first-child { margin-top:0; }
+  #filterMenu label { display:flex; align-items:center; gap:7px; font-size:12px; padding:3px 4px; border-radius:6px; cursor:pointer; }
+  #filterMenu label:hover { background:var(--elevated); } #filterMenu input { accent-color:var(--accent); }
+  #searchWrap { position:relative; display:flex; align-items:center; gap:6px; flex:none; }
+  .smode { display:flex; background:var(--elevated); border-radius:7px; padding:2px; }
+  .smode button { border:none; background:transparent; color:var(--text2); font-size:10px; padding:3px 7px; border-radius:5px; cursor:pointer; }
+  .smode button.on { background:rgba(var(--accent-rgb),0.2); color:var(--accent); }
+  #searchResults { position:fixed; z-index:9; width:330px; max-height:300px; overflow:auto; padding:6px; display:none; }
+  #searchResults .sr { display:flex; align-items:center; gap:8px; padding:5px 7px; border-radius:6px; cursor:pointer; }
+  #searchResults .sr:hover { background:var(--elevated); }
+  #searchResults .srb { font-size:9px; text-transform:uppercase; border:1px solid; border-radius:3px; padding:1px 4px; flex:none; }
+  #searchResults .srn { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #searchResults .srbar { width:46px; height:5px; background:var(--bg); border-radius:3px; overflow:hidden; flex:none; }
+  #searchResults .srbar>span { display:block; height:100%; background:var(--accent); }
+  #panel .fbtn-focus { position:absolute; top:9px; right:34px; font-size:10px; padding:3px 8px; }
   #exportMenu button { text-align:left; }
   .modal { position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:20; display:flex; align-items:center; justify-content:center; }
   .modal .mbox { width:440px; max-width:92vw; max-height:80vh; overflow:auto; padding:18px; position:relative; }
@@ -178,13 +195,17 @@ _HTML = r"""<!doctype html>
     <button data-d="class" class="on" title="Files + Classes">+Classes</button>
   </span>
   <button id="fnToggle" class="fnbtn" title="Toggle functions, variables & constants">fn</button>
-  <input id="search" placeholder="Search nodes…" autocomplete="off"/>
+  <span id="searchWrap">
+    <input id="search" placeholder="Search nodes…" autocomplete="off"/>
+    <span class="smode" id="searchMode"><button data-m="fuzzy" class="on" title="Fuzzy text match">Fuzzy</button><button data-m="semantic" title="Keyword-relevance ranking (offline, no embeddings)">Semantic</button></span>
+  </span>
   <span id="catFilters" class="cats"></span>
   <span id="layerChips" class="chips"></span>
   <span class="grow"></span>
   <span class="bar">
     <button id="btnFit" title="Fit to view (f)">⤢ Fit</button>
     <button id="btnPath" title="Path finder (p)">↦ Path</button>
+    <button id="btnFilter" title="Filter (i)">⛂ Filter</button>
     <button id="btnExport" title="Export (e)">⬇ Export</button>
     <button id="btnAnim" class="on" title="Toggle edge flow animation (a)">≈ Flow</button>
     <button id="btnTheme" title="Theme (t)">◑ Theme</button>
@@ -209,6 +230,8 @@ _HTML = r"""<!doctype html>
 <div id="exportMenu" class="card hidden">
   <button data-x="png">⬇ PNG image</button><button data-x="svg">⬇ SVG vector</button><button data-x="json">⬇ JSON data</button>
 </div>
+<div id="filterMenu" class="card hidden"></div>
+<div id="searchResults" class="card"></div>
 <div id="pathModal" class="modal hidden"><div class="mbox card">
   <span class="close" onclick="closePath()">✕</span><h4>Dependency Path Finder</h4>
   <select id="pathFrom"></select><select id="pathTo"></select>
@@ -225,6 +248,8 @@ _HTML = r"""<!doctype html>
     <kbd>e</kbd><span>Export menu</span>
     <kbd>a</kbd><span>Toggle edge-flow animation</span>
     <kbd>d</kbd><span>Toggle Domain / Structural view</span>
+    <kbd>i</kbd><span>Filter panel</span>
+    <kbd>x</kbd><span>Focus selected node (1-hop)</span>
     <kbd>?</kbd><span>This help</span>
     <kbd>Esc</kbd><span>Close panel / tour / modal</span>
     <kbd>← →</kbd><span>Prev / next tour step</span>
@@ -273,11 +298,12 @@ function applyTheme(){ const th=THEMES[THEME_STATE.name]||THEMES.gold, r=documen
   try{localStorage.setItem('sl-theme',JSON.stringify(THEME_STATE));}catch(e){}
   readTheme(); if(typeof draw==='function') draw(); }
 let DPR=1, scale=1, ox=0, oy=0;
-const hidden=new Set(), hiddenTypes=new Set();
+const hidden=new Set(), hiddenTypes=new Set(), hiddenComplex=new Set();
 let hover=-1, sel=-1, matched=null, focusSet=null, tIdx=-1, pathNodes=null, pathEdges=null;
+let searchMode='fuzzy', searchResults=[];
 const esc=s=>(s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 const SX=x=>x*scale+ox, SY=y=>y*scale+oy;
-const vis=i=>view!=='overview'&&N[i].layer===view&&!hiddenTypes.has(N[i].type);
+const vis=i=>view!=='overview'&&N[i].layer===view&&!hiddenTypes.has(N[i].type)&&!hiddenComplex.has(N[i].complexity);
 function dim(i){ if(matched&&!matched.has(i))return true; if(focusSet&&!focusSet.has(i))return true;
   if(pathNodes&&!pathNodes.has(i))return true;
   if(hover>=0&&i!==hover&&!nbr[hover].has(i))return true; return false; }
@@ -489,6 +515,7 @@ function codeHTML(src, range){ const lines=src.split('\n'); const s=(range&&rang
     h+='<tr'+hl+'><td class="ln">'+ln+'</td><td class="lc">'+hl_code(lines[i]||' ')+'</td></tr>'; }
   return h+'</table></div>'; }
 function infoHTML(i){ const n=N[i]; let h='<span class="close" onclick="select(-1)">✕</span>';
+  h+='<button class="fbtn-focus" onclick="focusOn('+i+')" title="Isolate this node + its neighbors (x)">⊙ Focus</button>';
   h+='<span class="ptype" style="color:'+n.color+';border-color:'+n.color+'">'+esc(n.type)+'</span> <span class="cx cx-'+esc(n.complexity)+'">●&nbsp;'+esc(n.complexity)+'</span>';
   h+='<h3>'+esc(n.name)+'</h3>';
   if(n.path){ h+='<div class="path">'+esc(n.path)+(n.lineRange?' <span class="lr">L'+n.lineRange[0]+'–'+n.lineRange[1]+'</span>':'')+'</div>'; }
@@ -565,9 +592,33 @@ function goToNode(i){ if(i<0)return; if(graphMode!=='structural'){ graphMode='st
   if(N[i]&&N[i].layer>=0) view=N[i].layer; sidebarTab='info'; sel=i; renderPanel(); center([i],true); draw(); }
 window.select=select; window.goToNode=goToNode;
 
-document.getElementById('search').addEventListener('input',e=>{ const q=e.target.value.trim().toLowerCase();
-  if(!q){matched=null;} else { matched=new Set(); for(let i=0;i<N.length;i++){const n=N[i];
-    if(n.name.toLowerCase().includes(q)||(n.path||'').toLowerCase().includes(q)||(n.summary||'').toLowerCase().includes(q)||n.type.includes(q)) matched.add(i);} } draw(); });
+// --- search: Fuzzy (text) / Semantic (offline keyword-relevance) + ranked results dropdown ---
+const gid = id => document.getElementById(id);
+function fuzzySub(s,q){ let i=0; for(const c of s){ if(c===q[i]) i++; if(i===q.length) return true; } return q.length===0; }
+function scoreNode(n,q){
+  const name=(n.name||'').toLowerCase(), path=(n.path||'').toLowerCase(), sum=(n.summary||'').toLowerCase(), tags=(n.tags||[]).join(' ').toLowerCase();
+  if(searchMode==='semantic'){ const toks=q.split(/\s+/).filter(Boolean); if(!toks.length)return 0; let hit=0;
+    for(const t of toks){ if(name.includes(t))hit+=1; else if(sum.includes(t)||tags.includes(t))hit+=0.6; else if(path.includes(t))hit+=0.4; } return Math.min(1,hit/toks.length); }
+  if(name===q)return 1; if(name.startsWith(q))return 0.92; if(name.includes(q))return 0.8;
+  if(fuzzySub(name,q))return 0.6; if(path.includes(q)||sum.includes(q))return 0.45; return 0;
+}
+function renderSearchResults(){ const el=gid('searchResults'); if(!el)return;
+  if(!searchResults.length){ el.style.display='none'; return; }
+  const sb=gid('search').getBoundingClientRect(); el.style.left=sb.left+'px'; el.style.top=(sb.bottom+6)+'px';
+  el.innerHTML=searchResults.map(([i,s])=>{ const n=N[i];
+    return '<div class="sr" data-i="'+i+'"><span class="srb" style="color:'+n.color+';border-color:'+n.color+'">'+esc(n.type)+'</span><span class="srn">'+esc(n.name)+'</span><span class="srbar"><span style="width:'+Math.round(s*100)+'%"></span></span></div>'; }).join('');
+  el.querySelectorAll('.sr').forEach(x=>x.onclick=()=>{ goToNode(+x.dataset.i); gid('searchResults').style.display='none'; });
+  el.style.display='block'; }
+function runSearch(q){ q=(q||'').trim().toLowerCase();
+  if(!q){ matched=null; searchResults=[]; renderSearchResults(); draw(); return; }
+  const scored=[]; for(let i=0;i<N.length;i++){ const s=scoreNode(N[i],q); if(s>0) scored.push([i,s]); }
+  scored.sort((a,b)=>b[1]-a[1]); matched=new Set(scored.map(x=>x[0])); searchResults=scored.slice(0,6);
+  renderSearchResults(); draw(); }
+gid('search').addEventListener('input',e=>runSearch(e.target.value));
+gid('search').addEventListener('focus',()=>{ if(searchResults.length) renderSearchResults(); });
+gid('search').addEventListener('blur',()=>setTimeout(()=>{ const el=gid('searchResults'); if(el)el.style.display='none'; },180));
+document.querySelectorAll('#searchMode button').forEach(b=>b.onclick=()=>{ searchMode=b.dataset.m;
+  document.querySelectorAll('#searchMode button').forEach(x=>x.classList.toggle('on',x.dataset.m===searchMode)); runSearch(gid('search').value); });
 
 // --- header: category filters, detail toggle, layer chips (like the original dashboard) ---
 const CATS=[
@@ -653,6 +704,24 @@ window.startTour=startTour;
 // --- toolbar: fit / export / path finder / help ---
 const $=id=>document.getElementById(id);
 function fitAll(){ matched=null; pathNodes=null; pathEdges=null; focusSet=null; fit(); draw(); }
+// focus mode: isolate a node + its 1-hop neighbors (others dim heavily)
+function focusOn(i){ if(i<0)return; focusSet=new Set([i]); nbr[i].forEach(j=>focusSet.add(j));
+  if(graphMode==='structural'&&N[i]&&N[i].layer>=0) view=N[i].layer; sel=i; sidebarTab='info'; renderPanel(); center([i],true); draw(); }
+window.focusOn=focusOn;
+// filter popup: node-type + complexity checkboxes (+ reset), syncing the category chips
+const COMPLEX=['simple','moderate','complex'];
+function syncCatChips(){ document.querySelectorAll('#catFilters .cat').forEach(b=>{ const c=CATS[+b.dataset.i]; if(c) b.classList.toggle('off', c.t.some(t=>hiddenTypes.has(t))); }); }
+function buildFilterMenu(){ const fm=$('filterMenu'); let h='<h5>Node types</h5>';
+  for(const t of TY) h+='<label><input type="checkbox" data-ft="type" value="'+esc(t.type)+'"'+(hiddenTypes.has(t.type)?'':' checked')+'><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:'+t.color+'"></span>'+esc(t.type)+' <span class="muted">'+t.count+'</span></label>';
+  h+='<h5>Complexity</h5>';
+  for(const c of COMPLEX) h+='<label><input type="checkbox" data-ft="complex" value="'+c+'"'+(hiddenComplex.has(c)?'':' checked')+'>'+c+'</label>';
+  h+='<button class="bigbtn fm-reset" style="margin-top:12px">Reset filters</button>'; fm.innerHTML=h;
+  fm.querySelectorAll('input[data-ft]').forEach(inp=>inp.onchange=()=>{ const set=inp.dataset.ft==='type'?hiddenTypes:hiddenComplex;
+    if(inp.checked) set.delete(inp.value); else set.add(inp.value); if(inp.dataset.ft==='type') syncCatChips(); draw(); });
+  fm.querySelector('.fm-reset').onclick=()=>{ hiddenComplex.clear(); hiddenTypes.clear(); applyDetail(); buildFilterMenu(); syncCatChips(); draw(); };
+}
+$('btnFilter').onclick=()=>{ const fm=$('filterMenu'); const show=fm.classList.contains('hidden');
+  exMenu.classList.add('hidden'); themeMenu.classList.add('hidden'); if(show) buildFilterMenu(); fm.classList.toggle('hidden'); };
 $('btnFit').onclick=fitAll;
 
 // zoom buttons (zoom around viewport centre)
@@ -734,9 +803,10 @@ $('btnTheme').onclick=()=>{ themeMenu.classList.toggle('hidden'); refreshThemeMe
 
 window.addEventListener('keydown',e=>{
   if(e.target&&e.target.tagName==='INPUT'){ if(e.key==='Escape')e.target.blur(); return; }
-  if(e.key==='Escape'){ const anyOpen=[...document.querySelectorAll('.modal')].some(m=>!m.classList.contains('hidden'))||!exMenu.classList.contains('hidden')||!themeMenu.classList.contains('hidden');
-    document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden')); exMenu.classList.add('hidden'); themeMenu.classList.add('hidden');
+  if(e.key==='Escape'){ const fm=$('filterMenu'); const anyOpen=[...document.querySelectorAll('.modal')].some(m=>!m.classList.contains('hidden'))||!exMenu.classList.contains('hidden')||!themeMenu.classList.contains('hidden')||!fm.classList.contains('hidden');
+    document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden')); exMenu.classList.add('hidden'); themeMenu.classList.add('hidden'); fm.classList.add('hidden'); const sr=$('searchResults'); if(sr)sr.style.display='none';
     if(anyOpen){ return; }
+    if(focusSet){ focusSet=null; draw(); return; }
     if(sel>=0){ select(-1); }
     else if(tIdx>=0){ endTour(); }
     else if(view!=='overview'){ setView('overview'); }
@@ -748,6 +818,8 @@ window.addEventListener('keydown',e=>{
   else if(e.key==='t'){ themeMenu.classList.toggle('hidden'); refreshThemeMenu(); }
   else if(e.key==='a'){ setAnim(!animOn); }
   else if(e.key==='d'){ setMode(graphMode==='domain'?'structural':'domain'); }
+  else if(e.key==='i'){ $('btnFilter').click(); }
+  else if(e.key==='x'){ if(sel>=0) focusOn(sel); }
   else if(e.key==='?'){ $('helpModal').classList.remove('hidden'); }
   if(tIdx>=0&&e.key==='ArrowRight')$('tnext').click();
   if(tIdx>=0&&e.key==='ArrowLeft')$('tprev').click(); });
