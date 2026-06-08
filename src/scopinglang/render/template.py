@@ -590,8 +590,10 @@ const CATS=[
 function refreshChips(){ document.querySelectorAll('#layerChips .chip').forEach((x,i)=>{
   x.classList.toggle('active', view===i); x.classList.toggle('dim', view!=='overview'&&view!==i); }); }
 
-// detail level (Files / +Classes) + function toggle
-let detail='class', showFns=false;
+// detail level (Files / +Classes) + function toggle.
+// Small projects (e.g. one main() function) show functions by default so the
+// drill-in view isn't nearly empty; larger graphs stay at the cleaner file/class level.
+let detail='class', showFns=(N.length<=24);
 function applyDetail(){ hiddenTypes.delete('class'); hiddenTypes.delete('function');
   if(detail==='file'){ hiddenTypes.add('class'); hiddenTypes.add('function'); }
   else if(!showFns){ hiddenTypes.add('function'); }
