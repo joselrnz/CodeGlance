@@ -272,6 +272,15 @@ const CARDSETS={
 function CD(){ return CARDSETS[graphMode]||null; }
 const cardW=DATA.cardW, cardH=DATA.cardH;
 const FILE_LEVEL=new Set(['file','config','document','service','pipeline','table','schema','resource','endpoint']);
+// vscode-icons rasterized for the canvas — real file-type icons on the graph cards
+const ICONIMG={};
+(function(){ const sv=DATA.iconSvg||{}; for(const k in sv){ const im=new Image();
+  im.onload=()=>{ if(typeof draw==='function') draw(); };
+  im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(sv[k]); ICONIMG[k]=im; } })();
+function iconForNode(n){ if(!n.path) return null; const low=(n.path.split('/').pop()||'').toLowerCase();
+  let key=(DATA.iconName&&DATA.iconName[low]); const ext=(low.indexOf('.')>=0?low.split('.').pop():low);
+  if(!key) key=(DATA.iconExt&&DATA.iconExt[ext]); const im=key&&ICONIMG[key];
+  return (im&&im.complete&&im.naturalWidth>0)?im:null; }
 let view='overview', lhover=-1, sidebarTab='info';   // 'overview' shows layer cards; a number drills into that layer
 let graphMode='structural', dhover=-1, selDomain=-1; // graphMode: 'structural' | 'domain'
 let animOn=true, dashPhase=0, _animRunning=false;    // marching-ants edge-flow animation
@@ -392,9 +401,11 @@ function drawCard(i){ const n=N[i]; const w=cardW*scale,h=cardH*scale,x=SX(n.x)-
   if(i===sel){ctx.lineWidth=2;ctx.strokeStyle=T.accent;} else if(i===hover){ctx.lineWidth=1.5;ctx.strokeStyle=n.color;} else {ctx.lineWidth=1;ctx.strokeStyle=ac(0.16);}
   rr(x,y,w,h,7); ctx.stroke();
   if(diffOn&&DIFFC.has(i)){ ctx.lineWidth=2.5; ctx.strokeStyle='#5fb389'; rr(x,y,w,h,7); ctx.stroke(); }
-  if(scale>0.3){ const pad=Math.max(8,8*scale);
+  if(scale>0.3){ const pad=Math.max(8,8*scale); let tx=x+pad;
+    const ic=FILE_LEVEL.has(n.type)?iconForNode(n):null;
+    if(ic){ const isz=Math.round(10*scale+5); ctx.drawImage(ic, x+pad, y+Math.round(3*scale)+3, isz, isz); tx=x+pad+isz+5; }
     ctx.font='700 '+Math.round(7*scale+3)+'px ui-monospace,monospace'; ctx.fillStyle=n.color;
-    ctx.fillText(n.type.toUpperCase(), x+pad, y+Math.round(12*scale)+4);
+    ctx.fillText(n.type.toUpperCase(), tx, y+Math.round(12*scale)+4);
     ctx.font='600 '+Math.round(8*scale+4)+'px ui-sans-serif'; ctx.fillStyle=T.text;
     ctx.fillText(clipText(n.name, w-pad*2), x+pad, y+h-Math.round(9*scale)-2); }
   ctx.globalAlpha=1;
@@ -603,9 +614,10 @@ function togglePanel(open){ panel.classList.toggle('collapsed', !open);
   document.getElementById('panelReopen').classList.toggle('hidden', open); }
 window.togglePanel=togglePanel;
 document.getElementById('panelReopen').onclick=()=>togglePanel(true);
-function select(i){ sel=i; focusSet=null; focusCenter=-1; renderPanel(); if(i>=0) center([i],false); draw(); }
+function setHash(){ try{ const h=(sel>=0&&N[sel])?'#n='+encodeURIComponent(N[sel].id):''; history.replaceState(null,'',h||(location.pathname+location.search)); }catch(e){} }
+function select(i){ sel=i; focusSet=null; focusCenter=-1; renderPanel(); if(i>=0) center([i],false); setHash(); draw(); }
 function goToNode(i){ if(i<0)return; if(graphMode!=='structural'){ graphMode='structural'; selDomain=-1; applyModeUI(); }
-  if(N[i]&&N[i].layer>=0) view=N[i].layer; sidebarTab='info'; sel=i; focusSet=null; focusCenter=-1; renderPanel(); center([i],true); draw(); }
+  if(N[i]&&N[i].layer>=0) view=N[i].layer; sidebarTab='info'; sel=i; focusSet=null; focusCenter=-1; renderPanel(); center([i],true); setHash(); draw(); }
 window.select=select; window.goToNode=goToNode;
 
 // --- search: Fuzzy (text) / Semantic (offline keyword-relevance) + ranked results dropdown ---
@@ -851,6 +863,7 @@ window.addEventListener('keydown',e=>{
 window.addEventListener('resize',resize);
 try{ const sv=JSON.parse(localStorage.getItem('sl-theme')||'null'); if(sv&&THEMES[sv.name]) THEME_STATE=sv; }catch(e){}
 applyTheme(); applyDetail(); applyModeUI(); renderPanel(); fit(); resize(); if(animOn) startAnim();
+(function(){ try{ const m=/[#&]n=([^&]+)/.exec(location.hash||''); if(m){ const i=N.findIndex(n=>n.id===decodeURIComponent(m[1])); if(i>=0) goToNode(i); } }catch(e){} })();
 </script>
 </body>
 </html>

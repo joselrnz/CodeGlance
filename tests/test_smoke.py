@@ -385,3 +385,10 @@ def test_knowledge_view_markers():
     for m in ("CARDSETS", "drawCards", "cardInfoHTML", "cardOverHTML",
               'data-m="knowledge"', "DATA.knowledge"):
         assert m in html, f"missing knowledge feature: {m}"
+
+
+def test_card_icons_and_deeplink():
+    html = render_interactive(_sample_graph())
+    # file-type icons rasterized onto the canvas cards + shareable deep-link
+    for m in ("ICONIMG", "iconForNode", "drawImage", "setHash", "history.replaceState"):
+        assert m in html, f"missing polish feature: {m}"
