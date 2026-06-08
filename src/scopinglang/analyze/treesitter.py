@@ -32,11 +32,13 @@ _TS_NAME = {
 _F = "func"
 _C = "cls"
 _M = "method"
+_V = "var"   # top-level variable / constant declaration
 _SPECS: dict[str, dict[str, set[str]]] = {
     "javascript": {
         _F: {"function_declaration", "generator_function_declaration", "method_definition"},
         _C: {"class_declaration"},
         _M: {"method_definition"},
+        _V: {"lexical_declaration", "variable_declaration"},
     },
     "typescript": {
         _F: {"function_declaration", "generator_function_declaration", "method_definition",
@@ -44,16 +46,19 @@ _SPECS: dict[str, dict[str, set[str]]] = {
         _C: {"class_declaration", "interface_declaration", "abstract_class_declaration",
              "enum_declaration"},
         _M: {"method_definition", "method_signature"},
+        _V: {"lexical_declaration", "variable_declaration"},
     },
     "go": {
         _F: {"function_declaration", "method_declaration"},
         _C: {"type_spec"},
         _M: set(),
+        _V: {"var_declaration", "const_declaration"},
     },
     "rust": {
         _F: {"function_item"},
         _C: {"struct_item", "enum_item", "trait_item", "union_item"},
         _M: set(),
+        _V: {"const_item", "static_item"},
     },
     "java": {
         _F: {"method_declaration", "constructor_declaration"},
@@ -341,6 +346,38 @@ def _iter_with_comments(node):
         pending = None
 
 
+_VAR_SPEC_KINDS = {"var_spec", "const_spec", "variable_declarator", "short_var_declaration"}
+
+
+def _var_names(node, sb, base_kind: str):
+    """Collect (name, kind) pairs from a variable/const declaration (handles multi-declarator)."""
+    found: list[str] = []
+
+    def walk(n, depth):
+        for ch in _children(n):
+            k = _kind(ch)
+            if k in _VAR_SPEC_KINDS:
+                nm = _name_of(ch, sb)
+                if nm:
+                    found.append(nm)
+            elif depth < 3:
+                walk(ch, depth + 1)
+
+    walk(node, 0)
+    if not found:  # Rust const_item / static_item carry the name directly on the node
+        nm = _name_of(node, sb)
+        if nm:
+            found.append(nm)
+    out, seen = [], set()
+    for nm in found:
+        if nm in seen or not _ok_generic_name(nm):
+            continue
+        seen.add(nm)
+        kind = "constant" if (base_kind == "constant" or (nm.isupper() and len(nm) > 1)) else "variable"
+        out.append((nm, kind))
+    return out
+
+
 def extract_symbols(language: str, path: str, text: str):
     """Return list of rich symbol dicts (name/doc/docstring/lineRange/signature/methods), or None."""
     if not is_available():
@@ -364,13 +401,14 @@ def extract_symbols(language: str, path: str, text: str):
 
     func_types, cls_types, method_types = spec[_F], spec[_C], spec[_M]
     callable_types = func_types | method_types
+    var_types = spec.get(_V, set())
     symbols: list[dict] = []
     impl_methods: dict[str, list[dict]] = {}  # Rust: type name -> method dicts from impl blocks
 
     def lead_text(comment_node) -> str:
         return _text(comment_node, sb) if comment_node is not None else ""
 
-    def visit(node, inside_class: bool, lead=None):
+    def visit(node, inside_class: bool, lead=None, depth=0):
         k = _kind(node)
         # Rust: methods live in `impl Type { fn ... }`, separate from the struct/enum definition.
         if language == "rust" and k == "impl_item":
@@ -381,6 +419,12 @@ def extract_symbols(language: str, path: str, text: str):
                     if _kind(ch) in func_types and _name_of(ch, sb):
                         impl_methods.setdefault(tname, []).append(_symbol(ch, "function", sb, lead_text(c)))
             return  # don't emit impl functions as free functions
+        if depth == 1 and var_types and k in var_types and not inside_class:
+            base = "constant" if ("const" in k or "static" in k) else "variable"
+            for nm, kk in _var_names(node, sb, base):
+                s = _symbol(node, kk, sb, lead_text(lead)); s["name"] = nm
+                symbols.append(s)
+            return
         if k in cls_types:
             cname = _name_of(node, sb)
             if cname:
@@ -406,7 +450,7 @@ def extract_symbols(language: str, path: str, text: str):
                 take = lead
             if _is_named(ch):
                 used = True
-            visit(ch, inside_class, take)
+            visit(ch, inside_class, take, depth + 1)
 
     try:
         visit(root, False)

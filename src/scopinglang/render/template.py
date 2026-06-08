@@ -177,7 +177,7 @@ _HTML = r"""<!doctype html>
     <button data-d="file" title="Files only — architecture-level">Files</button>
     <button data-d="class" class="on" title="Files + Classes">+Classes</button>
   </span>
-  <button id="fnToggle" class="fnbtn" title="Toggle function nodes">fn</button>
+  <button id="fnToggle" class="fnbtn" title="Toggle functions, variables & constants">fn</button>
   <input id="search" placeholder="Search nodes…" autocomplete="off"/>
   <span id="catFilters" class="cats"></span>
   <span id="layerChips" class="chips"></span>
@@ -571,7 +571,7 @@ document.getElementById('search').addEventListener('input',e=>{ const q=e.target
 
 // --- header: category filters, detail toggle, layer chips (like the original dashboard) ---
 const CATS=[
-  {n:'Code',t:['file','function','class','module'],c:'#4a7c9b'},
+  {n:'Code',t:['file','function','class','module','variable','constant'],c:'#4a7c9b'},
   {n:'Config',t:['config'],c:'#5eead4'},
   {n:'Docs',t:['document'],c:'#7dd3fc'},
   {n:'Infra',t:['service','pipeline','resource'],c:'#a78bfa'},
@@ -594,9 +594,9 @@ function refreshChips(){ document.querySelectorAll('#layerChips .chip').forEach(
 // Small projects (e.g. one main() function) show functions by default so the
 // drill-in view isn't nearly empty; larger graphs stay at the cleaner file/class level.
 let detail='class', showFns=(N.length<=24);
-function applyDetail(){ hiddenTypes.delete('class'); hiddenTypes.delete('function');
-  if(detail==='file'){ hiddenTypes.add('class'); hiddenTypes.add('function'); }
-  else if(!showFns){ hiddenTypes.add('function'); }
+function applyDetail(){ ['class','function','variable','constant'].forEach(t=>hiddenTypes.delete(t));
+  if(detail==='file'){ ['class','function','variable','constant'].forEach(t=>hiddenTypes.add(t)); }
+  else if(!showFns){ ['function','variable','constant'].forEach(t=>hiddenTypes.add(t)); }
   document.querySelectorAll('#detailSeg button').forEach(b=>b.classList.toggle('on', b.dataset.d===detail));
   document.getElementById('fnToggle').classList.toggle('on', showFns);
   draw(); }

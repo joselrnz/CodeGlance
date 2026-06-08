@@ -18,7 +18,7 @@ TYPE_COLORS = {
     "file": "#4a7c9b", "function": "#5a9e6f", "class": "#8b6fb0", "module": "#c08457",
     "concept": "#d4a574", "config": "#5eead4", "document": "#7dd3fc", "service": "#a78bfa",
     "table": "#6ee7b7", "endpoint": "#fdba74", "pipeline": "#fda4af", "schema": "#f0abfc",
-    "resource": "#fca5a5",
+    "resource": "#fca5a5", "variable": "#7fb3d5", "constant": "#e6b450",
 }
 DEFAULT_TYPE_COLOR = "#94a3b8"
 

@@ -77,13 +77,17 @@ original, so graphs produced by either tool render in the other.
 
 ## Language coverage
 
-Deep symbol extraction (functions, classes, methods → `contains` edges) — **all ~50 work out of
-the box from a single `pip install`** (tree-sitter ships as a normal pip wheel; no Node, no build):
+Deep symbol extraction (functions, classes, methods, **variables & constants** → `contains` edges)
+— **all ~50 work out of the box from a single `pip install`** (tree-sitter ships as a normal pip
+wheel; no Node, no build):
 
-- **Python** — stdlib `ast`.
+- **Python** — stdlib `ast`: functions, classes, methods, **module-level variables/constants, and
+  class attributes** (`UPPER_CASE` → constant, otherwise variable).
 - **~50 more** via bundled tree-sitter grammars:
   - *Tuned* (precise method/impl handling): JavaScript, TypeScript/TSX, Go, Rust, Java, Ruby,
-    PHP, C#, C, C++, Kotlin, Swift, Scala, Lua.
+    PHP, C#, C, C++, Kotlin, Swift, Scala, Lua. Top-level **`var` / `const` / `let` / `static`
+    declarations** are captured as variable/constant nodes for Python, Go, JS/TS and Rust
+    (function-local variables are intentionally skipped to keep the graph readable).
   - *Terraform/HCL* — resource / module / variable / output blocks, **plus `depends_on` edges**
     between blocks that reference each other (resource → security group → module → variable).
   - *Generic node-kind classifier* (works across any grammar): VHDL, Verilog, COBOL, Fortran,

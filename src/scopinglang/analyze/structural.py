@@ -166,6 +166,38 @@ def _py_symbol(node, kind: str) -> dict:
     }
 
 
+def _py_vars_from(node):
+    """Yield (name, kind) for each simple Name target of an Assign/AnnAssign (handles a, b = ...)."""
+    targets = []
+    if isinstance(node, ast.AnnAssign):
+        if isinstance(node.target, ast.Name):
+            targets.append(node.target)
+    else:  # ast.Assign
+        for t in node.targets:
+            if isinstance(t, ast.Name):
+                targets.append(t)
+            elif isinstance(t, (ast.Tuple, ast.List)):
+                targets.extend(e for e in t.elts if isinstance(e, ast.Name))
+    for t in targets:
+        nm = t.id
+        if nm == "_" or nm.startswith("__"):
+            continue
+        yield nm, ("constant" if nm.isupper() and len(nm) > 1 else "variable")
+
+
+def _py_var_symbol(node, name: str, kind: str) -> dict:
+    """Build a variable/constant symbol dict from an Assign/AnnAssign node."""
+    try:
+        sig = ast.unparse(node)
+    except Exception:
+        sig = name
+    return {
+        "kind": kind, "name": name, "doc": "", "docstring": "",
+        "lineRange": _py_line_range(node),
+        "signature": sig.replace("\n", " ")[:120], "methods": [],
+    }
+
+
 def _python_extract(text: str):
     """Return (module_doc_first_line, module_docstring, symbols, imports).
 
@@ -190,7 +222,15 @@ def _python_extract(text: str):
                 _py_symbol(b, "function")
                 for b in node.body if isinstance(b, (ast.FunctionDef, ast.AsyncFunctionDef))
             ]
+            sym["fields"] = [
+                _py_var_symbol(b, nm, kind)
+                for b in node.body if isinstance(b, (ast.Assign, ast.AnnAssign))
+                for nm, kind in _py_vars_from(b)
+            ]
             symbols.append(sym)
+        elif isinstance(node, (ast.Assign, ast.AnnAssign)):
+            for nm, kind in _py_vars_from(node):
+                symbols.append(_py_var_symbol(node, nm, kind))
         elif isinstance(node, ast.Import):
             for alias in node.names:
                 imports.append(_PyImport(alias.name, 0, []))
@@ -330,6 +370,10 @@ def build_structural(scan_result: ScanResult) -> tuple[list[Node], list[Edge]]:
                     else:  # bare method name (tree-sitter path)
                         add_symbol("function", f"{sym['name']}.{meth}", cid, file_path, language,
                                    f"Method of {sym['name']}", method=True)
+                for fld in sym.get("fields", []):  # class-level attributes (Python ast path)
+                    add_symbol(fld["kind"], f"{sym['name']}.{fld['name']}", cid, file_path,
+                               language, "", line_range=fld.get("lineRange"),
+                               signature=fld.get("signature", ""))
         return len(symbols)
 
     ts_supported = ts.supported_languages()

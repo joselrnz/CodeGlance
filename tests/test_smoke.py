@@ -236,3 +236,34 @@ def test_default_theme_is_ocean_and_flow_animation_present():
     for marker in ("drawDomain", "setMode", "modeSeg", "btnAnim", "setAnim",
                    "dashPhase", "lineDashOffset", "DATA.domains", "domainInfoHTML"):
         assert marker in html, f"missing: {marker}"
+
+
+def test_python_variables_and_constants_extracted():
+    from scopinglang.analyze.structural import _python_extract
+    _d, _f, syms, _i = _python_extract(
+        "MAX = 10\nname = 'x'\nclass C:\n    field = 1\n    TIMEOUT = 30\n"
+        "    def m(self):\n        local = 5\n        return local\n"
+    )
+    pairs = {(s["name"], s["kind"]) for s in syms}
+    assert ("MAX", "constant") in pairs and ("name", "variable") in pairs
+    assert "local" not in {s["name"] for s in syms}  # function-local vars are NOT captured
+    c = next(s for s in syms if s["name"] == "C")
+    fields = {(f["name"], f["kind"]) for f in c.get("fields", [])}
+    assert ("field", "variable") in fields and ("TIMEOUT", "constant") in fields
+
+
+def test_treesitter_top_level_vars_and_consts():
+    if not ts.is_available():
+        return
+    go = {(s["name"], s["kind"]) for s in ts.extract_symbols(
+        "go", "m.go", "package main\nconst Pi = 3\nvar count int\nfunc main(){ x:=1; _=x }\n")}
+    assert ("Pi", "constant") in go and ("count", "variable") in go
+    assert "x" not in {n for n, _ in go}  # function-local not captured
+    js = {(s["name"], s["kind"]) for s in ts.extract_symbols(
+        "javascript", "m.js", 'const API = 1;\nlet nm = "x";\nfunction go(){ const z = 9; return z; }\n')}
+    assert ("API", "constant") in js and "z" not in {n for n, _ in js}
+
+
+def test_variable_constant_type_colors_present():
+    from scopinglang.render import TYPE_COLORS
+    assert "variable" in TYPE_COLORS and "constant" in TYPE_COLORS
