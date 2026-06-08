@@ -233,8 +233,8 @@ def test_default_theme_is_ocean_and_flow_animation_present():
     # Dark Ocean is the default (first paint + JS state)
     assert "--accent:#5ba4cf" in html and "name:'ocean'" in html
     # marching-ants edge-flow animation + Domain/Structural mode toggle are wired in
-    for marker in ("drawDomain", "setMode", "modeSeg", "btnAnim", "setAnim",
-                   "dashPhase", "lineDashOffset", "DATA.domains", "domainInfoHTML"):
+    for marker in ("drawCards", "setMode", "modeSeg", "btnAnim", "setAnim",
+                   "dashPhase", "lineDashOffset", "DATA.domains", "cardInfoHTML"):
         assert marker in html, f"missing: {marker}"
 
 
@@ -355,3 +355,33 @@ def test_diff_overlay():
     html = render_interactive(_sample_graph())
     for m in ("btnDiff", "DIFFC", "diffOn", "setDiff", "DATA.diffChanged"):
         assert m in html, f"missing diff feature: {m}"
+
+
+def test_knowledge_graph_extraction():
+    from scopinglang.render import _build_knowledge
+    g = KnowledgeGraph(project=Project(name="wiki"), nodes=[
+        Node(id="document:a.md", type="document", name="a.md", filePath="a.md"),
+        Node(id="document:b.md", type="document", name="b.md", filePath="b.md"),
+    ])
+    sources = {"a.md": "# Alpha\n\nIntro paragraph. See [[Beta]].\n## Topic One\n",
+               "b.md": "# Beta\n\nBody text linking to [the alpha page](a.md).\n"}
+    index_of = {n.id: i for i, n in enumerate(g.nodes)}
+    k = _build_knowledge(g, sources, index_of)
+    assert k and len(k["nodes"]) == 2
+    assert {n["name"] for n in k["nodes"]} == {"Alpha", "Beta"}
+    pairs = {(k["nodes"][e["a"]]["name"], k["nodes"][e["b"]]["name"], e["type"]) for e in k["edges"]}
+    assert ("Alpha", "Beta", "related") in pairs   # [[wikilink]]
+    assert ("Beta", "Alpha", "cites") in pairs      # [](a.md) link
+    alpha = next(n for n in k["nodes"] if n["name"] == "Alpha")
+    assert "Topic One" in alpha["topics"]
+    # a single markdown file yields no knowledge graph
+    g1 = KnowledgeGraph(project=Project(name="x"),
+                        nodes=[Node(id="document:r.md", type="document", name="r.md", filePath="r.md")])
+    assert _build_knowledge(g1, {"r.md": "# R\n"}, {"document:r.md": 0}) is None
+
+
+def test_knowledge_view_markers():
+    html = render_interactive(_sample_graph())
+    for m in ("CARDSETS", "drawCards", "cardInfoHTML", "cardOverHTML",
+              'data-m="knowledge"', "DATA.knowledge"):
+        assert m in html, f"missing knowledge feature: {m}"

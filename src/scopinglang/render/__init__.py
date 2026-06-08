@@ -72,6 +72,73 @@ def _read_sources(graph: KnowledgeGraph, root: Path | None) -> dict[str, str]:
     return sources
 
 
+def _build_knowledge(graph: KnowledgeGraph, sources: dict, index_of: dict) -> dict | None:
+    """Knowledge graph from markdown docs: articles (files) + topics (headings), linked by
+    [[wikilinks]] (related) and [](links.md) (cites). Deterministic and fully offline."""
+    import math as _math
+    import re as _re
+
+    _MD = ("md", "markdown", "mdx", "rst")
+    md_nodes = [n for n in graph.nodes if n.filePath and "." in n.filePath
+                and n.filePath.lower().rsplit(".", 1)[-1] in _MD]
+    if len(md_nodes) < 2:
+        return None
+
+    head_re = _re.compile(r"^(#{1,6})\s+(.+?)\s*#*$", _re.M)
+    wiki_re = _re.compile(r"\[\[([^\]|#]+)(?:[#|][^\]]*)?\]\]")
+    link_re = _re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
+
+    def norm(s):
+        return _re.sub(r"[^a-z0-9]+", "", s.lower())
+
+    arts, key_to_i = [], {}
+    for n in md_nodes:
+        content = sources.get(n.filePath, "") or ""
+        heads = head_re.findall(content)
+        base = n.filePath.rsplit("/", 1)[-1].rsplit(".", 1)[0]
+        title = heads[0][1].strip() if heads else base
+        topics = [h[1].strip() for h in heads[1:]][:6]
+        summary = ""
+        for ln in content.splitlines():
+            s = ln.strip()
+            if s and not s.startswith(("#", "-", "*", ">", "|", "`")):
+                summary = s
+                break
+        i = len(arts)
+        for k in {norm(title), norm(base)}:
+            if k:
+                key_to_i.setdefault(k, i)
+        arts.append({"i": i, "name": title, "file": n.filePath, "summary": summary[:200],
+                     "topics": topics, "memberIdx": index_of.get(n.id, -1), "content": content})
+
+    edges, seen = [], set()
+    for a in arts:
+        refs = [(norm(m.group(1)), "related") for m in wiki_re.finditer(a["content"])]
+        for m in link_re.finditer(a["content"]):
+            tgt = m.group(1).split("#")[0]
+            if "." in tgt and tgt.lower().rsplit(".", 1)[-1] in _MD:
+                refs.append((norm(tgt.rsplit("/", 1)[-1].rsplit(".", 1)[0]), "cites"))
+        for k, ty in refs:
+            j = key_to_i.get(k)
+            if j is not None and j != a["i"] and (a["i"], j) not in seen:
+                seen.add((a["i"], j))
+                edges.append({"a": a["i"], "b": j, "type": ty, "label": ty})
+
+    out_count = Counter(e["a"] for e in edges)
+    KW, KH, GX, GY = 280.0, 150.0, 60.0, 70.0
+    cols = max(1, int(_math.ceil(_math.sqrt(len(arts)))))
+    nodes_vm = []
+    for a in arts:
+        r, c = divmod(a["i"], cols)
+        nodes_vm.append({"i": a["i"], "name": a["name"], "file": a["file"], "summary": a["summary"],
+                         "topics": a["topics"], "nTopics": len(a["topics"]),
+                         "nLinks": out_count.get(a["i"], 0), "memberIdx": a["memberIdx"],
+                         "color": LAYER_PALETTE[a["i"] % len(LAYER_PALETTE)],
+                         "x": round(60 + c * (KW + GX) + KW / 2, 1),
+                         "y": round(60 + r * (KH + GY) + KH / 2, 1)})
+    return {"nodes": nodes_vm, "edges": edges, "cardW": KW, "cardH": KH}
+
+
 def build_view_model(graph: KnowledgeGraph, root: Path | None = None) -> dict:
     node_ids = [n.id for n in graph.nodes]
     id_set = set(node_ids)
@@ -266,6 +333,9 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None) -> dict:
     _changed = getattr(graph, "changed", None) or set()
     diff_changed = [index_of[nid] for nid in _changed if nid in index_of]
 
+    sources = _read_sources(graph, root)
+    knowledge = _build_knowledge(graph, sources, index_of)
+
     return {
         "project": graph.project.to_dict(),
         "stats": graph.stats(),
@@ -276,7 +346,7 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None) -> dict:
         "types": types_vm,
         "tour": tour_vm,
         "topConnected": top_vm,
-        "sources": _read_sources(graph, root),
+        "sources": sources,
         "cardW": card_w,
         "cardH": card_h,
         "layerCards": layer_cards,
@@ -292,6 +362,7 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None) -> dict:
         "domainCardH": DH,
         "diffChanged": diff_changed,
         "hasDiff": bool(diff_changed),
+        "knowledge": knowledge,
     }
 
 

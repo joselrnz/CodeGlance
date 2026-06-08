@@ -190,6 +190,7 @@ _HTML = r"""<!doctype html>
   <span class="seg" id="modeSeg">
     <button data-m="structural" class="on" title="Code structure graph">Structural</button>
     <button data-m="domain" title="Business domain map">Domain</button>
+    <button data-m="knowledge" title="Knowledge graph (docs / wiki)">Knowledge</button>
   </span>
   <button id="btnDiff" class="fnbtn" title="Diff: highlight files changed since last analysis (b)">Diff OFF</button>
   <span class="seg" id="detailSeg">
@@ -250,6 +251,7 @@ _HTML = r"""<!doctype html>
     <kbd>e</kbd><span>Export menu</span>
     <kbd>a</kbd><span>Toggle edge-flow animation</span>
     <kbd>d</kbd><span>Toggle Domain / Structural view</span>
+    <kbd>k</kbd><span>Toggle Knowledge / Structural view</span>
     <kbd>i</kbd><span>Filter panel</span>
     <kbd>x</kbd><span>Focus selected node (1-hop)</span>
     <kbd>b</kbd><span>Toggle diff overlay (changed files)</span>
@@ -263,6 +265,11 @@ const DATA = __DATA_JSON__;
 const N=DATA.nodes, E=DATA.edges, L=DATA.layers, TY=DATA.types, TOUR=DATA.tour, CT=DATA.containers;
 const LC=DATA.layerCards||[], LE=DATA.layerEdges||[], lcW=DATA.layerCardW||300, lcH=DATA.layerCardH||172;
 const DM=DATA.domains||[], DE=DATA.domainEdges||[], dW=DATA.domainCardW||300, dH=DATA.domainCardH||150;
+const KN=(DATA.knowledge&&DATA.knowledge.nodes)||[], KE=(DATA.knowledge&&DATA.knowledge.edges)||[], kW=(DATA.knowledge&&DATA.knowledge.cardW)||280, kH=(DATA.knowledge&&DATA.knowledge.cardH)||150;
+const CARDSETS={
+ domain:{nodes:DM,edges:DE,cw:dW,ch:dH,label:'DOMAIN',title:'Domain Map',blurb:'Business domains inferred from the project structure, linked by cross-domain flows. Click a domain for details.',n2:'Domains',e2:'Flows',descKey:'description',entKey:'entities',entLabel:'ENTITIES',footL:'nFiles',footLw:'files',footR:'flowCount',footRw:'flows',ptype:'domain'},
+ knowledge:{nodes:KN,edges:KE,cw:kW,ch:kH,label:'ARTICLE',title:'Knowledge Graph',blurb:'Markdown docs as articles, linked by wikilinks and citations. Click an article for details.',n2:'Articles',e2:'Links',descKey:'summary',entKey:'topics',entLabel:'TOPICS',footL:'nTopics',footLw:'topics',footR:'nLinks',footRw:'links',ptype:'article'}};
+function CD(){ return CARDSETS[graphMode]||null; }
 const cardW=DATA.cardW, cardH=DATA.cardH;
 const FILE_LEVEL=new Set(['file','config','document','service','pipeline','table','schema','resource','endpoint']);
 let view='overview', lhover=-1, sidebarTab='info';   // 'overview' shows layer cards; a number drills into that layer
@@ -321,8 +328,8 @@ function hl_code(line){ const rx=/(\/\/[^\n]*|#[^\n]*|--[^\n]*|\/\*[\s\S]*?\*\/)
 function _kw(s){ return esc(s).replace(_KW, '<span class="tok-kw">$1</span>'); }
 
 function bounds(){
-  if(graphMode==='domain'){ if(!DM.length)return[0,0,800,600]; let a=1e9,b=1e9,c=-1e9,d=-1e9;
-    for(const k of DM){a=Math.min(a,k.x-dW/2);b=Math.min(b,k.y-dH/2);c=Math.max(c,k.x+dW/2);d=Math.max(d,k.y+dH/2);} return [a,b,c,d]; }
+  if(graphMode!=='structural'){ const S=CD(); if(!S||!S.nodes.length)return[0,0,800,600]; let a=1e9,b=1e9,c=-1e9,d=-1e9;
+    for(const k of S.nodes){a=Math.min(a,k.x-S.cw/2);b=Math.min(b,k.y-S.ch/2);c=Math.max(c,k.x+S.cw/2);d=Math.max(d,k.y+S.ch/2);} return [a,b,c,d]; }
   if(view==='overview'){ if(!LC.length)return[0,0,800,600]; let a=1e9,b=1e9,c=-1e9,d=-1e9;
     for(const k of LC){a=Math.min(a,k.x-lcW/2);b=Math.min(b,k.y-lcH/2);c=Math.max(c,k.x+lcW/2);d=Math.max(d,k.y+lcH/2);} return [a,b,c,d]; }
   const c0=CT.find(k=>k.layer===view); if(c0) return [c0.x,c0.y,c0.x+c0.w,c0.y+c0.h];
@@ -346,7 +353,7 @@ function draw(){
   ctx.setTransform(DPR,0,0,DPR,0,0);
   ctx.fillStyle=T.bg; ctx.fillRect(0,0,innerWidth,innerHeight);
   updateCrumb();
-  if(graphMode==='domain'){ drawDomain(); drawMinimap(); return; }
+  if(graphMode!=='structural'){ drawCards(); drawMinimap(); return; }
   if(view==='overview'){ drawOverview(); drawMinimap(); return; }
   // layer containers (only the drilled-in layer)
   for(const c of CT){ if(c.layer!==view)continue;
@@ -429,7 +436,7 @@ function setView(v){ if(graphMode!=='structural'){ graphMode='structural'; selDo
   const s=document.getElementById('search'); if(s)s.value=''; renderPanel(); fit(); draw(); }
 window.setView=setView;
 function updateCrumb(){ const cr=document.getElementById('crumb'); if(!cr)return;
-  if(graphMode==='domain'){ cr.innerHTML='Domain Map'+(selDomain>=0?' &nbsp;›&nbsp; '+esc(DM[selDomain].name):''); return; }
+  if(graphMode!=='structural'){ const S=CD(); cr.innerHTML=(S?S.title:'')+(S&&selDomain>=0?' &nbsp;›&nbsp; '+esc(S.nodes[selDomain].name):''); return; }
   if(view==='overview') cr.innerHTML='Project Overview';
   else cr.innerHTML='<button onclick="setView(\'overview\')">‹ Project</button> &nbsp;›&nbsp; '+esc((L[view]&&L[view].name)||'Layer');
   if(typeof refreshChips==='function') refreshChips(); }
@@ -441,19 +448,21 @@ function applyModeUI(){ const struct=graphMode==='structural';
 function setMode(m){ if(m===graphMode)return; graphMode=m; selDomain=-1; dhover=-1; sel=-1; matched=null;
   applyModeUI(); renderPanel(); fit(); draw(); }
 window.setMode=setMode;
-function pickDomain(mx,my){ const wx=(mx-ox)/scale, wy=(my-oy)/scale;
-  for(let i=DM.length-1;i>=0;i--){ const d=DM[i]; if(Math.abs(wx-d.x)<=dW/2 && Math.abs(wy-d.y)<=dH/2) return i; } return -1; }
-function centerDomain(i){ const d=DM[i]; if(!d)return; ox=innerWidth/2-d.x*scale; oy=innerHeight/2-d.y*scale; }
+function pickDomain(mx,my){ const S=CD(); if(!S)return -1; const wx=(mx-ox)/scale, wy=(my-oy)/scale;
+  for(let i=S.nodes.length-1;i>=0;i--){ const d=S.nodes[i]; if(Math.abs(wx-d.x)<=S.cw/2 && Math.abs(wy-d.y)<=S.ch/2) return i; } return -1; }
+function centerDomain(i){ const S=CD(); const d=S&&S.nodes[i]; if(!d)return; ox=innerWidth/2-d.x*scale; oy=innerHeight/2-d.y*scale; }
 function selectDomain(i){ selDomain=i; sidebarTab='info'; renderPanel(); if(i>=0) centerDomain(i); draw(); }
 window.selectDomain=selectDomain;
-function drawDomain(){
+// generic card-graph renderer — shared by the Domain and Knowledge views
+function drawCards(){ const S=CD(); if(!S)return; const DD=S.nodes, EE=S.edges, cw=S.cw, ch=S.ch;
+  const cbp=(fx,fy,cx,cy)=>{ const ddx=fx-cx,ddy=fy-cy; if(!ddx&&!ddy)return[cx,cy]; const sx=ddx?(cw/2)/Math.abs(ddx):1e9, sy=ddy?(ch/2)/Math.abs(ddy):1e9, s=Math.min(sx,sy); return [cx+ddx*s,cy+ddy*s]; };
   ctx.setLineDash(animOn?[8,8]:[]); ctx.lineDashOffset=animOn?-dashPhase:0;
-  for(const e of DE){ const A=DM[e.a],B=DM[e.b]; if(!A||!B)continue;
-    const p1=dbp(B.x,B.y,A.x,A.y), p2=dbp(A.x,A.y,B.x,B.y);
+  for(const e of EE){ const A=DD[e.a],B=DD[e.b]; if(!A||!B)continue;
+    const p1=cbp(B.x,B.y,A.x,A.y), p2=cbp(A.x,A.y,B.x,B.y);
     const x1=SX(p1[0]),y1=SY(p1[1]),x2=SX(p2[0]),y2=SY(p2[1]);
     const lit=(dhover===e.a||dhover===e.b||selDomain===e.a||selDomain===e.b);
     const mx=(x1+x2)/2,my=(y1+y2)/2,dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy)||1,off=Math.min(54,len*0.16),cxp=mx-dy/len*off,cyp=my+dx/len*off;
-    ctx.strokeStyle=lit?ac(0.92):ac(0.32); ctx.lineWidth=lit?2.6:Math.min(4,1.2+Math.log2(e.count+1));
+    ctx.strokeStyle=lit?ac(0.92):ac(0.32); ctx.lineWidth=lit?2.6:Math.min(4,1.2+Math.log2((e.count||1)+1));
     ctx.beginPath();ctx.moveTo(x1,y1);ctx.quadraticCurveTo(cxp,cyp,x2,y2);ctx.stroke();
     ctx.setLineDash([]);
     if(scale>0.22){ const ang=Math.atan2(y2-cyp,x2-cxp),s=8; ctx.beginPath();ctx.moveTo(x2,y2);
@@ -462,37 +471,39 @@ function drawDomain(){
     if(animOn){ctx.setLineDash([8,8]);ctx.lineDashOffset=-dashPhase;}
   }
   ctx.setLineDash([]);
-  for(const d of DM){ const w=dW*scale,h=dH*scale,x=SX(d.x)-w/2,y=SY(d.y)-h/2;
+  for(const d of DD){ const w=cw*scale,h=ch*scale,x=SX(d.x)-w/2,y=SY(d.y)-h/2;
     if(x>innerWidth||y>innerHeight||x+w<0||y+h<0)continue;
     const on=(dhover===d.i||selDomain===d.i);
     rr(x,y,w,h,12); ctx.fillStyle=T.card; ctx.fill();
     ctx.fillStyle=d.color; ctx.fillRect(x,y+2,Math.max(4,5*scale),h-4);
     ctx.lineWidth=on?2:1; ctx.strokeStyle=on?T.accent:ac(0.22); rr(x,y,w,h,12); ctx.stroke();
     if(scale>0.16){ const pad=14*scale+5;
-      ctx.fillStyle=d.color; ctx.font='700 '+Math.round(6.5*scale+3)+'px ui-monospace,monospace'; ctx.fillText('DOMAIN', x+pad, y+Math.round(15*scale)+2);
+      ctx.fillStyle=d.color; ctx.font='700 '+Math.round(6.5*scale+3)+'px ui-monospace,monospace'; ctx.fillText(S.label, x+pad, y+Math.round(15*scale)+2);
       ctx.fillStyle=T.text; ctx.font=Math.round(9*scale+5)+'px '+(T.fontHeading||'Georgia,serif'); ctx.fillText(clipText(d.name,w-pad*2), x+pad, y+Math.round(37*scale)+2);
-      ctx.fillStyle=T.text2; ctx.font=Math.round(6*scale+4)+'px ui-sans-serif'; wrapText(d.description||'', x+pad, y+Math.round(53*scale), w-pad*2, Math.round(6*scale+6), 2);
-      if(scale>0.34 && d.entities && d.entities.length){ ctx.fillStyle=T.muted; ctx.font='9px ui-sans-serif'; ctx.fillText('ENTITIES', x+pad, y+h-Math.round(32*scale)-2);
-        ctx.fillStyle=T.text2; ctx.font='10px ui-monospace,monospace'; ctx.fillText(clipText(d.entities.slice(0,4).join('   '), w-pad*2), x+pad, y+h-Math.round(18*scale)); }
-      ctx.fillStyle=T.muted; ctx.font=Math.round(6*scale+3)+'px ui-sans-serif'; ctx.fillText(d.nFiles+' files  ·  '+d.flowCount+' flows', x+pad, y+h-Math.round(6*scale)); }
+      ctx.fillStyle=T.text2; ctx.font=Math.round(6*scale+4)+'px ui-sans-serif'; wrapText(d[S.descKey]||'', x+pad, y+Math.round(53*scale), w-pad*2, Math.round(6*scale+6), 2);
+      const ents=d[S.entKey]; if(scale>0.34 && ents && ents.length){ ctx.fillStyle=T.muted; ctx.font='9px ui-sans-serif'; ctx.fillText(S.entLabel, x+pad, y+h-Math.round(32*scale)-2);
+        ctx.fillStyle=T.text2; ctx.font='10px ui-monospace,monospace'; ctx.fillText(clipText(ents.slice(0,4).join('   '), w-pad*2), x+pad, y+h-Math.round(18*scale)); }
+      ctx.fillStyle=T.muted; ctx.font=Math.round(6*scale+3)+'px ui-sans-serif'; ctx.fillText((d[S.footL]||0)+' '+S.footLw+'  ·  '+(d[S.footR]||0)+' '+S.footRw, x+pad, y+h-Math.round(6*scale)); }
   }
 }
-function domainOverHTML(){ let h='<div class="ov-title">Domain Map</div><div class="ov-desc">Business domains inferred from the project structure, linked by cross-domain flows. Click a domain for details.</div>';
-  h+='<div class="ov-grid">'+stat('Domains',DM.length)+stat('Flows',DE.length)+'</div>';
-  if(DM.length){ h+='<div class="ov-h">Domains</div>';
-    for(const d of DM) h+='<div class="nb" data-dom="'+d.i+'"><span class="sw" style="display:inline-block;width:10px;height:10px;border-radius:3px;background:'+d.color+'"></span> '+esc(d.name)+' <span class="muted">· '+d.nFiles+' files</span></div>'; }
-  else h+='<div class="ov-desc" style="margin-top:10px">No domains detected (no nested directories to group by).</div>';
+function cardOverHTML(){ const S=CD(); if(!S)return ''; let h='<div class="ov-title">'+S.title+'</div><div class="ov-desc">'+S.blurb+'</div>';
+  h+='<div class="ov-grid">'+stat(S.n2,S.nodes.length)+stat(S.e2,S.edges.length)+'</div>';
+  if(S.nodes.length){ h+='<div class="ov-h">'+S.n2+'</div>';
+    for(const d of S.nodes) h+='<div class="nb" data-dom="'+d.i+'"><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:'+d.color+'"></span> '+esc(d.name)+' <span class="muted">· '+(d[S.footL]||0)+' '+S.footLw+'</span></div>'; }
+  else h+='<div class="ov-desc" style="margin-top:10px">'+(graphMode==='knowledge'?'No linked docs found.':'No domains detected.')+'</div>';
   return h; }
-function domainInfoHTML(i){ const d=DM[i]; let h='<span class="close" onclick="selectDomain(-1)">✕</span>';
-  h+='<span class="ptype" style="color:'+d.color+';border-color:'+d.color+'">domain</span>';
+function cardInfoHTML(i){ const S=CD(); if(!S)return ''; const d=S.nodes[i]; let h='<span class="close" onclick="selectDomain(-1)">✕</span>';
+  h+='<span class="ptype" style="color:'+d.color+';border-color:'+d.color+'">'+S.ptype+'</span>';
   h+='<h3>'+esc(d.name)+'</h3>';
-  if(d.description) h+='<div class="summary">'+esc(d.description)+'</div>';
-  h+='<div class="ov-grid">'+stat('Files',d.nFiles)+stat('Entities',d.nEntities)+stat('Flows',d.flowCount)+'</div>';
-  if(d.entities&&d.entities.length) h+='<div class="ov-h">Entities</div><div class="pills">'+d.entities.map(e=>'<span class="pill">'+esc(e)+'</span>').join('')+'</div>';
-  const outs=DE.filter(e=>e.a===i), ins=DE.filter(e=>e.b===i);
-  if(outs.length){ h+='<div class="ov-h">Flows out ('+outs.length+')</div>'; for(const e of outs) h+='<div class="nb" data-dom="'+e.b+'"><span class="et">'+esc(e.label||'flow')+'</span> '+esc(DM[e.b].name)+' <span class="muted">· '+e.count+'</span></div>'; }
-  if(ins.length){ h+='<div class="ov-h">Flows in ('+ins.length+')</div>'; for(const e of ins) h+='<div class="nb" data-dom="'+e.a+'"><span class="et">'+esc(e.label||'flow')+'</span> '+esc(DM[e.a].name)+' <span class="muted">· '+e.count+'</span></div>'; }
-  if(d.members&&d.members.length){ h+='<div class="ov-h">Files ('+d.nFiles+')</div>'; for(const idx of d.members.slice(0,40)){ const n=N[idx]; if(!n||!FILE_LEVEL.has(n.type))continue; h+='<div class="nb" data-i="'+idx+'">'+esc(n.name)+' <span class="muted">· '+esc(n.type)+'</span></div>'; } }
+  const desc=d[S.descKey]; if(desc) h+='<div class="summary">'+esc(desc)+'</div>';
+  const ents=d[S.entKey]||[];
+  h+='<div class="ov-grid">'+stat(S.footLw,d[S.footL]||0)+stat(S.entLabel.toLowerCase(),ents.length)+stat(S.footRw,d[S.footR]||0)+'</div>';
+  if(ents.length) h+='<div class="ov-h">'+S.entLabel+'</div><div class="pills">'+ents.map(e=>'<span class="pill">'+esc(e)+'</span>').join('')+'</div>';
+  const outs=S.edges.filter(e=>e.a===i), ins=S.edges.filter(e=>e.b===i);
+  if(outs.length){ h+='<div class="ov-h">'+S.e2+' out ('+outs.length+')</div>'; for(const e of outs) h+='<div class="nb" data-dom="'+e.b+'"><span class="et">'+esc(e.label||'link')+'</span> '+esc(S.nodes[e.b].name)+(e.count?' <span class="muted">· '+e.count+'</span>':'')+'</div>'; }
+  if(ins.length){ h+='<div class="ov-h">'+S.e2+' in ('+ins.length+')</div>'; for(const e of ins) h+='<div class="nb" data-dom="'+e.a+'"><span class="et">'+esc(e.label||'link')+'</span> '+esc(S.nodes[e.a].name)+(e.count?' <span class="muted">· '+e.count+'</span>':'')+'</div>'; }
+  if(graphMode==='domain' && d.members&&d.members.length){ h+='<div class="ov-h">Files ('+d.nFiles+')</div>'; for(const idx of d.members.slice(0,40)){ const n=N[idx]; if(!n||!FILE_LEVEL.has(n.type))continue; h+='<div class="nb" data-i="'+idx+'">'+esc(n.name)+' <span class="muted">· '+esc(n.type)+'</span></div>'; } }
+  if(graphMode==='knowledge' && d.memberIdx>=0 && N[d.memberIdx]){ h+='<div class="ov-h">Source</div><div class="nb" data-i="'+d.memberIdx+'">'+esc(N[d.memberIdx].name)+' <span class="muted">· open in code graph</span></div>'; }
   return h; }
 
 const tip=document.getElementById('tip');
@@ -576,7 +587,7 @@ function renderPanel(){
     +'<button class="ptab'+(sidebarTab==='files'?' on':'')+'" data-tab="files">Files</button>'
     +'<button class="pclose" title="Hide panel">⟩</button></div>';
   const body = sidebarTab==='files' ? filesHTML()
-    : graphMode==='domain' ? (selDomain>=0 ? domainInfoHTML(selDomain) : domainOverHTML())
+    : graphMode!=='structural' ? (selDomain>=0 ? cardInfoHTML(selDomain) : cardOverHTML())
     : (sel>=0 ? infoHTML(sel) : overviewHTML());
   panel.innerHTML = tabs + body;
   panel.querySelectorAll('.ptab').forEach(el=>el.onclick=()=>{ sidebarTab=el.dataset.tab; renderPanel(); });
@@ -663,11 +674,11 @@ document.getElementById('fnToggle').onclick=()=>{ showFns=!showFns; if(showFns)d
 let drag=false,lx,ly,moved=false;
 cv.addEventListener('mousedown',e=>{drag=true;moved=false;lx=e.clientX;ly=e.clientY;});
 window.addEventListener('mousemove',e=>{ if(drag){ox+=e.clientX-lx;oy+=e.clientY-ly;lx=e.clientX;ly=e.clientY;moved=true;draw();return;}
-  if(graphMode==='domain'){ const h=pickDomain(e.clientX,e.clientY); if(h!==dhover){dhover=h;cv.style.cursor=h>=0?'pointer':'grab';draw();} tooltip(-1,e); return; }
+  if(graphMode!=='structural'){ const h=pickDomain(e.clientX,e.clientY); if(h!==dhover){dhover=h;cv.style.cursor=h>=0?'pointer':'grab';draw();} tooltip(-1,e); return; }
   if(view==='overview'){ const h=pickLayer(e.clientX,e.clientY); if(h!==lhover){lhover=h;cv.style.cursor=h>=0?'pointer':'grab';draw();} tooltip(-1,e); return; }
   const h=pick(e.clientX,e.clientY); if(h!==hover){hover=h;cv.style.cursor=h>=0?'pointer':'grab';draw();} tooltip(h,e); });
 window.addEventListener('mouseup',e=>{ if(drag&&!moved){
-    if(graphMode==='domain'){ const h=pickDomain(e.clientX,e.clientY); selectDomain(h); }
+    if(graphMode!=='structural'){ const h=pickDomain(e.clientX,e.clientY); selectDomain(h); }
     else if(view==='overview'){ const h=pickLayer(e.clientX,e.clientY); if(h>=0) setView(h); }
     else { const h=pick(e.clientX,e.clientY); select(h); } } drag=false; });
 cv.addEventListener('wheel',e=>{e.preventDefault();const f=Math.exp(-e.deltaY*0.0016);
@@ -680,7 +691,7 @@ function mmInit(){ const[a,b,c,d]=bounds(); const gw=(c-a)||1,gh=(d-b)||1,p=8;
   MM.s=Math.min((MM.w-2*p)/gw,(MM.h-2*p)/gh); MM.ox=p-a*MM.s+(MM.w-2*p-gw*MM.s)/2; MM.oy=p-b*MM.s+(MM.h-2*p-gh*MM.s)/2; }
 const mmPt=(x,y)=>[x*MM.s+MM.ox,y*MM.s+MM.oy];
 function drawMinimap(){ if(!mm.width)return; mmx.setTransform(DPR,0,0,DPR,0,0); mmx.fillStyle=T.bg; mmx.fillRect(0,0,MM.w,MM.h);
-  if(graphMode==='domain'){ for(const d of DM){ const q=mmPt(d.x-dW/2,d.y-dH/2); mmx.fillStyle=d.color; mmx.globalAlpha=0.9; mmx.fillRect(q[0],q[1],Math.max(3,dW*MM.s),Math.max(2,dH*MM.s)); } mmx.globalAlpha=1; }
+  if(graphMode!=='structural'){ const S=CD(); if(S) for(const d of S.nodes){ const q=mmPt(d.x-S.cw/2,d.y-S.ch/2); mmx.fillStyle=d.color; mmx.globalAlpha=0.9; mmx.fillRect(q[0],q[1],Math.max(3,S.cw*MM.s),Math.max(2,S.ch*MM.s)); } mmx.globalAlpha=1; }
   else if(view==='overview'){ for(const l of LC){ const q=mmPt(l.x-lcW/2,l.y-lcH/2); mmx.fillStyle=l.color; mmx.globalAlpha=0.9; mmx.fillRect(q[0],q[1],Math.max(3,lcW*MM.s),Math.max(2,lcH*MM.s)); } mmx.globalAlpha=1; }
   else { for(let i=0;i<N.length;i++){ if(!vis(i))continue; const n=N[i],q=mmPt(n.x,n.y); mmx.globalAlpha=dim(i)?0.25:0.95; mmx.fillStyle=n.color; mmx.fillRect(q[0]-1,q[1]-0.6,Math.max(2,cardW*MM.s),Math.max(1.4,cardH*MM.s)); } mmx.globalAlpha=1; }
   const p0=mmPt((0-ox)/scale,(0-oy)/scale),p1=mmPt((innerWidth-ox)/scale,(innerHeight-oy)/scale);
@@ -790,7 +801,7 @@ function stepAnim(){ if(!animOn){ _animRunning=false; return; } dashPhase+=0.6; 
 function setAnim(on){ animOn=on; const b=$('btnAnim'); if(b)b.classList.toggle('on',on); if(on) startAnim(); else draw(); }
 $('btnAnim').onclick=()=>setAnim(!animOn);
 document.querySelectorAll('#modeSeg button').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
-if(!DM.length){ const db=document.querySelector('#modeSeg [data-m="domain"]'); if(db){ db.disabled=true; db.style.opacity=0.4; db.title='No domains detected'; } }
+[['domain',DM.length,'No domains detected'],['knowledge',KN.length,'No markdown docs to link']].forEach(([m,n,t])=>{ if(!n){ const b=document.querySelector('#modeSeg [data-m="'+m+'"]'); if(b){ b.disabled=true; b.style.opacity=0.4; b.title=t; } } });
 
 // theme menu (presets + accent swatches + heading font)
 const themeMenu=$('themeMenu');
@@ -829,6 +840,7 @@ window.addEventListener('keydown',e=>{
   else if(e.key==='t'){ themeMenu.classList.toggle('hidden'); refreshThemeMenu(); }
   else if(e.key==='a'){ setAnim(!animOn); }
   else if(e.key==='d'){ setMode(graphMode==='domain'?'structural':'domain'); }
+  else if(e.key==='k'){ if(KN.length) setMode(graphMode==='knowledge'?'structural':'knowledge'); }
   else if(e.key==='i'){ $('btnFilter').click(); }
   else if(e.key==='x'){ if(sel>=0) focusOn(sel); }
   else if(e.key==='b'){ setDiff(!diffOn); }
