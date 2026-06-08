@@ -30,6 +30,7 @@ _NAME_NODE_TYPES = {
     "name", "scoped_identifier", "property_identifier", "word", "designator", "value_name",
     "class_name", "module_name", "variable", "atom", "program_name", "entity_name",
     "global_variable", "function_name", "type_name", "object_identifier",
+    "bareword", "IDENTIFIER", "simple_word",   # perl / zig / tcl
 }
 
 # Generic classifier (used for languages without an explicit _SPECS entry). Matches node-kind
@@ -42,6 +43,8 @@ _GEN_FUNC_SUFFIX = (
     "constructor_declaration", "func_definition", "fun_declaration", "value_definition",
     "paragraph_header", "macro_definition", "modifier_definition", "function_specification",
     "procedure_specification", "function_signature", "fun_definition",
+    # haskell/gleam (bare "function"), perl, zig (CamelCase FnProto), tcl (bare "procedure")
+    "function", "subroutine_declaration_statement", "FnProto", "procedure",
 )
 _GEN_CLASS_SUFFIX = (
     "class_definition", "class_declaration", "class_specifier", "struct_item", "struct_specifier",
@@ -58,7 +61,7 @@ _GEN_CLASS_SUFFIX = (
 _GEN_VAR_SUFFIX = (
     "variable_declaration", "constant_declaration", "const_declaration", "var_declaration",
     "let_declaration", "global_variable_declaration", "signal_declaration", "global_declaration",
-    "val_definition", "var_definition", "constant_definition", "variable_definition",
+    "val_definition", "var_definition", "constant_definition", "variable_definition", "VarDecl",
 )
 # Class/struct member declarations (captured as fields of their enclosing type, across tuned langs).
 _FIELD_KINDS = {
@@ -74,6 +77,7 @@ _GENERIC_NAME_DENY = {
     "byte", "short", "long", "void", "bit", "word", "real", "number", "unit", "nil", "none",
     "self", "this", "true", "false", "null", "var", "val", "let", "const", "auto", "type",
     "uint256", "uint8", "address", "bytes", "object", "any", "std_logic", "signal",
+    "function", "fn", "proc", "sub", "def", "defn", "defun", "define", "procedure", "subroutine",
 }
 
 
@@ -360,6 +364,10 @@ def _var_names(node, sb, base_kind: str):
     return out
 
 
+# Lisp-family languages: defs are s-expressions, not declaration nodes — handled specially.
+_LISP_LANGS = {"clojure", "commonlisp", "scheme", "racket"}
+
+
 def extract_symbols(language: str, path: str, text: str):
     """Return list of rich symbol dicts (name/doc/docstring/lineRange/signature/methods), or None."""
     if not is_available():
@@ -376,6 +384,10 @@ def extract_symbols(language: str, path: str, text: str):
 
     if language in ("terraform", "hcl"):
         return _extract_terraform(root, sb)
+    if language in _LISP_LANGS:
+        return _extract_lisp(root, sb)
+    if language == "elixir":
+        return _extract_elixir(root, sb)
 
     spec = _SPECS.get(language)
     if spec is None:
@@ -572,6 +584,134 @@ def _extract_generic(root, sb: bytes):
             if _is_named(ch):
                 used = True
             visit(ch, take)
+
+    try:
+        visit(root)
+    except Exception:
+        pass
+    return symbols
+
+
+_LISP_FUNC_FORMS = {"defn", "defn-", "defun", "defmethod", "defmacro", "defmulti", "defsubst",
+                    "define-syntax", "define-public", "define-syntax-rule", "define-values",
+                    "defgeneric"}
+_LISP_CLASS_FORMS = {"defrecord", "deftype", "defstruct", "defprotocol", "define-struct",
+                     "define-record-type", "defclass", "define-class", "definterface"}
+_LISP_VAR_FORMS = {"defvar", "defparameter", "defconst", "defconstant", "define-constant", "defonce"}
+# Common Lisp exposes typed def NODES (kind "defun"/"defmacro"/...) instead of generic lists.
+_CL_DEF_KINDS = {"defun": "function", "defmacro": "function", "defmethod": "function",
+                 "defgeneric": "function", "defvar": "variable", "defparameter": "variable",
+                 "defconstant": "constant", "defclass": "class", "defstruct": "class",
+                 "defpackage": "class"}
+
+
+def _lisp_sym(node) -> bool:
+    return _kind(node) in ("sym_lit", "symbol")
+
+
+def _lisp_items(node):
+    return [c for c in _children(node)
+            if _kind(c) not in ("(", ")", "[", "]", "{", "}") and "comment" not in _kind(c)]
+
+
+def _extract_lisp(root, sb: bytes):
+    """Extract def-forms from Lisp-family s-expressions (Clojure/Scheme/Racket/Common Lisp)."""
+    symbols, seen = [], set()
+
+    def visit(node):
+        k = _kind(node)
+        if k in _CL_DEF_KINDS:                         # Common Lisp: typed def nodes (defun, ...)
+            hdr = next((c for c in _children(node) if _kind(c).endswith("_header")), None)
+            sym = next((c for c in _children(hdr if hdr is not None else node)
+                        if _kind(c) == "sym_lit"), None)
+            name = _text(sym, sb).strip() if sym is not None else ""
+            kind = _CL_DEF_KINDS[k]
+            if name and _ok_generic_name(name) and (kind, name) not in seen:
+                seen.add((kind, name))
+                symbols.append({"kind": kind, "name": name, "doc": "", "docstring": "",
+                                "lineRange": _line_range(node), "signature": _sig_line(node, sb),
+                                "methods": []})
+        elif "list" in _kind(node):
+            items = _lisp_items(node)
+            if items and _lisp_sym(items[0]):
+                form = _text(items[0], sb).strip().lstrip("#").lower()
+                kind = None
+                if form in ("define", "def"):
+                    kind = "function" if (len(items) > 1 and "list" in _kind(items[1])) else "variable"
+                elif form in _LISP_FUNC_FORMS:
+                    kind = "function"
+                elif form in _LISP_CLASS_FORMS:
+                    kind = "class"
+                elif form in _LISP_VAR_FORMS:
+                    kind = "variable"
+                if kind and len(items) > 1:
+                    target = items[1]
+                    if _lisp_sym(target):
+                        name = _text(target, sb).strip()
+                    elif "list" in _kind(target):
+                        sub = _lisp_items(target)
+                        name = _text(sub[0], sb).strip() if sub and _lisp_sym(sub[0]) else ""
+                    else:
+                        name = ""
+                    if name and _ok_generic_name(name) and (kind, name) not in seen:
+                        seen.add((kind, name))
+                        symbols.append({"kind": kind, "name": name, "doc": "", "docstring": "",
+                                        "lineRange": _line_range(node), "signature": _sig_line(node, sb),
+                                        "methods": []})
+        for c in _children(node):
+            visit(c)
+
+    try:
+        visit(root)
+    except Exception:
+        pass
+    return symbols
+
+
+_EX_FUNC_FORMS = {"def", "defp", "defmacro", "defmacrop", "defdelegate", "defguard", "defguardp"}
+_EX_CLASS_FORMS = {"defmodule", "defprotocol", "defimpl"}
+
+
+def _extract_elixir(root, sb: bytes):
+    """Extract def/defmodule/... from Elixir (every construct is a macro `call` node)."""
+    symbols, seen = [], set()
+
+    def name_from_args(args):
+        for c in _children(args):
+            k = _kind(c)
+            if k in ("identifier", "alias"):
+                return _text(c, sb).strip()
+            if k == "call":
+                for cc in _children(c):
+                    if _kind(cc) == "identifier":
+                        return _text(cc, sb).strip()
+            if k == "binary_operator":   # e.g. def f(x) when guard
+                for cc in _children(c):
+                    if _kind(cc) == "call":
+                        for ccc in _children(cc):
+                            if _kind(ccc) == "identifier":
+                                return _text(ccc, sb).strip()
+                    if _kind(cc) == "identifier":
+                        return _text(cc, sb).strip()
+        return ""
+
+    def visit(node):
+        if _kind(node) == "call":
+            ch = _children(node)
+            if ch and _kind(ch[0]) == "identifier":
+                head = _text(ch[0], sb).strip()
+                kind = ("function" if head in _EX_FUNC_FORMS
+                        else "class" if head in _EX_CLASS_FORMS else None)
+                if kind:
+                    args = next((c for c in ch[1:] if _kind(c) == "arguments"), None)
+                    name = name_from_args(args) if args is not None else ""
+                    if name and _ok_generic_name(name) and (kind, name) not in seen:
+                        seen.add((kind, name))
+                        symbols.append({"kind": kind, "name": name, "doc": "", "docstring": "",
+                                        "lineRange": _line_range(node), "signature": _sig_line(node, sb),
+                                        "methods": []})
+        for c in _children(node):
+            visit(c)
 
     try:
         visit(root)

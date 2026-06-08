@@ -288,3 +288,46 @@ def test_variables_across_more_languages():
     assert php.get("K") == "constant" and php.get("C.X") == "constant"
     cs = kinds("csharp", "C.cs", "class C { int n; const int K=1; }")
     assert cs.get("C.n") == "variable" and cs.get("C.K") == "constant"
+
+
+def test_language_coverage_broad():
+    """Every supported family extracts >=1 symbol (tuned, generic, lisp, elixir, cobol, ...)."""
+    if not ts.is_available():
+        return
+    samples = {
+        "go": ("m.go", "package m\nfunc F(){}\ntype T struct{}\nvar X=1\n"),
+        "rust": ("m.rs", "fn f(){}\nstruct T{}\nconst X:i32=1;\n"),
+        "java": ("M.java", "class C{ void m(){} int x; }\n"),
+        "csharp": ("C.cs", "class C{ void M(){} }\n"),
+        "cpp": ("m.cpp", "class C{ public: void m(){} };\n"),
+        "ruby": ("m.rb", "class C\n  def m\n  end\nend\n"),
+        "php": ("m.php", "<?php function f(){} class C{}\n"),
+        "kotlin": ("M.kt", "fun f(){}\nclass C{ val x=1 }\n"),
+        "swift": ("M.swift", "func f(){}\nclass C{ var x=1 }\n"),
+        "scala": ("M.scala", "object O{ def f=1 }\n"),
+        "lua": ("m.lua", "function f() end\n"),
+        "haskell": ("M.hs", "module M where\nf x = x + 1\n"),
+        "gleam": ("m.gleam", "pub fn f() { 1 }\n"),
+        "perl": ("m.pl", "sub f { return 1; }\n"),
+        "zig": ("m.zig", "fn f() void {}\n"),
+        "tcl": ("m.tcl", "proc f {x} { return 1 }\n"),
+        "ocaml": ("m.ml", "let f x = x + 1\n"),
+        "erlang": ("m.erl", "-module(m).\nf() -> ok.\n"),
+        "elixir": ("m.ex", "defmodule M do\n  def f, do: 1\nend\n"),
+        "clojure": ("m.clj", "(defn f [x] x)\n"),
+        "scheme": ("m.scm", "(define (f x) x)\n"),
+        "racket": ("m.rkt", "#lang racket\n(define (f x) x)\n"),
+        "commonlisp": ("m.lisp", "(defun f (x) x)\n"),
+        "fortran": ("m.f90", "module m\ncontains\nsubroutine s()\nend subroutine\nend module\n"),
+        "ada": ("p.adb", "procedure P is begin null; end P;\n"),
+        "solidity": ("c.sol", "contract C { function f() public {} }\n"),
+        "dart": ("m.dart", "class C { void m(){} }\n"),
+        "julia": ("m.jl", "function f(x)\n    x\nend\n"),
+        "vhdl": ("e.vhd", "architecture a of e is begin end a;\n"),
+        "cobol": ("h.cob", "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. HELLO.\n"
+                           "       PROCEDURE DIVISION.\n       MAIN-PARA.\n           DISPLAY 'HI'.\n"),
+        "terraform": ("m.tf", 'resource "aws_instance" "web" {}\n'),
+    }
+    failures = [lang for lang, (fn, code) in samples.items()
+                if not (ts.extract_symbols(lang, fn, code) or [])]
+    assert not failures, f"no symbols extracted for: {failures}"
