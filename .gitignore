@@ -13,6 +13,7 @@ venv/
 
 # Generated graphs and rendered HTML (examples kept in demo/ are fine to regenerate)
 .codescape/
+.understand-anything/
 demo/*.html
 
 # Editor / tooling
