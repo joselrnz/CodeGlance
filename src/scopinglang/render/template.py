@@ -190,6 +190,7 @@ _HTML = r"""<!doctype html>
     <button data-m="structural" class="on" title="Code structure graph">Structural</button>
     <button data-m="domain" title="Business domain map">Domain</button>
   </span>
+  <button id="btnDiff" class="fnbtn" title="Diff: highlight files changed since last analysis (b)">Diff OFF</button>
   <span class="seg" id="detailSeg">
     <button data-d="file" title="Files only — architecture-level">Files</button>
     <button data-d="class" class="on" title="Files + Classes">+Classes</button>
@@ -250,6 +251,7 @@ _HTML = r"""<!doctype html>
     <kbd>d</kbd><span>Toggle Domain / Structural view</span>
     <kbd>i</kbd><span>Filter panel</span>
     <kbd>x</kbd><span>Focus selected node (1-hop)</span>
+    <kbd>b</kbd><span>Toggle diff overlay (changed files)</span>
     <kbd>?</kbd><span>This help</span>
     <kbd>Esc</kbd><span>Close panel / tour / modal</span>
     <kbd>← →</kbd><span>Prev / next tour step</span>
@@ -301,10 +303,11 @@ let DPR=1, scale=1, ox=0, oy=0;
 const hidden=new Set(), hiddenTypes=new Set(), hiddenComplex=new Set();
 let hover=-1, sel=-1, matched=null, focusSet=null, tIdx=-1, pathNodes=null, pathEdges=null;
 let searchMode='fuzzy', searchResults=[];
+const DIFFC=new Set(DATA.diffChanged||[]); const hasDiff=!!DATA.hasDiff; let diffOn=false;
 const esc=s=>(s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 const SX=x=>x*scale+ox, SY=y=>y*scale+oy;
 const vis=i=>view!=='overview'&&N[i].layer===view&&!hiddenTypes.has(N[i].type)&&!hiddenComplex.has(N[i].complexity);
-function dim(i){ if(matched&&!matched.has(i))return true; if(focusSet&&!focusSet.has(i))return true;
+function dim(i){ if(diffOn&&!DIFFC.has(i))return true; if(matched&&!matched.has(i))return true; if(focusSet&&!focusSet.has(i))return true;
   if(pathNodes&&!pathNodes.has(i))return true;
   if(hover>=0&&i!==hover&&!nbr[hover].has(i))return true; return false; }
 // Lightweight per-line syntax highlighter (comments, strings, numbers, keywords).
@@ -380,6 +383,7 @@ function drawCard(i){ const n=N[i]; const w=cardW*scale,h=cardH*scale,x=SX(n.x)-
   ctx.fillStyle=n.color; ctx.fillRect(x,y+1,Math.max(3,4*scale),h-2);
   if(i===sel){ctx.lineWidth=2;ctx.strokeStyle=T.accent;} else if(i===hover){ctx.lineWidth=1.5;ctx.strokeStyle=n.color;} else {ctx.lineWidth=1;ctx.strokeStyle=ac(0.16);}
   rr(x,y,w,h,7); ctx.stroke();
+  if(diffOn&&DIFFC.has(i)){ ctx.lineWidth=2.5; ctx.strokeStyle='#5fb389'; rr(x,y,w,h,7); ctx.stroke(); }
   if(scale>0.3){ const pad=Math.max(8,8*scale);
     ctx.font='700 '+Math.round(7*scale+3)+'px ui-monospace,monospace'; ctx.fillStyle=n.color;
     ctx.fillText(n.type.toUpperCase(), x+pad, y+Math.round(12*scale)+4);
@@ -722,6 +726,10 @@ function buildFilterMenu(){ const fm=$('filterMenu'); let h='<h5>Node types</h5>
 }
 $('btnFilter').onclick=()=>{ const fm=$('filterMenu'); const show=fm.classList.contains('hidden');
   exMenu.classList.add('hidden'); themeMenu.classList.add('hidden'); if(show) buildFilterMenu(); fm.classList.toggle('hidden'); };
+// diff overlay: highlight nodes whose file changed since the last analysis (incremental runs)
+function setDiff(on){ if(!hasDiff)return; diffOn=on; const b=$('btnDiff'); if(b){ b.textContent='Diff '+(on?'ON':'OFF'); b.classList.toggle('on',on); } draw(); }
+$('btnDiff').onclick=()=>setDiff(!diffOn);
+if(!hasDiff){ const b=$('btnDiff'); if(b){ b.style.opacity=0.4; b.title='No changes detected since the last analysis'; } }
 $('btnFit').onclick=fitAll;
 
 // zoom buttons (zoom around viewport centre)
@@ -820,6 +828,7 @@ window.addEventListener('keydown',e=>{
   else if(e.key==='d'){ setMode(graphMode==='domain'?'structural':'domain'); }
   else if(e.key==='i'){ $('btnFilter').click(); }
   else if(e.key==='x'){ if(sel>=0) focusOn(sel); }
+  else if(e.key==='b'){ setDiff(!diffOn); }
   else if(e.key==='?'){ $('helpModal').classList.remove('hidden'); }
   if(tIdx>=0&&e.key==='ArrowRight')$('tnext').click();
   if(tIdx>=0&&e.key==='ArrowLeft')$('tprev').click(); });

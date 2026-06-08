@@ -263,6 +263,9 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None) -> dict:
         domain_edges_vm.append({"a": dom_index[ds], "b": dom_index[dt],
                                 "label": cnt.most_common(1)[0][0], "count": sum(cnt.values())})
 
+    _changed = getattr(graph, "changed", None) or set()
+    diff_changed = [index_of[nid] for nid in _changed if nid in index_of]
+
     return {
         "project": graph.project.to_dict(),
         "stats": graph.stats(),
@@ -287,6 +290,8 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None) -> dict:
         "domainEdges": domain_edges_vm,
         "domainCardW": DW,
         "domainCardH": DH,
+        "diffChanged": diff_changed,
+        "hasDiff": bool(diff_changed),
     }
 
 

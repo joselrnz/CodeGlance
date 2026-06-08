@@ -113,6 +113,8 @@ def analyze(root: str | Path, use_llm: bool = False, model: str | None = None,
     log("[2/5] Extracting structure (files, functions, classes, imports)...")
     nodes, edges = build_structural(scan_result)
     log(f"      Built {len(nodes)} nodes and {len(edges)} edges.")
+    # Diff overlay: node ids whose file changed/was added since the last analysis (incremental only).
+    changed_ids = {n.id for n in nodes if n.filePath and changed_paths and n.filePath in changed_paths}
 
     # Reuse prior summaries for unchanged files (preserves earlier LLM enrichment for free).
     reused = 0
@@ -166,6 +168,7 @@ def analyze(root: str | Path, use_llm: bool = False, model: str | None = None,
         gitCommitHash=_git_commit(root),
     )
     graph = KnowledgeGraph(project=project, nodes=nodes, edges=edges, layers=layers, tour=tour)
+    graph.changed = changed_ids   # transient (not serialized): drives the Diff overlay in the viewer
     fp.save(root, new_fp)
     return graph
 

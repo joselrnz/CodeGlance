@@ -340,3 +340,18 @@ def test_filter_search_focus_features_present():
               "searchResults", "searchMode", "scoreNode", "fuzzySub", "Semantic",
               "focusOn", "fbtn-focus"):
         assert m in html, f"missing parity feature: {m}"
+
+
+def test_diff_overlay():
+    from scopinglang.render import build_view_model
+    g = _sample_graph()
+    g.changed = {"function:a.py:f"}          # mark one node as changed since last analysis
+    vm = build_view_model(g)
+    assert vm["hasDiff"] is True and len(vm["diffChanged"]) == 1
+    # no changes -> no diff
+    vm2 = build_view_model(_sample_graph())
+    assert vm2["hasDiff"] is False and vm2["diffChanged"] == []
+    # template carries the Diff toggle machinery
+    html = render_interactive(_sample_graph())
+    for m in ("btnDiff", "DIFFC", "diffOn", "setDiff", "DATA.diffChanged"):
+        assert m in html, f"missing diff feature: {m}"
