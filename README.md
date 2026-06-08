@@ -53,7 +53,7 @@ scopinglang render knowledge-graph.json --static -o graph.svg.html
   opens on an **overview of layer cards** (name, description, complexity, file count) and you
   **click a layer to drill into its files**, with a breadcrumb back to the overview. The header
   mirrors the original: **persona tabs**, a **Files/+Classes/`fn`** detail toggle, **category
-  filter buttons** (Code/Config/Docs/Infra/Data/Domain/Knowledge), a **Domain / Structural** view
+  filter buttons** (Code/Config/Docs/Infra/Data/Domain/Knowledge), a **Structural / Domain / Knowledge** view
   toggle, and **inline layer chips**;
   the sidebar has **Info / Files tabs** — a collapsible file explorer with **VS Code-style
   file-type icons** ([vscode-icons](https://github.com/vscode-icons/vscode-icons), MIT, inlined)
@@ -71,6 +71,13 @@ package / service directory becomes a **domain card** (its classes/types listed 
 and the imports/calls between domains become **animated flow edges**. It's inferred deterministically
 from the project structure — no LLM required — so a microservices repo shows each service and how
 they depend on one another. Try `scopinglang examples/microservices` then click **Domain**.
+
+### Knowledge view
+
+Toggle **Knowledge** (or press `k`) for a **knowledge graph** of your docs: each markdown file
+becomes an **article** card (its headings listed as **topics**), and `[[wikilinks]]` / `[](other.md)`
+links between docs become **related / cites** edges — the Obsidian / Karpathy-wiki pattern,
+extracted deterministically (no LLM). Try `scopinglang examples/wiki` then click **Knowledge**.
 
 ## Knowledge graph schema
 
