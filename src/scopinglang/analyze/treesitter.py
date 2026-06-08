@@ -74,6 +74,7 @@ _SPECS: dict[str, dict[str, set[str]]] = {
         _F: {"function_definition", "method_declaration"},
         _C: {"class_declaration", "interface_declaration", "trait_declaration", "enum_declaration"},
         _M: {"method_declaration"},
+        _V: {"const_declaration"},
     },
     "csharp": {
         _F: {"method_declaration", "constructor_declaration", "local_function_statement"},
@@ -95,11 +96,13 @@ _SPECS: dict[str, dict[str, set[str]]] = {
         _F: {"function_declaration"},
         _C: {"class_declaration", "object_declaration", "interface_declaration"},
         _M: {"function_declaration"},
+        _V: {"property_declaration"},
     },
     "swift": {
         _F: {"function_declaration"},
         _C: {"class_declaration", "protocol_declaration", "struct_declaration"},
         _M: {"function_declaration"},
+        _V: {"property_declaration"},
     },
     "lua": {
         _F: {"function_declaration", "function_definition"},
@@ -110,6 +113,7 @@ _SPECS: dict[str, dict[str, set[str]]] = {
         _F: {"function_definition"},
         _C: {"class_definition", "object_definition", "trait_definition"},
         _M: {"function_definition"},
+        _V: {"val_definition", "var_definition"},
     },
 }
 
@@ -142,6 +146,19 @@ _GEN_CLASS_SUFFIX = (
     "contract_declaration", "library_declaration", "namespace_declaration", "namespace_definition",
     "abstract_definition", "primitive_definition", "data_type", "newtype", "package_body",
 )
+# Standalone variable/constant declaration kinds (generic classifier — VHDL signals, Fortran/Ada
+# variables, etc.). Interface/port/param declarations are excluded via _GEN_DENY_KINDS.
+_GEN_VAR_SUFFIX = (
+    "variable_declaration", "constant_declaration", "const_declaration", "var_declaration",
+    "let_declaration", "global_variable_declaration", "signal_declaration", "global_declaration",
+    "val_definition", "var_definition", "constant_definition", "variable_definition",
+)
+# Class/struct member declarations (captured as fields of their enclosing type, across tuned langs).
+_FIELD_KINDS = {
+    "field_declaration", "property_declaration", "property_signature", "public_field_definition",
+    "field_definition", "constant_declaration", "const_declaration", "val_definition",
+    "var_definition", "property_definition",
+}
 
 
 # Primitive/keyword names that the generic classifier sometimes grabs from type positions.
@@ -178,6 +195,8 @@ def _generic_classify(kind: str) -> str | None:
         return None
     if kind.endswith(_GEN_FUNC_SUFFIX):
         return "func"
+    if kind.endswith(_GEN_VAR_SUFFIX):
+        return "var"
     if kind == "module" or kind == "program" or kind == "submodule":  # Fortran-style containers
         return "cls"
     if kind.endswith(_GEN_CLASS_SUFFIX):
@@ -347,33 +366,89 @@ def _iter_with_comments(node):
 
 
 _VAR_SPEC_KINDS = {"var_spec", "const_spec", "variable_declarator", "short_var_declaration"}
+# Identifier node kinds that actually name a declared variable (not types or literals).
+_STRICT_NAME_KINDS = {
+    "identifier", "simple_identifier", "field_identifier", "property_identifier",
+    "variable_name", "name", "word", "global_variable", "instance_variable",
+}
+# Declaration keywords that must never be mistaken for a variable's name.
+_DECL_KW = {
+    "const", "var", "val", "let", "auto", "type", "constant", "signal", "variable", "field",
+    "property", "static", "global", "local", "public", "private", "protected", "final",
+    "readonly", "dim", "mut", "pub",
+}
+
+
+def _looks_const(node, sb: bytes) -> bool:
+    """True if the declaration text reads like an immutable constant."""
+    head = _text(node, sb)[:48].lower()
+    return any(w in head for w in (" const", "const ", "constant", "final ", "readonly", "#define"))
+
+
+def _var_name1(node, sb: bytes) -> str:
+    """Best-effort single declared name for a declarator/spec node (skips keywords & types)."""
+    nn = node.child_by_field_name("name")
+    if nn is not None:
+        t = _text(nn, sb).strip()
+        if t and t.lower() not in _DECL_KW:
+            return t
+    for ch in _children(node):
+        if _kind(ch) in _STRICT_NAME_KINDS:
+            t = _text(ch, sb).strip()
+            if t and t.lower() not in _DECL_KW:
+                return t
+    return ""
+
+
+# Subtrees that hold values/types/bodies, not declared names — never descend into these.
+_VAL_PRUNE = ("expression", "initializer", "literal", "call", "argument", "block", "body")
+
+
+def _collect_var_names(node, sb, depth=0):
+    """DFS for declared names, pruning value/type subtrees so initializers aren't mistaken for names."""
+    out = []
+    for ch in _children(node):
+        k = _kind(ch)
+        if k in ("var_spec", "const_spec"):            # Go/VHDL: names come before the type/value
+            for g in _children(ch):
+                gk = _kind(g)
+                if gk in ("=", ":", ":=", "assignment_expression") or "type" in gk:
+                    break
+                if gk in _STRICT_NAME_KINDS:
+                    t = _text(g, sb).strip()
+                    if t and t.lower() not in _DECL_KW:
+                        out.append(t)
+        elif "declarator" in k or k.endswith("_element"):   # JS/Java/PHP declarators carry one name
+            nm = _var_name1(ch, sb)
+            if nm:
+                out.append(nm)
+        elif k == "identifier_list":                   # VHDL/Ada `signal a, b : t`
+            for g in _children(ch):
+                if _kind(g) in _STRICT_NAME_KINDS:
+                    out.append(_text(g, sb))
+        elif k in _STRICT_NAME_KINDS:
+            t = _text(ch, sb).strip()
+            if t and t.lower() not in _DECL_KW:
+                out.append(t)
+        elif depth < 4 and not any(p in k for p in _VAL_PRUNE):
+            out.extend(_collect_var_names(ch, sb, depth + 1))
+    return out
 
 
 def _var_names(node, sb, base_kind: str):
-    """Collect (name, kind) pairs from a variable/const declaration (handles multi-declarator)."""
-    found: list[str] = []
-
-    def walk(n, depth):
-        for ch in _children(n):
-            k = _kind(ch)
-            if k in _VAR_SPEC_KINDS:
-                nm = _name_of(ch, sb)
-                if nm:
-                    found.append(nm)
-            elif depth < 3:
-                walk(ch, depth + 1)
-
-    walk(node, 0)
-    if not found:  # Rust const_item / static_item carry the name directly on the node
-        nm = _name_of(node, sb)
+    """Collect (name, kind) for a variable/const declaration (handles multi-name & block langs)."""
+    found = _collect_var_names(node, sb)
+    if not found:
+        nm = _var_name1(node, sb)
         if nm:
-            found.append(nm)
+            found = [nm]
+    is_const = base_kind == "constant" or _looks_const(node, sb)
     out, seen = [], set()
     for nm in found:
-        if nm in seen or not _ok_generic_name(nm):
+        if nm in seen or nm.lower() in _DECL_KW or not _ok_generic_name(nm):
             continue
         seen.add(nm)
-        kind = "constant" if (base_kind == "constant" or (nm.isupper() and len(nm) > 1)) else "variable"
+        kind = "constant" if (is_const or (nm.isupper() and len(nm) > 1)) else "variable"
         out.append((nm, kind))
     return out
 
@@ -433,8 +508,14 @@ def extract_symbols(language: str, path: str, text: str):
                 body = _body_of(node)
                 if body is not None:
                     for ch, c in _iter_with_comments(body):
-                        if _kind(ch) in callable_types and _name_of(ch, sb):
+                        ck = _kind(ch)
+                        if ck in callable_types and _name_of(ch, sb):
                             sym["methods"].append(_symbol(ch, "function", sb, lead_text(c)))
+                        elif ck in _FIELD_KINDS:
+                            base = "constant" if "const" in ck else "variable"
+                            for nm, kk in _var_names(ch, sb, base):
+                                fs = _symbol(ch, kk, sb, lead_text(c)); fs["name"] = nm
+                                sym.setdefault("fields", []).append(fs)
                 symbols.append(sym)
             return  # don't descend (methods already captured; avoids double-counting)
         if k in func_types and not inside_class:
@@ -557,7 +638,17 @@ def _extract_generic(root, sb: bytes):
     def visit(node, lead=None):
         cls = _generic_classify(_kind(node))
         emitted = False
-        if cls:
+        if cls == "var":
+            base = "constant" if "const" in _kind(node) else "variable"
+            for nm, kk in _var_names(node, sb, base):
+                if (kk, nm) in seen:
+                    continue
+                seen.add((kk, nm))
+                s = _symbol(node, kk, sb, _text(lead, sb) if lead is not None else "")
+                s["name"] = nm
+                symbols.append(s)
+                emitted = True
+        elif cls:
             name = _name_of(node, sb)
             if _ok_generic_name(name) and (cls, name) not in seen:
                 seen.add((cls, name))

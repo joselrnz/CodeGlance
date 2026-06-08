@@ -86,8 +86,11 @@ wheel; no Node, no build):
 - **~50 more** via bundled tree-sitter grammars:
   - *Tuned* (precise method/impl handling): JavaScript, TypeScript/TSX, Go, Rust, Java, Ruby,
     PHP, C#, C, C++, Kotlin, Swift, Scala, Lua. Top-level **`var` / `const` / `let` / `static`
-    declarations** are captured as variable/constant nodes for Python, Go, JS/TS and Rust
-    (function-local variables are intentionally skipped to keep the graph readable).
+    declarations** plus **class fields & properties** are captured as variable/constant nodes
+    across these languages (function-local variables are intentionally skipped to keep the graph
+    readable). The *generic* classifier also picks up variable/constant/**signal** declarations in
+    the other ~30 languages (e.g. VHDL signals, Fortran/Ada variables) where the grammar exposes
+    them — so variables work across essentially all languages, not just a few.
   - *Terraform/HCL* — resource / module / variable / output blocks, **plus `depends_on` edges**
     between blocks that reference each other (resource → security group → module → variable).
   - *Generic node-kind classifier* (works across any grammar): VHDL, Verilog, COBOL, Fortran,

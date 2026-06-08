@@ -267,3 +267,24 @@ def test_treesitter_top_level_vars_and_consts():
 def test_variable_constant_type_colors_present():
     from scopinglang.render import TYPE_COLORS
     assert "variable" in TYPE_COLORS and "constant" in TYPE_COLORS
+
+
+def test_variables_across_more_languages():
+    if not ts.is_available():
+        return
+
+    def kinds(lang, path, code):
+        out = {}
+        for s in ts.extract_symbols(lang, path, code) or []:
+            if s["kind"] in ("variable", "constant"):
+                out[s["name"]] = s["kind"]
+            for f in s.get("fields", []):
+                out[s["name"] + "." + f["name"]] = f["kind"]
+        return out
+
+    java = kinds("java", "A.java", "class A { int count; static final int MAX = 5; }")
+    assert java.get("A.count") == "variable" and java.get("A.MAX") == "constant"
+    php = kinds("php", "c.php", "<?php const K=1; class C { public $a; const X=2; }")
+    assert php.get("K") == "constant" and php.get("C.X") == "constant"
+    cs = kinds("csharp", "C.cs", "class C { int n; const int K=1; }")
+    assert cs.get("C.n") == "variable" and cs.get("C.K") == "constant"
