@@ -373,7 +373,7 @@ const THEMES={
 };
 const FONTS={Serif:'Georgia,"Times New Roman",serif',Sans:'ui-sans-serif,system-ui,sans-serif',Mono:'ui-monospace,SFMono-Regular,Menlo,monospace'};
 const ACCENTS=['#d4a574','#5ba4cf','#5fb389','#cf7a8a','#a78bfa','#e0a96a','#2dd4bf','#9aa3ad'];
-let THEME_STATE={name:'gold',accent:'',font:''};   // matches the original dashboard's signature accent
+let THEME_STATE={name:(DATA.defaultTheme||'gold'),accent:'',font:''};   // default theme comes from VizConfig.default_theme
 function applyTheme(){ const th=THEMES[THEME_STATE.name]||THEMES.gold, r=document.documentElement.style;
   r.setProperty('--bg',th.bg); r.setProperty('--surface',th.elevated); r.setProperty('--elevated',th.elevated);
   r.setProperty('--card',th.card); r.setProperty('--code-bg',th.codeBg); r.setProperty('--text',th.text);

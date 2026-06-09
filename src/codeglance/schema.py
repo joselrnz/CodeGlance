@@ -37,6 +37,7 @@ COMPLEXITY_VALUES = values(Complexity)
 
 
 def edge_weight(edge_type: str) -> float:
+    """Default layout weight for an edge type (from the reference table); ``0.5`` if unknown."""
     return EDGE_WEIGHTS.get(edge_type, DEFAULT_EDGE_WEIGHT)
 
 
@@ -278,6 +279,10 @@ class KnowledgeGraph:
             ids.add(n.id)
             if not n.summary:
                 warnings.append(f"Node '{n.id}' missing summary")
+            if n.type not in NODE_TYPES:
+                warnings.append(f"Node '{n.id}' has unknown type '{n.type}'")
+            if n.complexity not in COMPLEXITY_VALUES:
+                warnings.append(f"Node '{n.id}' has unknown complexity '{n.complexity}'")
         with_edges: set[str] = set()
         for i, e in enumerate(self.edges):
             if e.source not in ids:
@@ -317,6 +322,7 @@ class KnowledgeGraph:
 
 
 def _kebab(s: str) -> str:
+    """Convert a string to a kebab-case slug (alphanumerics joined by single hyphens)."""
     out = []
     for ch in s.strip().lower():
         if ch.isalnum():

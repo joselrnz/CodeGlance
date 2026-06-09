@@ -468,3 +468,17 @@ def test_context_map_is_dependency_first():
     assert "## Dependency map" in md and "## Files" in md
     assert "->" in md                               # file -> file dependencies present
     assert "<html" not in md and "<script" not in md  # plain Markdown, not a web page
+
+
+def test_default_theme_from_config_and_validate_flags_bad_values():
+    from codeglance.render import render_interactive
+    from codeglance.config import VizConfig
+    g = _sample_graph()
+    assert '"defaultTheme": "gold"' in render_interactive(g)                                  # default
+    assert '"defaultTheme": "ocean"' in render_interactive(g, config=VizConfig(default_theme="ocean"))
+    bad = KnowledgeGraph(project=Project(name="x"),
+                         nodes=[Node(id="n", type="weird", name="n", summary="s", complexity="huge")])
+    issues, warnings = bad.validate()
+    assert issues == []                                                                        # not hard errors
+    assert any("unknown type" in w for w in warnings)
+    assert any("unknown complexity" in w for w in warnings)

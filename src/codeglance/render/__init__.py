@@ -379,6 +379,7 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None, config: Vi
         "hasDiff": bool(diff_changed),
         "knowledge": knowledge,
         "install": _detect_install(root),
+        "defaultTheme": getattr(config.default_theme, "value", config.default_theme),
     }
 
 
