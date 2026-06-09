@@ -1,8 +1,9 @@
 """Wiki / docs renderer — a readable, low-jargon single-page "generated wiki" for a codebase.
 
-Where the interactive renderer draws a graph, this renders a **document**: project overview,
-getting-started (auto-detected install steps), architecture in prose, a per-file reference, and a
-suggested reading order. It reuses ``build_view_model`` data and is fully self-contained + offline.
+Where the interactive renderer draws a graph, this renders a **document**, leading with how to set
+the project up (getting started), then the overview, then the deeper detail (architecture, domains,
+per-file reference, reading order). It reuses ``build_view_model`` data, ships 5 switchable themes
+(default Dark Ocean), and is fully self-contained + offline.
 """
 
 from __future__ import annotations
@@ -16,18 +17,39 @@ def _esc(value: object) -> str:
     return _html.escape("" if value is None else str(value))
 
 
-def _slug(text: str) -> str:
-    """A lowercase, hyphenated anchor id from arbitrary text."""
-    out = [c if c.isalnum() else "-" for c in str(text).lower()]
-    return "".join(out).strip("-") or "x"
-
-
 def _pills(items, cls: str = "pill") -> str:
     return "".join(f'<span class="{cls}">{_esc(i)}</span>' for i in items)
 
 
+# Theme palettes (mirror the interactive renderer's THEMES). Dark Ocean is the wiki default.
+_THEMES = {
+    "ocean":  ("#0a0e14", "#1a222c", "91,164,207",  "#e8edf2", "#87939f", "#536b7a", "#5ba4cf", "#0b0f15"),
+    "gold":   ("#0a0a0a", "#1a1a1a", "212,165,116", "#f5f0eb", "#a39787", "#6b5f53", "#d4a574", "#0f0d0b"),
+    "forest": ("#0a0f0c", "#16201a", "95,179,137",  "#e9f0ea", "#8aa394", "#5a7563", "#5fb389", "#0a0f0b"),
+    "rose":   ("#120a0e", "#211820", "207,122,138", "#f2e8ed", "#a3879a", "#7a536b", "#cf7a8a", "#140a10"),
+    "light":  ("#f4f4f6", "#ffffff", "78,147,186",  "#1a1f29", "#5a6675", "#97a2b0", "#4e93ba", "#f1f2f5"),
+}
+_THEME_LABELS = {"ocean": "Dark Ocean", "gold": "Dark Gold", "forest": "Dark Forest",
+                 "rose": "Dark Rose", "light": "Light"}
+_DEFAULT_THEME = "ocean"
+
+
+def _theme_css() -> str:
+    """CSS variable blocks for every theme (`:root` = the default; `[data-theme=X]` overrides)."""
+
+    def block(sel: str, t: tuple) -> str:
+        bg, panel, acc_rgb, tx, tx2, muted, acc, code = t
+        return (f"{sel}{{--bg:{bg};--panel:{panel};--acc-rgb:{acc_rgb};--tx:{tx};--tx2:{tx2};"
+                f"--muted:{muted};--acc:{acc};--code:{code};--bd:rgba({acc_rgb},0.20);}}")
+
+    out = [block(":root", _THEMES[_DEFAULT_THEME])]
+    for key, t in _THEMES.items():
+        out.append(block(f':root[data-theme="{key}"]', t))
+    return "\n  ".join(out)
+
+
 def render_wiki_html(vm: dict) -> str:
-    """Render a view model into a self-contained docs/wiki HTML page (no JS required to read it)."""
+    """Render a view model into a self-contained docs/wiki HTML page (readable with zero JS)."""
     project = vm.get("project", {})
     stats = vm.get("stats", {})
     name = project.get("name", "project")
@@ -42,28 +64,27 @@ def render_wiki_html(vm: dict) -> str:
 
     file_level = {"file", "config", "document", "service", "pipeline", "table", "schema", "resource", "endpoint"}
 
-    # ---- sidebar nav (only sections that have content) ----
-    nav = [("overview", "Overview"), ("getting-started", "Getting started")]
-    if layers:
-        nav.append(("architecture", "Architecture"))
-    if domains:
-        nav.append(("domains", "Domains"))
-    nav.append(("reference", "Reference"))
-    if tour:
-        nav.append(("reading-order", "Reading order"))
-    nav_html = "".join(f'<a href="#{anchor}">{_esc(label)}</a>' for anchor, label in nav)
-
     parts: list[str] = []
 
-    # ---- Overview ----
-    parts.append('<section id="overview"><h2>Overview</h2>')
-    if description:
-        parts.append(f'<p class="lead">{_esc(description)}</p>')
-    parts.append('<div class="stats">')
-    for value, key in (
-        (stats.get("nodes", 0), "components"), (stats.get("edges", 0), "relationships"),
-        (stats.get("layers", 0), "layers"), (len(domains), "domains"),
-    ):
+    # ---- 1. Getting started (setup first) ----
+    parts.append('<section id="getting-started"><h2>Getting started</h2>')
+    parts.append("<p>How to set this project up and run it locally.</p>")
+    if install:
+        for step in install:
+            if step.get("label"):
+                parts.append(f'<p>{_esc(step["label"])}</p>')
+            if step.get("command"):
+                parts.append(f'<pre><code>{_esc(step["command"])}</code></pre>')
+    else:
+        parts.append('<p class="muted">No manifest files were detected — clone the repository and '
+                     "follow its README to install.</p>")
+    parts.append('<p class="muted small">Tip: open the interactive graph with '
+                 "<code>codeglance .</code> to explore visually.</p></section>")
+
+    # ---- 2. Overview ----
+    parts.append('<section id="overview"><h2>Overview</h2><div class="stats">')
+    for value, key in ((stats.get("nodes", 0), "components"), (stats.get("edges", 0), "relationships"),
+                       (stats.get("layers", 0), "layers"), (len(domains), "domains")):
         parts.append(f'<div class="stat"><div class="v">{_esc(value)}</div><div class="k">{_esc(key)}</div></div>')
     parts.append("</div>")
     if languages:
@@ -72,28 +93,13 @@ def render_wiki_html(vm: dict) -> str:
         parts.append(f'<h4>Frameworks</h4><div class="pills">{_pills(frameworks)}</div>')
     parts.append("</section>")
 
-    # ---- Getting started ----
-    parts.append('<section id="getting-started"><h2>Getting started</h2>')
-    if install:
-        for step in install:
-            label, cmd = step.get("label", ""), step.get("command", "")
-            if label:
-                parts.append(f"<p>{_esc(label)}</p>")
-            if cmd:
-                parts.append(f"<pre><code>{_esc(cmd)}</code></pre>")
-    else:
-        parts.append('<p class="muted">No manifest files were detected, so there are no automatic '
-                     "install steps. Clone the repository and follow its README.</p>")
-    parts.append("</section>")
-
-    # ---- Architecture (layers in prose) ----
+    # ---- 3. Architecture (layers in prose) ----
     if layers:
         parts.append('<section id="architecture"><h2>Architecture</h2>'
-                     "<p>The codebase is organised into the following layers:</p>")
+                     "<p>The codebase is organised into these layers:</p>")
         for layer in layers:
-            color = layer.get("color", "#888")
             parts.append(
-                f'<div class="layer"><span class="dot" style="background:{_esc(color)}"></span>'
+                f'<div class="layer"><span class="dot" style="background:{_esc(layer.get("color", "#888"))}"></span>'
                 f'<div><strong>{_esc(layer.get("name", "Layer"))}</strong> '
                 f'<span class="muted">· {_esc(layer.get("count", 0))} files</span>'
                 + (f'<div class="desc">{_esc(layer.get("description"))}</div>' if layer.get("description") else "")
@@ -101,7 +107,7 @@ def render_wiki_html(vm: dict) -> str:
             )
         parts.append("</section>")
 
-    # ---- Domains ----
+    # ---- 4. Domains ----
     if domains:
         parts.append('<section id="domains"><h2>Domains</h2>'
                      "<p>Business areas inferred from the project structure:</p>")
@@ -109,14 +115,13 @@ def render_wiki_html(vm: dict) -> str:
             parts.append(f'<div class="card"><h4>{_esc(d.get("name"))}</h4>')
             if d.get("description"):
                 parts.append(f'<p>{_esc(d.get("description"))}</p>')
-            ents = d.get("entities", []) or []
-            if ents:
-                parts.append(f'<div class="pills">{_pills(ents, "pill chip")}</div>')
+            if d.get("entities"):
+                parts.append(f'<div class="pills">{_pills(d["entities"], "pill chip")}</div>')
             parts.append(f'<div class="muted small">{_esc(d.get("nFiles", 0))} files · '
                          f'{_esc(d.get("flowCount", 0))} flows</div></div>')
         parts.append("</section>")
 
-    # ---- Reference (file-level nodes grouped by directory) ----
+    # ---- 5. Reference (file-level nodes grouped by directory) ----
     by_dir: dict[str, list] = defaultdict(list)
     for n in nodes:
         if n.get("type") in file_level and n.get("path"):
@@ -138,7 +143,7 @@ def render_wiki_html(vm: dict) -> str:
         parts.append('<p class="muted">No file-level components were extracted.</p>')
     parts.append("</section>")
 
-    # ---- Reading order (the tour) ----
+    # ---- 6. Reading order (the tour) ----
     if tour:
         parts.append('<section id="reading-order"><h2>Reading order</h2>'
                      "<p>A suggested path for understanding this project:</p><ol class=\"steps\">")
@@ -149,38 +154,56 @@ def render_wiki_html(vm: dict) -> str:
         parts.append("</ol></section>")
 
     body = "\n".join(parts)
+
+    # nav mirrors the section order
+    nav_items = [("getting-started", "Getting started"), ("overview", "Overview")]
+    if layers:
+        nav_items.append(("architecture", "Architecture"))
+    if domains:
+        nav_items.append(("domains", "Domains"))
+    nav_items.append(("reference", "Reference"))
+    if tour:
+        nav_items.append(("reading-order", "Reading order"))
+    nav_html = "".join(f'<a href="#{a}">{_esc(l)}</a>' for a, l in nav_items)
+    theme_opts = "".join(
+        f'<option value="{k}"{" selected" if k == _DEFAULT_THEME else ""}>{_esc(_THEME_LABELS[k])}</option>'
+        for k in _THEMES
+    )
     subtitle = (f'{stats.get("nodes", 0)} components · {stats.get("edges", 0)} relationships · '
                 f'{stats.get("layers", 0)} layers')
 
     return f"""<!doctype html>
-<html lang="en"><head><meta charset="utf-8"/>
+<html lang="en" data-theme="{_DEFAULT_THEME}"><head><meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>{_esc(name)} · Documentation</title>
 <style>
-  :root {{ color-scheme: dark; --bg:#0a0a0a; --panel:#141414; --bd:rgba(212,165,116,0.18);
-    --tx:#e9e3da; --tx2:#a39787; --muted:#6b5f53; --acc:#d4a574; --code:#0f0d0b; }}
+  {_theme_css()}
   * {{ box-sizing:border-box; }}
   body {{ margin:0; background:var(--bg); color:var(--tx); line-height:1.6;
     font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }}
   a {{ color:var(--acc); text-decoration:none; }} a:hover {{ text-decoration:underline; }}
   .wrap {{ display:flex; max-width:1100px; margin:0 auto; gap:36px; padding:0 24px; }}
-  aside {{ width:210px; flex:none; position:sticky; top:0; align-self:flex-start; height:100vh;
+  aside {{ width:215px; flex:none; position:sticky; top:0; align-self:flex-start; height:100vh;
     padding:28px 0; overflow:auto; }}
   aside .brand {{ font-family:Georgia,serif; font-size:20px; color:var(--tx); margin-bottom:4px; }}
-  aside .tag {{ color:var(--muted); font-size:12px; margin-bottom:20px; }}
-  aside nav {{ display:flex; flex-direction:column; gap:2px; }}
+  aside .sub {{ color:var(--muted); font-size:12px; margin-bottom:18px; }}
+  aside nav {{ display:flex; flex-direction:column; gap:2px; margin-bottom:18px; }}
   aside nav a {{ color:var(--tx2); padding:6px 10px; border-radius:7px; font-size:14px; }}
   aside nav a:hover {{ background:var(--panel); color:var(--tx); text-decoration:none; }}
+  .themepick {{ font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin:0 0 5px 10px; }}
+  #cg-theme {{ width:calc(100% - 20px); margin:0 10px; background:var(--panel); color:var(--tx);
+    border:1px solid var(--bd); border-radius:7px; padding:6px 8px; font:inherit; font-size:13px; }}
   main {{ flex:1; min-width:0; padding:36px 0 80px; }}
   h1 {{ font-family:Georgia,serif; font-weight:400; font-size:30px; margin:0 0 6px; }}
+  .lead {{ font-size:17px; color:var(--tx); margin:6px 0 8px; }}
   h2 {{ font-family:Georgia,serif; font-weight:400; font-size:22px; margin:36px 0 12px;
     padding-bottom:8px; border-bottom:1px solid var(--bd); scroll-margin-top:20px; }}
-  h3 {{ font-size:15px; margin:22px 0 8px; }} h4 {{ font-size:13px; color:var(--tx2); margin:18px 0 8px;
-    text-transform:uppercase; letter-spacing:.05em; }}
-  p {{ margin:8px 0; }} .lead {{ font-size:17px; color:var(--tx); }}
-  .muted {{ color:var(--muted); }} .small {{ font-size:12px; }}
-  pre {{ background:var(--code); border:1px solid var(--bd); border-radius:8px; padding:12px 14px;
-    overflow:auto; }} code {{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px; color:#e0c79a; }}
+  h3 {{ font-size:15px; margin:22px 0 8px; }}
+  h4 {{ font-size:13px; color:var(--tx2); margin:18px 0 8px; text-transform:uppercase; letter-spacing:.05em; }}
+  p {{ margin:8px 0; }} .muted {{ color:var(--muted); }} .small {{ font-size:12px; }}
+  pre {{ background:var(--code); border:1px solid var(--bd); border-radius:8px; padding:12px 14px; overflow:auto; }}
+  code {{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px; color:var(--acc); }}
+  p code {{ background:var(--panel); border:1px solid var(--bd); border-radius:4px; padding:1px 5px; }}
   .stats {{ display:flex; flex-wrap:wrap; gap:12px; margin:14px 0; }}
   .stat {{ background:var(--panel); border:1px solid var(--bd); border-radius:10px; padding:12px 18px; min-width:110px; }}
   .stat .v {{ font-size:26px; font-weight:700; }} .stat .k {{ color:var(--tx2); font-size:12px; }}
@@ -198,7 +221,7 @@ def render_wiki_html(vm: dict) -> str:
   .tag {{ font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--tx2);
     border:1px solid var(--bd); border-radius:4px; padding:1px 6px; }}
   .cx {{ font-size:11px; font-family:ui-monospace,monospace; }}
-  .cx-simple {{ color:#5a9e6f; }} .cx-moderate {{ color:#d4a574; }} .cx-complex {{ color:#cf7a8a; }}
+  .cx-simple {{ color:#5a9e6f; }} .cx-moderate {{ color:var(--acc); }} .cx-complex {{ color:#cf7a8a; }}
   .steps {{ padding-left:22px; }} .steps li {{ margin:10px 0; }}
   @media (max-width:760px) {{ .wrap {{ flex-direction:column; gap:0; }} aside {{ position:static; height:auto; width:auto; }} aside nav {{ flex-flow:row wrap; }} }}
 </style></head>
@@ -206,15 +229,24 @@ def render_wiki_html(vm: dict) -> str:
 <div class="wrap">
   <aside>
     <div class="brand">{_esc(name)}</div>
-    <div class="tag">{_esc(subtitle)}</div>
+    <div class="sub">{_esc(subtitle)}</div>
     <nav>{nav_html}</nav>
+    <div class="themepick">Theme</div>
+    <select id="cg-theme" aria-label="Theme">{theme_opts}</select>
   </aside>
   <main>
     <h1>{_esc(name)}</h1>
+    {f'<p class="lead">{_esc(description)}</p>' if description else ''}
 {body}
     <p class="muted small" style="margin-top:60px;border-top:1px solid var(--bd);padding-top:16px">
       Generated by codeglance · wiki mode · self-contained, offline.</p>
   </main>
 </div>
+<script>
+(function(){{var s=document.getElementById('cg-theme'),r=document.documentElement;
+ try{{var t=localStorage.getItem('cg-wiki-theme'); if(t){{r.setAttribute('data-theme',t); s.value=t;}}}}catch(e){{}}
+ s.addEventListener('change',function(){{r.setAttribute('data-theme',s.value);
+   try{{localStorage.setItem('cg-wiki-theme',s.value);}}catch(e){{}}}});}})();
+</script>
 </body></html>
 """

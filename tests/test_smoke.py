@@ -449,7 +449,10 @@ def test_wiki_docs_mode_is_self_contained():
     from codeglance.render import render_wiki, _detect_install
     g = analyze(FIXTURES, use_llm=False)
     html = render_wiki(g)
-    assert "<html" in html and "<script" not in html          # readable doc, zero JS
+    assert "<html" in html
+    assert 'src="http' not in html and 'href="http' not in html      # self-contained / offline
+    assert 'id="cg-theme"' in html and 'data-theme="ocean"' in html  # theme switcher, ocean default
+    assert html.index("Getting started") < html.index('id="overview"')  # setup leads
     for section in ("Overview", "Getting started", "Reference"):
         assert section in html, f"missing wiki section: {section}"
     repo_root = Path(__file__).resolve().parent.parent
