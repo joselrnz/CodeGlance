@@ -231,7 +231,7 @@ def test_domain_view_built_with_cross_domain_flows():
 def test_default_theme_is_gold_and_flow_animation_present():
     html = render_interactive(_sample_graph())
     # Dark Gold is the default — matches the original dashboard's signature accent (first paint + JS state)
-    assert "--accent:#d4a574" in html and "name:'gold'" in html
+    assert "--accent:#d4a574" in html and '"defaultTheme": "gold"' in html  # default theme via view model
     assert "212,165,116" in html  # gold accent rgb on :root
     # marching-ants edge-flow animation + Domain/Structural mode toggle are wired in
     for marker in ("drawCards", "setMode", "modeSeg", "btnAnim", "setAnim",
