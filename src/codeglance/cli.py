@@ -23,7 +23,7 @@ GRAPH_DIR = ".codeglance"
 GRAPH_FILE = "knowledge-graph.json"
 
 # Recognized subcommands; used to make `analyze` the implicit default command.
-_SUBCOMMANDS = {"analyze", "render", "dashboard"}
+_SUBCOMMANDS = {"analyze", "render", "dashboard", "wiki"}
 
 
 def _emit(msg: str) -> None:
@@ -133,8 +133,31 @@ def cmd_dashboard(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_wiki(args: argparse.Namespace) -> int:
+    """Handle the `wiki` subcommand: generate a readable docs/wiki HTML page. Returns an exit code."""
+    from .render import render_wiki
+
+    root = Path(args.path).resolve()
+    if not root.is_dir():
+        _emit(f"Error: not a directory: {root}")
+        return 1
+    graph_path = root / GRAPH_DIR / GRAPH_FILE
+    if graph_path.is_file() and not args.full:
+        graph = KnowledgeGraph.load(graph_path)
+    else:
+        graph = analyze(root, use_llm=args.llm, model=args.model, progress=_emit, full=args.full)
+        graph.save(graph_path)
+        _write_meta(root, graph)
+    out = Path(args.output) if args.output else root / GRAPH_DIR / "wiki.html"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(render_wiki(graph, root), encoding="utf-8")
+    _emit(f"✓ {graph.project.name} wiki → {out}")
+    _open(out, args.no_open)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
-    """Construct the argparse parser with the analyze/render/dashboard subcommands and flags."""
+    """Construct the argparse parser with the analyze/render/dashboard/wiki subcommands and flags."""
     p = argparse.ArgumentParser(
         prog="codeglance",
         description="Turn a codebase into an interactive knowledge-graph HTML file (pure Python).",
@@ -166,6 +189,15 @@ def build_parser() -> argparse.ArgumentParser:
     d.add_argument("-o", "--output", default=None, help="HTML output path")
     d.add_argument("--no-open", action="store_true", help="do not open the browser")
     d.set_defaults(func=cmd_dashboard)
+
+    w = sub.add_parser("wiki", help="generate a readable docs/wiki HTML page (non-graphical)")
+    w.add_argument("path", nargs="?", default=".", help="project directory (default: .)")
+    w.add_argument("--llm", action="store_true", help="enrich summaries via an LLM (needs ANTHROPIC_API_KEY)")
+    w.add_argument("--model", default=None, help="LLM model id")
+    w.add_argument("-o", "--output", default=None, help="HTML output path")
+    w.add_argument("--no-open", action="store_true", help="do not open the browser")
+    w.add_argument("--full", action="store_true", help="re-analyze even if a graph already exists")
+    w.set_defaults(func=cmd_wiki)
 
     return p
 

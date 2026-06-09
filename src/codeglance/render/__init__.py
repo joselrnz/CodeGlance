@@ -63,6 +63,30 @@ def _read_sources(graph: KnowledgeGraph, root: Path | None, config: VizConfig = 
     return sources
 
 
+def _detect_install(root: Path | None) -> list[dict]:
+    """Best-effort getting-started steps inferred from common manifest files at the project root."""
+    if root is None:
+        return []
+    checks = [
+        ("pyproject.toml", "Install (Python / pip):", "pip install ."),
+        ("requirements.txt", "Install dependencies:", "pip install -r requirements.txt"),
+        ("pnpm-lock.yaml", "Install (pnpm):", "pnpm install"),
+        ("package.json", "Install (Node):", "npm install"),
+        ("go.mod", "Build (Go):", "go build ./..."),
+        ("Cargo.toml", "Build (Rust):", "cargo build"),
+        ("Gemfile", "Install (Ruby):", "bundle install"),
+        ("Dockerfile", "Build the container image:", "docker build -t app ."),
+        ("Makefile", "Common tasks:", "make"),
+    ]
+    steps: list[dict] = []
+    for fname, label, command in checks:
+        if fname == "package.json" and (root / "pnpm-lock.yaml").is_file():
+            continue  # prefer pnpm when its lockfile is present
+        if (root / fname).is_file():
+            steps.append({"label": label, "command": command})
+    return steps
+
+
 def _build_knowledge(graph: KnowledgeGraph, sources: dict, index_of: dict, config: VizConfig = DEFAULT_CONFIG) -> dict | None:
     """Knowledge graph from markdown docs: articles (files) + topics (headings), linked by
     [[wikilinks]] (related) and [](links.md) (cites). Deterministic and fully offline."""
@@ -354,6 +378,7 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None, config: Vi
         "diffChanged": diff_changed,
         "hasDiff": bool(diff_changed),
         "knowledge": knowledge,
+        "install": _detect_install(root),
     }
 
 
@@ -365,3 +390,9 @@ def render_interactive(graph: KnowledgeGraph, root: Path | None = None, config: 
 def render_static(graph: KnowledgeGraph, root: Path | None = None, config: VizConfig = DEFAULT_CONFIG) -> str:
     from .static import render_static_html
     return render_static_html(build_view_model(graph, root, config))
+
+
+def render_wiki(graph: KnowledgeGraph, root: Path | None = None, config: VizConfig = DEFAULT_CONFIG) -> str:
+    """Render a readable, low-jargon docs/wiki HTML page (overview, install, architecture, reference)."""
+    from .wiki import render_wiki_html
+    return render_wiki_html(build_view_model(graph, root, config))

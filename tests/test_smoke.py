@@ -443,3 +443,15 @@ def test_vizconfig_overrides_flow_into_output():
     assert vm["cardW"] == 999.0                      # dimension override flows through layout
     assert DEFAULT_CONFIG.card_w == 216.0            # default config left intact
     assert "#ff0000" in render_interactive(g, config=VizConfig(type_colors={"file": "#ff0000"}))
+
+
+def test_wiki_docs_mode_is_self_contained():
+    from codeglance.render import render_wiki, _detect_install
+    g = analyze(FIXTURES, use_llm=False)
+    html = render_wiki(g)
+    assert "<html" in html and "<script" not in html          # readable doc, zero JS
+    for section in ("Overview", "Getting started", "Reference"):
+        assert section in html, f"missing wiki section: {section}"
+    repo_root = Path(__file__).resolve().parent.parent
+    steps = _detect_install(repo_root)
+    assert any("pip install" in s["command"] for s in steps)   # repo has pyproject.toml
