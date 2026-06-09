@@ -12,26 +12,16 @@ from pathlib import Path
 
 from ..layout import compute_layered_layout
 from ..schema import KnowledgeGraph, FILE_LEVEL_TYPES
+from ..config import DEFAULT_CONFIG, VizConfig
 
-# Node colors by TYPE (mirrors the original dashboard palette).
-TYPE_COLORS = {
-    "file": "#4a7c9b", "function": "#5a9e6f", "class": "#8b6fb0", "module": "#c08457",
-    "concept": "#d4a574", "config": "#5eead4", "document": "#7dd3fc", "service": "#a78bfa",
-    "table": "#6ee7b7", "endpoint": "#fdba74", "pipeline": "#fda4af", "schema": "#f0abfc",
-    "resource": "#fca5a5", "variable": "#7fb3d5", "constant": "#e6b450",
-}
-DEFAULT_TYPE_COLOR = "#94a3b8"
-
-# Layer container border palette.
-LAYER_PALETTE = [
-    "#60a5fa", "#f472b6", "#34d399", "#fbbf24", "#a78bfa", "#fb7185",
-    "#22d3ee", "#a3e635", "#f59e0b", "#e879f9", "#4ade80", "#38bdf8",
-    "#fca5a5", "#c084fc", "#2dd4bf", "#facc15",
-]
-UNASSIGNED_COLOR = "#64748b"
+# Colour + sizing constants now live in VizConfig (codeglance/config.py). These module-level names
+# remain as back-compat aliases sourced from the default config.
+TYPE_COLORS = DEFAULT_CONFIG.type_colors
+DEFAULT_TYPE_COLOR = DEFAULT_CONFIG.default_type_color
+LAYER_PALETTE = DEFAULT_CONFIG.layer_palette
+UNASSIGNED_COLOR = DEFAULT_CONFIG.unassigned_color
 _UNASSIGNED_KEY = 1_000_000
-
-_MAX_SOURCE_BYTES = 16_000
+_MAX_SOURCE_BYTES = DEFAULT_CONFIG.max_source_bytes
 
 
 def _layer_index(graph: KnowledgeGraph) -> tuple[dict, dict]:
@@ -57,22 +47,23 @@ def _layer_index(graph: KnowledgeGraph) -> tuple[dict, dict]:
     return node_layer, path_layer
 
 
-def _read_sources(graph: KnowledgeGraph, root: Path | None) -> dict[str, str]:
+def _read_sources(graph: KnowledgeGraph, root: Path | None, config: VizConfig = DEFAULT_CONFIG) -> dict[str, str]:
     if root is None:
         return {}
+    cap = config.max_source_bytes
     sources: dict[str, str] = {}
     wanted = {n.filePath for n in graph.nodes if n.filePath}
     for rel in wanted:
         p = root / rel
         try:
-            if p.is_file() and p.stat().st_size <= _MAX_SOURCE_BYTES * 4:
-                sources[rel] = p.read_text(encoding="utf-8", errors="ignore")[:_MAX_SOURCE_BYTES]
+            if p.is_file() and p.stat().st_size <= cap * 4:
+                sources[rel] = p.read_text(encoding="utf-8", errors="ignore")[:cap]
         except OSError:
             continue
     return sources
 
 
-def _build_knowledge(graph: KnowledgeGraph, sources: dict, index_of: dict) -> dict | None:
+def _build_knowledge(graph: KnowledgeGraph, sources: dict, index_of: dict, config: VizConfig = DEFAULT_CONFIG) -> dict | None:
     """Knowledge graph from markdown docs: articles (files) + topics (headings), linked by
     [[wikilinks]] (related) and [](links.md) (cites). Deterministic and fully offline."""
     import math as _math
@@ -125,7 +116,7 @@ def _build_knowledge(graph: KnowledgeGraph, sources: dict, index_of: dict) -> di
                 edges.append({"a": a["i"], "b": j, "type": ty, "label": ty})
 
     out_count = Counter(e["a"] for e in edges)
-    KW, KH, GX, GY = 280.0, 150.0, 60.0, 70.0
+    KW, KH, GX, GY = config.knowledge_card_w, config.knowledge_card_h, config.knowledge_gap_x, config.knowledge_gap_y
     cols = max(1, int(_math.ceil(_math.sqrt(len(arts)))))
     nodes_vm = []
     for a in arts:
@@ -133,13 +124,13 @@ def _build_knowledge(graph: KnowledgeGraph, sources: dict, index_of: dict) -> di
         nodes_vm.append({"i": a["i"], "name": a["name"], "file": a["file"], "summary": a["summary"],
                          "topics": a["topics"], "nTopics": len(a["topics"]),
                          "nLinks": out_count.get(a["i"], 0), "memberIdx": a["memberIdx"],
-                         "color": LAYER_PALETTE[a["i"] % len(LAYER_PALETTE)],
+                         "color": config.layer_color(a["i"]),
                          "x": round(60 + c * (KW + GX) + KW / 2, 1),
                          "y": round(60 + r * (KH + GY) + KH / 2, 1)})
     return {"nodes": nodes_vm, "edges": edges, "cardW": KW, "cardH": KH}
 
 
-def build_view_model(graph: KnowledgeGraph, root: Path | None = None) -> dict:
+def build_view_model(graph: KnowledgeGraph, root: Path | None = None, config: VizConfig = DEFAULT_CONFIG) -> dict:
     node_ids = [n.id for n in graph.nodes]
     id_set = set(node_ids)
     index_of = {nid: i for i, nid in enumerate(node_ids)}
@@ -154,9 +145,9 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None) -> dict:
 
     records = [{"id": n.id, "layer": node_layer[n.id], "type": n.type,
                 "filePath": n.filePath, "name": n.name} for n in graph.nodes]
-    positions, containers, card_w, card_h = compute_layered_layout(records, len(graph.layers))
+    positions, containers, card_w, card_h = compute_layered_layout(records, len(graph.layers), config)
 
-    layer_colors = [LAYER_PALETTE[i % len(LAYER_PALETTE)] for i in range(len(graph.layers))]
+    layer_colors = [config.layer_color(i) for i in range(len(graph.layers))]
 
     nodes_vm = []
     for n in graph.nodes:
@@ -164,7 +155,7 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None) -> dict:
         nodes_vm.append({
             "id": n.id, "name": n.name, "type": n.type, "summary": n.summary,
             "path": n.filePath, "layer": node_layer[n.id],
-            "color": TYPE_COLORS.get(n.type, DEFAULT_TYPE_COLOR),
+            "color": config.color_for_type(n.type),
             "complexity": n.complexity, "tags": n.tags,
             "lineRange": n.lineRange, "signature": n.signature, "docstring": n.docstring,
             "languageNotes": n.languageNotes,
@@ -177,7 +168,7 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None) -> dict:
     for c in containers:
         key = c["layerKey"]
         if key == _UNASSIGNED_KEY or key >= len(graph.layers):
-            name, color = "Unassigned", UNASSIGNED_COLOR
+            name, color = "Unassigned", config.unassigned_color
         else:
             name, color = graph.layers[key].name, layer_colors[key]
         containers_vm.append({"name": name, "color": color, "layer": -1 if key == _UNASSIGNED_KEY else key,
@@ -188,7 +179,7 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None) -> dict:
                  for i, l in enumerate(graph.layers)]
 
     type_counts = Counter(n.type for n in graph.nodes)
-    types_vm = [{"type": t, "color": TYPE_COLORS.get(t, DEFAULT_TYPE_COLOR), "count": c}
+    types_vm = [{"type": t, "color": config.color_for_type(t), "count": c}
                 for t, c in type_counts.most_common()]
 
     tour_vm = [{"title": s.title, "description": s.description,
@@ -205,7 +196,7 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None) -> dict:
     for i in range(len(graph.layers)):
         cs = [n.complexity for n in graph.nodes if node_layer.get(n.id) == i]
         comp_by_layer[i] = Counter(cs).most_common(1)[0][0] if cs else "moderate"
-    LW, LH, GX, GY = 300.0, 150.0, 48.0, 44.0
+    LW, LH, GX, GY = config.layer_card_w, config.layer_card_h, config.layer_gap_x, config.layer_gap_y
     cols = max(1, int(_math.ceil(_math.sqrt(len(layers_vm)))))
     layer_cards = []
     for i, l in enumerate(layers_vm):
@@ -306,7 +297,7 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None) -> dict:
         incident[ds] += 1
         incident[dt] += 1
 
-    DW, DH, DGX, DGY = 300.0, 150.0, 60.0, 70.0
+    DW, DH, DGX, DGY = config.domain_card_w, config.domain_card_h, config.domain_gap_x, config.domain_gap_y
     dcols = max(1, int(_math.ceil(_math.sqrt(len(dom_keys) or 1))))
     domains_vm = []
     for i, k in enumerate(dom_keys):
@@ -320,7 +311,7 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None) -> dict:
             "i": i, "key": k, "name": _pretty(k), "description": desc[:200],
             "entities": ents[:8], "nEntities": len(ents), "nFiles": nfiles,
             "flowCount": incident.get(k, 0),
-            "color": LAYER_PALETTE[i % len(LAYER_PALETTE)],
+            "color": config.layer_color(i),
             "members": dom_members[k][:60],
             "x": round(60 + c * (DW + DGX) + DW / 2, 1),
             "y": round(60 + r * (DH + DGY) + DH / 2, 1),
@@ -333,8 +324,8 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None) -> dict:
     _changed = getattr(graph, "changed", None) or set()
     diff_changed = [index_of[nid] for nid in _changed if nid in index_of]
 
-    sources = _read_sources(graph, root)
-    knowledge = _build_knowledge(graph, sources, index_of)
+    sources = _read_sources(graph, root, config)
+    knowledge = _build_knowledge(graph, sources, index_of, config)
 
     return {
         "project": graph.project.to_dict(),
@@ -366,11 +357,11 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None) -> dict:
     }
 
 
-def render_interactive(graph: KnowledgeGraph, root: Path | None = None) -> str:
+def render_interactive(graph: KnowledgeGraph, root: Path | None = None, config: VizConfig = DEFAULT_CONFIG) -> str:
     from .template import render_interactive_html
-    return render_interactive_html(build_view_model(graph, root))
+    return render_interactive_html(build_view_model(graph, root, config))
 
 
-def render_static(graph: KnowledgeGraph, root: Path | None = None) -> str:
+def render_static(graph: KnowledgeGraph, root: Path | None = None, config: VizConfig = DEFAULT_CONFIG) -> str:
     from .static import render_static_html
-    return render_static_html(build_view_model(graph, root))
+    return render_static_html(build_view_model(graph, root, config))
