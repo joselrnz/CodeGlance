@@ -39,7 +39,7 @@ def availability_hint() -> str:
     try:
         import anthropic  # noqa: F401
     except Exception:
-        return "The 'anthropic' package is not installed (pip install scopinglang[llm])."
+        return "The 'anthropic' package is not installed (pip install codeglance[llm])."
     return "available"
 
 

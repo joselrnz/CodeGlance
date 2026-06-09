@@ -17,7 +17,7 @@ from .scan import ScanResult, scan
 from .schema import KnowledgeGraph, Layer, Node, Project, FILE_LEVEL_TYPES, _kebab
 
 # Location of the persisted knowledge graph, relative to the project root.
-GRAPH_PATH = ".scopinglang/knowledge-graph.json"
+GRAPH_PATH = ".codeglance/knowledge-graph.json"
 
 # Callback that receives human-readable progress messages during analysis.
 Progress = Callable[[str], None]

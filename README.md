@@ -1,4 +1,4 @@
-# ScopingLang
+# codeglance
 
 A **pure-Python**, `pip`-installable port of [Understand-Anything](https://github.com/Lum1104/Understand-Anything).
 
@@ -7,16 +7,16 @@ classes and their relationships — rendered to a **single self-contained HTML f
 double-click to open. No Node, no npm, no Vite, no server, no hosting.
 
 ```bash
-pip install scopinglang
+pip install codeglance
 
-# Analyze a project -> writes .scopinglang/knowledge-graph.json -> opens an HTML graph
-scopinglang /path/to/project
+# Analyze a project -> writes .codeglance/knowledge-graph.json -> opens an HTML graph
+codeglance /path/to/project
 
 # Re-render an existing graph to HTML
-scopinglang render /path/to/project/.scopinglang/knowledge-graph.json -o graph.html
+codeglance render /path/to/project/.codeglance/knowledge-graph.json -o graph.html
 
 # Zero-JavaScript static image instead (inline SVG, no interactivity)
-scopinglang render knowledge-graph.json --static -o graph.svg.html
+codeglance render knowledge-graph.json --static -o graph.svg.html
 ```
 
 ## How it differs from the original
@@ -70,14 +70,14 @@ Toggle **Domain** in the header (or press `d`) for a higher-level **domain map**
 package / service directory becomes a **domain card** (its classes/types listed as **entities**),
 and the imports/calls between domains become **animated flow edges**. It's inferred deterministically
 from the project structure — no LLM required — so a microservices repo shows each service and how
-they depend on one another. Try `scopinglang examples/microservices` then click **Domain**.
+they depend on one another. Try `codeglance examples/microservices` then click **Domain**.
 
 ### Knowledge view
 
 Toggle **Knowledge** (or press `k`) for a **knowledge graph** of your docs: each markdown file
 becomes an **article** card (its headings listed as **topics**), and `[[wikilinks]]` / `[](other.md)`
 links between docs become **related / cites** edges — the Obsidian / Karpathy-wiki pattern,
-extracted deterministically (no LLM). Try `scopinglang examples/wiki` then click **Knowledge**.
+extracted deterministically (no LLM). Try `codeglance examples/wiki` then click **Knowledge**.
 
 ## Knowledge graph schema
 
@@ -119,7 +119,7 @@ Go (go.mod module + packages), Rust (`mod` / `use crate::`), Java (dotted path),
 
 ## Incremental updates
 
-Re-running `scopinglang .` is cheap: per-file content fingerprints (`.scopinglang/fingerprints.json`)
+Re-running `codeglance .` is cheap: per-file content fingerprints (`.codeglance/fingerprints.json`)
 detect what changed. Unchanged files keep their existing summaries (so prior `--llm` enrichment is
 preserved for free), and `--llm` only re-summarizes changed/added files. Pass `--full` to force a
 complete rebuild.

@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "scopinglang"
+name = "codeglance"
 version = "0.1.0"
 description = "Turn any codebase into an interactive knowledge graph you can open as a single HTML file. Pure-Python port of Understand-Anything."
 readme = "README.md"
@@ -33,10 +33,10 @@ fast = ["numpy>=1.24"]
 all = ["anthropic>=0.40", "numpy>=1.24"]
 
 [project.scripts]
-scopinglang = "scopinglang.cli:main"
+codeglance = "codeglance.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/Lum1104/Understand-Anything"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/scopinglang"]
+packages = ["src/codeglance"]

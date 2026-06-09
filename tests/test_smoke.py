@@ -2,10 +2,10 @@
 
 from pathlib import Path
 
-from scopinglang.analyze import ts_core as ts
-from scopinglang.graph import analyze
-from scopinglang.render import render_interactive, render_static
-from scopinglang.schema import Edge, KnowledgeGraph, Node, Project
+from codeglance.analyze import ts_core as ts
+from codeglance.graph import analyze
+from codeglance.render import render_interactive, render_static
+from codeglance.schema import Edge, KnowledgeGraph, Node, Project
 
 FIXTURES = Path(__file__).parent / "fixtures" / "multilang"
 FIXTURES_IMPORTS = Path(__file__).parent / "fixtures" / "imports"
@@ -40,7 +40,7 @@ def test_render_interactive_is_self_contained():
 
 
 def test_render_uses_cards_containers_and_type_colors():
-    from scopinglang.render import build_view_model, TYPE_COLORS
+    from codeglance.render import build_view_model, TYPE_COLORS
     vm = build_view_model(_sample_graph())
     assert vm["containers"] and vm["types"] and vm["cardW"] > 0
     fn = next(n for n in vm["nodes"] if n["type"] == "function")
@@ -59,7 +59,7 @@ def test_interactive_has_toolbar_features():
 
 
 def test_overview_layer_cards_and_drilldown():
-    from scopinglang.render import build_view_model
+    from codeglance.render import build_view_model
     # the template always carries the overview/drill-down machinery
     html = render_interactive(_sample_graph())
     for marker in ("drawOverview", "setView", "pickLayer", "updateCrumb"):
@@ -107,8 +107,8 @@ def test_theme_system():
 
 
 def test_file_type_icons_inlined():
-    from scopinglang.render import build_view_model
-    from scopinglang.render.icons import ICON_SVG, EXT_TO_KEY
+    from codeglance.render import build_view_model
+    from codeglance.render.icons import ICON_SVG, EXT_TO_KEY
     assert ICON_SVG.get("_folder") and ICON_SVG.get("python") and EXT_TO_KEY.get("tf") == "terraform"
     vm = build_view_model(_sample_graph())
     assert "_folder" in vm["iconSvg"] and "_folder_open" in vm["iconSvg"]  # folder glyphs always present
@@ -186,7 +186,7 @@ def test_legacy_and_esoteric_languages():
 
 
 def test_python_captures_signature_linerange_docstring():
-    from scopinglang.analyze.languages.python import _python_extract
+    from codeglance.analyze.languages.python import _python_extract
     _doc, _full, syms, _imp = _python_extract(
         'def f(x: int) -> str:\n    """Doc here."""\n    return str(x)\n'
     )
@@ -206,13 +206,13 @@ def test_treesitter_captures_linerange_and_jsdoc():
 
 
 def test_incremental_writes_fingerprints():
-    from scopinglang import fingerprint as fp
+    from codeglance import fingerprint as fp
     analyze(FIXTURES_IMPORTS, use_llm=False)
     assert fp.load(FIXTURES_IMPORTS)  # fingerprints.json persisted and non-empty
 
 
 def test_domain_view_built_with_cross_domain_flows():
-    from scopinglang.render import build_view_model
+    from codeglance.render import build_view_model
     # imports fixture has main.go at root + store/store.go + util/Helper.java → 3 domains, 2 flows
     g = analyze(FIXTURES_IMPORTS, use_llm=False, full=True)
     vm = build_view_model(g)
@@ -240,7 +240,7 @@ def test_default_theme_is_gold_and_flow_animation_present():
 
 
 def test_python_variables_and_constants_extracted():
-    from scopinglang.analyze.languages.python import _python_extract
+    from codeglance.analyze.languages.python import _python_extract
     _d, _f, syms, _i = _python_extract(
         "MAX = 10\nname = 'x'\nclass C:\n    field = 1\n    TIMEOUT = 30\n"
         "    def m(self):\n        local = 5\n        return local\n"
@@ -266,7 +266,7 @@ def test_treesitter_top_level_vars_and_consts():
 
 
 def test_variable_constant_type_colors_present():
-    from scopinglang.render import TYPE_COLORS
+    from codeglance.render import TYPE_COLORS
     assert "variable" in TYPE_COLORS and "constant" in TYPE_COLORS
 
 
@@ -344,7 +344,7 @@ def test_filter_search_focus_features_present():
 
 
 def test_diff_overlay():
-    from scopinglang.render import build_view_model
+    from codeglance.render import build_view_model
     g = _sample_graph()
     g.changed = {"function:a.py:f"}          # mark one node as changed since last analysis
     vm = build_view_model(g)
@@ -359,7 +359,7 @@ def test_diff_overlay():
 
 
 def test_knowledge_graph_extraction():
-    from scopinglang.render import _build_knowledge
+    from codeglance.render import _build_knowledge
     g = KnowledgeGraph(project=Project(name="wiki"), nodes=[
         Node(id="document:a.md", type="document", name="a.md", filePath="a.md"),
         Node(id="document:b.md", type="document", name="b.md", filePath="b.md"),

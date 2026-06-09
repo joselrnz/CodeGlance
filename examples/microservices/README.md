@@ -1,11 +1,11 @@
-# microservices — ScopingLang example
+# microservices — codeglance example
 
 A tiny e-commerce backend split into independent services under `services/`.
 Each service directory is treated as a **domain**; the imports between services
-become **flows** in ScopingLang's **Domain** view (animated dashed edges).
+become **flows** in codeglance's **Domain** view (animated dashed edges).
 
 ```bash
-scopinglang examples/microservices
+codeglance examples/microservices
 # then click  Domain  in the header
 ```
 

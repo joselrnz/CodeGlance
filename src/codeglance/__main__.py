@@ -1,4 +1,4 @@
-"""Package entry point so `python -m scopinglang` runs the CLI."""
+"""Package entry point so `python -m codeglance` runs the CLI."""
 
 from .cli import main
 

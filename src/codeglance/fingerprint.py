@@ -1,6 +1,6 @@
 """Per-file content fingerprints for incremental re-analysis.
 
-Stored at `.scopinglang/fingerprints.json` as {relPath: sha1}. On re-run we diff against
+Stored at `.codeglance/fingerprints.json` as {relPath: sha1}. On re-run we diff against
 the previous fingerprints to decide which files changed, so unchanged files keep their (possibly
 LLM-enriched) summaries and `--llm` only spends tokens on what actually changed.
 """
@@ -14,7 +14,7 @@ from typing import Iterable
 
 from .scan import ScannedFile
 
-# Basename of the fingerprint store, written inside the project's .scopinglang/ dir.
+# Basename of the fingerprint store, written inside the project's .codeglance/ dir.
 FP_FILE = "fingerprints.json"
 
 
@@ -35,7 +35,7 @@ def compute(files: Iterable[ScannedFile], root: str | Path) -> dict[str, str]:
 
 def load(root: str | Path) -> dict[str, str]:
     """Load the saved fingerprint map for a project, or {} if none/invalid."""
-    p = Path(root) / ".scopinglang" / FP_FILE
+    p = Path(root) / ".codeglance" / FP_FILE
     if p.is_file():
         try:
             data = json.loads(p.read_text(encoding="utf-8"))
@@ -46,8 +46,8 @@ def load(root: str | Path) -> dict[str, str]:
 
 
 def save(root: str | Path, fingerprints: dict[str, str]) -> None:
-    """Write the fingerprint map to .scopinglang/fingerprints.json (creating the dir)."""
-    p = Path(root) / ".scopinglang" / FP_FILE
+    """Write the fingerprint map to .codeglance/fingerprints.json (creating the dir)."""
+    p = Path(root) / ".codeglance" / FP_FILE
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps(fingerprints, ensure_ascii=False), encoding="utf-8")
 
