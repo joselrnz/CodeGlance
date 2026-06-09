@@ -29,6 +29,162 @@ src/scopinglang/
 **Already solid:** dataclasses with `to_dict`/`from_dict`, type hints, `validate()`, packaged via
 `pyproject.toml` (hatchling, `scopinglang` console script, pure-pip deps).
 
+### Full repository tree (root → every source file)
+```
+scopinglang/
+├── .claude
+│   └── launch.json
+├── demo
+│   └── *.html  (generated, gitignored)
+├── examples
+│   ├── flaskapp
+│   │   ├── blueprints
+│   │   │   ├── auth.py
+│   │   │   └── blog.py
+│   │   ├── templates
+│   │   │   ├── base.html
+│   │   │   └── index.html
+│   │   ├── README.md
+│   │   ├── app.py
+│   │   ├── config.py
+│   │   ├── extensions.py
+│   │   └── models.py
+│   ├── microservices
+│   │   ├── services
+│   │   │   ├── cart
+│   │   │   │   └── cart.py
+│   │   │   ├── catalog
+│   │   │   │   └── catalog.py
+│   │   │   ├── gateway
+│   │   │   │   └── gateway.py
+│   │   │   ├── notifications
+│   │   │   │   └── notifications.py
+│   │   │   ├── orders
+│   │   │   │   └── orders.py
+│   │   │   ├── payments
+│   │   │   │   └── payments.py
+│   │   │   ├── recommendations
+│   │   │   │   └── recommendations.py
+│   │   │   └── shipping
+│   │   │       └── shipping.py
+│   │   └── README.md
+│   ├── taskman
+│   │   ├── app
+│   │   │   ├── __init__.py
+│   │   │   ├── config.py
+│   │   │   ├── db.py
+│   │   │   ├── main.py
+│   │   │   ├── models.py
+│   │   │   └── routes.py
+│   │   ├── tests
+│   │   │   └── test_routes.py
+│   │   ├── README.md
+│   │   └── requirements.txt
+│   ├── terraform-aws
+│   │   ├── modules
+│   │   │   └── network
+│   │   │       ├── main.tf
+│   │   │       ├── outputs.tf
+│   │   │       └── variables.tf
+│   │   ├── README.md
+│   │   ├── main.tf
+│   │   ├── outputs.tf
+│   │   └── variables.tf
+│   └── wiki
+│       ├── attention.md
+│       ├── embeddings.md
+│       ├── index.md
+│       ├── training.md
+│       └── transformers.md
+├── src
+│   └── scopinglang
+│       ├── analyze
+│       │   ├── languages
+│       │   │   ├── __init__.py
+│       │   │   ├── c.py
+│       │   │   ├── cpp.py
+│       │   │   ├── csharp.py
+│       │   │   ├── generic.py
+│       │   │   ├── go.py
+│       │   │   ├── java.py
+│       │   │   ├── javascript.py
+│       │   │   ├── kotlin.py
+│       │   │   ├── lua.py
+│       │   │   ├── php.py
+│       │   │   ├── python.py
+│       │   │   ├── ruby.py
+│       │   │   ├── rust.py
+│       │   │   ├── scala.py
+│       │   │   ├── swift.py
+│       │   │   └── typescript.py
+│       │   ├── __init__.py
+│       │   ├── base.py
+│       │   ├── imports.py
+│       │   ├── layers.py
+│       │   ├── llm.py
+│       │   ├── pipeline.py
+│       │   ├── registry.py
+│       │   ├── tour.py
+│       │   └── ts_core.py
+│       ├── render
+│       │   ├── __init__.py
+│       │   ├── icons.py
+│       │   ├── static.py
+│       │   └── template.py
+│       ├── __init__.py
+│       ├── __main__.py
+│       ├── cli.py
+│       ├── fingerprint.py
+│       ├── graph.py
+│       ├── ignore.py
+│       ├── layout.py
+│       ├── scan.py
+│       └── schema.py
+├── tests
+│   ├── fixtures
+│   │   ├── imports
+│   │   │   ├── store
+│   │   │   │   └── store.go
+│   │   │   ├── util
+│   │   │   │   └── Helper.java
+│   │   │   ├── Main.java
+│   │   │   ├── app.cpp
+│   │   │   ├── go.mod
+│   │   │   ├── lib.h
+│   │   │   ├── main.go
+│   │   │   ├── main.rs
+│   │   │   └── util.rs
+│   │   ├── legacy
+│   │   │   ├── Lib.hs
+│   │   │   ├── alu.sv
+│   │   │   ├── calc.adb
+│   │   │   ├── calc.jl
+│   │   │   ├── counter.vhd
+│   │   │   ├── hello.cob
+│   │   │   ├── lib.ml
+│   │   │   ├── main.tf
+│   │   │   ├── mathmod.f90
+│   │   │   ├── token.sol
+│   │   │   └── widget.dart
+│   │   └── multilang
+│   │       ├── Program.cs
+│   │       ├── Server.java
+│   │       ├── app.js
+│   │       ├── helper.js
+│   │       ├── index.php
+│   │       ├── lib.rs
+│   │       ├── main.go
+│   │       ├── model.rb
+│   │       ├── script.lua
+│   │       ├── service.ts
+│   │       └── util.cpp
+│   └── test_smoke.py
+├── .gitignore
+├── README.md
+├── REFACTOR_PLAN.md
+└── pyproject.toml
+```
+
 ### Current package tree (the software itself)
 ```
 src/scopinglang/
