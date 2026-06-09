@@ -16,8 +16,8 @@ HEIGHT = 900.0
 
 
 # --- Layered "swimlane" layout: layers become stacked container boxes of gridded cards. -----
-CARD_W = 196.0
-CARD_H = 60.0
+CARD_W = 216.0
+CARD_H = 82.0
 _GAP_X = 26.0
 _GAP_Y = 22.0
 _PAD = 18.0

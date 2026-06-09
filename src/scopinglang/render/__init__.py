@@ -205,7 +205,7 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None) -> dict:
     for i in range(len(graph.layers)):
         cs = [n.complexity for n in graph.nodes if node_layer.get(n.id) == i]
         comp_by_layer[i] = Counter(cs).most_common(1)[0][0] if cs else "moderate"
-    LW, LH, GX, GY = 300.0, 172.0, 48.0, 44.0
+    LW, LH, GX, GY = 300.0, 150.0, 48.0, 44.0
     cols = max(1, int(_math.ceil(_math.sqrt(len(layers_vm)))))
     layer_cards = []
     for i, l in enumerate(layers_vm):

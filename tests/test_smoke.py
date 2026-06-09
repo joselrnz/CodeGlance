@@ -228,10 +228,11 @@ def test_domain_view_built_with_cross_domain_flows():
         assert {"a", "b", "label", "count"} <= set(e)
 
 
-def test_default_theme_is_ocean_and_flow_animation_present():
+def test_default_theme_is_gold_and_flow_animation_present():
     html = render_interactive(_sample_graph())
-    # Dark Ocean is the default (first paint + JS state)
-    assert "--accent:#5ba4cf" in html and "name:'ocean'" in html
+    # Dark Gold is the default — matches the original dashboard's signature accent (first paint + JS state)
+    assert "--accent:#d4a574" in html and "name:'gold'" in html
+    assert "212,165,116" in html  # gold accent rgb on :root
     # marching-ants edge-flow animation + Domain/Structural mode toggle are wired in
     for marker in ("drawCards", "setMode", "modeSeg", "btnAnim", "setAnim",
                    "dashPhase", "lineDashOffset", "DATA.domains", "cardInfoHTML"):
@@ -393,5 +394,29 @@ def test_card_icons_and_deeplink():
     for m in ("ICONIMG", "iconForNode", "drawImage", "setHash", "history.replaceState"):
         assert m in html, f"missing polish feature: {m}"
     # smooth camera fly-to, OS reduced-motion respect, copy-permalink toast
-    for m in ("flyTo", "prefers-reduced-motion", "copyLink", "function toast"):
+    for m in ("flyTo", "prefers-reduced-motion", "copyLink", "function toast", "@media"):
         assert m in html, f"missing polish feature: {m}"
+
+
+def test_collapsible_clusters_and_responsive_resize():
+    html = render_interactive(_sample_graph())
+    # collapsible cluster view (default) + collapse-all + per-header toggle
+    for m in ("drawClusters", "drawClusterBox", "pickCluster", "toggleCluster",
+              "collapseAllClusters", "CLUSTER_HEAD"):
+        assert m in html, f"missing cluster feature: {m}"
+    # resize keeps the graph fitted/scaled instead of cropping it
+    for m in ("fitMode", "function resize()"):
+        assert m in html, f"missing responsive feature: {m}"
+    # categorized keyboard-shortcuts modal
+    for m in ("Keyboard Shortcuts", "kbcats", "Guided tour"):
+        assert m in html, f"missing shortcuts-modal feature: {m}"
+
+
+def test_offline_terminal_present():
+    html = render_interactive(_sample_graph())
+    # in-HTML terminal: graph-query commands + live JS eval, fully offline (no CDN/fetch)
+    for m in ('id="term"', "runTerm", "TERM_CMDS", "toggleTerm", "termOut", "btnTerm"):
+        assert m in html, f"missing terminal feature: {m}"
+    # it must stay self-contained — no network calls sneaking in
+    assert "pyodide" not in html.lower()
+    assert "cdn." not in html.lower()
