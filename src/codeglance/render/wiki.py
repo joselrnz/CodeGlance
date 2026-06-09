@@ -179,13 +179,14 @@ def render_wiki_html(vm: dict) -> str:
 <style>
   {_theme_css()}
   * {{ box-sizing:border-box; }}
-  body {{ margin:0; background:var(--bg); color:var(--tx); line-height:1.6;
-    font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }}
+  html {{ scroll-behavior:smooth; }}
+  body {{ margin:0; background:var(--bg); color:var(--tx); line-height:1.65; -webkit-font-smoothing:antialiased;
+    font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }}
   a {{ color:var(--acc); text-decoration:none; }} a:hover {{ text-decoration:underline; }}
   .wrap {{ display:flex; max-width:1100px; margin:0 auto; gap:36px; padding:0 24px; }}
-  aside {{ width:215px; flex:none; position:sticky; top:0; align-self:flex-start; height:100vh;
-    padding:28px 0; overflow:auto; }}
-  aside .brand {{ font-family:Georgia,serif; font-size:20px; color:var(--tx); margin-bottom:4px; }}
+  aside {{ width:220px; flex:none; position:sticky; top:0; align-self:flex-start; height:100vh;
+    padding:30px 28px 30px 0; overflow:auto; border-right:1px solid var(--bd); }}
+  aside .brand {{ font-weight:700; font-size:18px; letter-spacing:-.01em; color:var(--tx); margin-bottom:3px; }}
   aside .sub {{ color:var(--muted); font-size:12px; margin-bottom:18px; }}
   aside nav {{ display:flex; flex-direction:column; gap:2px; margin-bottom:18px; }}
   aside nav a {{ color:var(--tx2); padding:6px 10px; border-radius:7px; font-size:14px; }}
@@ -194,10 +195,10 @@ def render_wiki_html(vm: dict) -> str:
   #cg-theme {{ width:calc(100% - 20px); margin:0 10px; background:var(--panel); color:var(--tx);
     border:1px solid var(--bd); border-radius:7px; padding:6px 8px; font:inherit; font-size:13px; }}
   main {{ flex:1; min-width:0; padding:36px 0 80px; }}
-  h1 {{ font-family:Georgia,serif; font-weight:400; font-size:30px; margin:0 0 6px; }}
-  .lead {{ font-size:17px; color:var(--tx); margin:6px 0 8px; }}
-  h2 {{ font-family:Georgia,serif; font-weight:400; font-size:22px; margin:36px 0 12px;
-    padding-bottom:8px; border-bottom:1px solid var(--bd); scroll-margin-top:20px; }}
+  h1 {{ font-weight:700; font-size:32px; letter-spacing:-.02em; margin:0 0 6px; }}
+  .lead {{ font-size:17px; color:var(--tx2); margin:6px 0 8px; }}
+  h2 {{ font-weight:600; font-size:21px; letter-spacing:-.01em; margin:40px 0 14px;
+    padding-bottom:9px; border-bottom:1px solid var(--bd); scroll-margin-top:24px; }}
   h3 {{ font-size:15px; margin:22px 0 8px; }}
   h4 {{ font-size:13px; color:var(--tx2); margin:18px 0 8px; text-transform:uppercase; letter-spacing:.05em; }}
   p {{ margin:8px 0; }} .muted {{ color:var(--muted); }} .small {{ font-size:12px; }}
