@@ -434,3 +434,22 @@ plus `analyze/manifests.py` for install detection.
   (https://github.com/nexu-io/html-anything/blob/main/e2e/ui/export-menu.test.ts) -> reference for
   **E2E UI testing** patterns we could adopt to test the *generated HTML* (export menu, terminal,
   clusters) beyond today's Python smoke tests.
+
+---
+
+## Part J — DECISION: rename `scopinglang` -> `codeglance`
+Chosen name: **codeglance** (verified free on PyPI). Execute as ONE atomic, verified commit.
+
+Rename checklist:
+- [ ] `git mv src/scopinglang src/codeglance`  (internal imports are **relative**, so unaffected)
+- [ ] `pyproject.toml`: `name = "codeglance"`, `packages = ["src/codeglance"]`,
+      `[project.scripts] codeglance = "codeglance.cli:main"`, update Homepage/urls
+- [ ] `cli.py`: `prog="codeglance"`; cache dir `GRAPH_DIR = ".codeglance"` (was `.scopinglang`)
+- [ ] `tests/test_smoke.py`: `from scopinglang...` -> `from codeglance...` (tests use absolute imports)
+- [ ] `README.md`, module docstrings, and the `scopinglang` strings in `template.py`/`static.py` footers
+- [ ] `.gitignore`: add `.codeglance/` (keep `.scopinglang/` for old example graphs)
+- [ ] `pip install -e .` so the `codeglance` console command resolves
+- [ ] regenerate example graphs + demos under the new name; re-run the 32 tests
+- [ ] update auto-memory + the target trees in this plan to `codeglance`
+
+Single commit "Rename scopinglang -> codeglance" -> clean history, old name fully traceable in git.
