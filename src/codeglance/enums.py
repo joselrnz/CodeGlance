@@ -13,7 +13,7 @@ from enum import Enum
 
 
 class NodeType(str, Enum):
-    """The 13 node types from the Understand-Anything schema."""
+    """The 13 node types in the knowledge-graph schema."""
 
     FILE = "file"
     FUNCTION = "function"

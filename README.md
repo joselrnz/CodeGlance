@@ -5,7 +5,7 @@
   <img src="brand/codeglance-badge.svg" alt="codeglance v0.1.0 · py3">
 </p>
 
-A **pure-Python**, `pip`-installable port of [Understand-Anything](https://github.com/Lum1104/Understand-Anything).
+A **pure-Python**, `pip`-installable tool that visualizes and documents any codebase — no Node, no server, no hosting.
 
 Point it at a codebase and it produces **three views of one analysis** — each a **single,
 self-contained file** you just open. No Node, no npm, no server, no hosting:
@@ -31,14 +31,12 @@ codeglance render knowledge-graph.json --static -o graph.svg.html
 > dependency list, and a one-line summary + symbols per file, so an agent understands a repo's
 > structure without reading every line. There's a bundled Claude Code skill (`.claude/skills/codebase-map`).
 
-## How it differs from the original
+## What makes it different
 
-| | Original (Understand-Anything) | This port |
-|---|---|---|
-| Runtime | TypeScript / Node / pnpm / Vite | Python only |
-| Viewer | React dashboard served by a Vite **dev server** (token-gated) | A **single HTML file** you open directly |
-| Intelligence | Claude subagents (needs a Claude Code session) | Deterministic by default; optional `--llm` enrichment |
-| Data format | `knowledge-graph.json` | **Identical** `knowledge-graph.json` schema |
+- **Python only** — `pip install` and go. No Node, npm, Vite, or build step.
+- **Single self-contained file** — open the HTML directly (`file://`); no dev server, no hosting.
+- **Deterministic by default** — tree-sitter / Python `ast` structural analysis; optional `--llm` enrichment.
+- **Portable schema** — a plain `knowledge-graph.json` (`{ version, project, nodes, edges, layers, tour }`).
 
 ## Analysis modes (hybrid)
 
@@ -49,7 +47,7 @@ codeglance render knowledge-graph.json --static -o graph.svg.html
 
 ## Visual modes
 
-- **Interactive (default):** a self-contained HTML canvas app modeled on the original dashboard —
+- **Interactive (default):** a self-contained HTML canvas app —
   **labeled node cards** colored **by type** (with a type badge), **layer container boxes**,
   **directional edge arrows**, a **project-overview** panel, and a rich **node panel** when you
   click a card: the **signature**, the **docstring / leading doc-comment** pulled from the code,
@@ -60,11 +58,11 @@ codeglance render knowledge-graph.json --static -o graph.svg.html
   (shortest path between any two nodes), a **Filter popup** (by node type & complexity), a
   **Fuzzy / Semantic search** with a ranked results dropdown, a **Focus mode** (isolate a node +
   its 1-hop neighbors), a **Diff overlay** (highlight files changed since the last analysis),
-  **export to PNG / SVG / JSON**, **persona tabs** (Deep Dive / Overview / Learn), **zoom
-  controls**, a guided tour, and keyboard shortcuts (`/ f p e a d t i x b ?`). Like the original, it
+  **export to PNG / SVG / JSON**, **persona tabs** (Overview / Explore / Tour), **zoom
+  controls**, a guided tour, and keyboard shortcuts (`/ f p e a d t i x b ?`). It
   opens on an **overview of layer cards** (name, description, complexity, file count) and you
-  **click a layer to drill into its files**, with a breadcrumb back to the overview. The header
-  mirrors the original: **persona tabs**, a **Files/+Classes/`fn`** detail toggle, **category
+  **click a layer to drill into its files**, with a breadcrumb back to the overview. The header has
+  **persona tabs**, a **Files/+Classes/`fn`** detail toggle, **category
   filter buttons** (Code/Config/Docs/Infra/Data/Domain/Knowledge), a **Structural / Domain / Knowledge** view
   toggle, and **inline layer chips**;
   the sidebar has **Info / Files tabs** — a collapsible file explorer with **VS Code-style
@@ -93,8 +91,8 @@ extracted deterministically (no LLM). Try `codeglance examples/wiki` then click 
 
 ## Knowledge graph schema
 
-`{ version, project, nodes[], edges[], layers[], tour[] }` — byte-for-byte compatible with the
-original, so graphs produced by either tool render in the other.
+`{ version, project, nodes[], edges[], layers[], tour[] }` — a plain, self-describing JSON format
+you can read, diff, or generate elsewhere.
 
 ## Language coverage
 

@@ -15,8 +15,7 @@ DEFAULT_IGNORE_DIRS = {
     "node_modules", ".git", ".hg", ".svn", "vendor", "venv", ".venv", "env",
     "__pycache__", ".mypy_cache", ".pytest_cache", ".ruff_cache", "dist", "build",
     "out", "coverage", ".next", ".nuxt", ".cache", ".turbo", "target", "obj", "bin",
-    ".idea", ".vscode", ".gradle", ".terraform", ".codeglance",
-    ".understand-anything", "site-packages",
+    ".idea", ".vscode", ".gradle", ".terraform", ".codeglance", "site-packages",
     ".tox", ".eggs", "__snapshots__",
 }
 

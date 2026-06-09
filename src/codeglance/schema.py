@@ -1,7 +1,6 @@
 """Data model for the knowledge graph.
 
-Mirrors the original Understand-Anything `knowledge-graph.json` schema exactly so graphs are
-interchangeable between the two tools:
+A portable, self-describing `knowledge-graph.json` schema:
 
     { version, project, nodes[], edges[], layers[], tour[] }
 """
@@ -45,9 +44,8 @@ def edge_weight(edge_type: str) -> float:
 class Node:
     """A single knowledge-graph node (file, function, class, config, document, ...).
 
-    The first seven fields match the original Understand-Anything schema. ``lineRange``,
-    ``signature`` and ``docstring`` are optional enrichments this port captures from source;
-    they are only serialised when present, keeping the JSON compatible with the original tool.
+    The first seven fields are the core schema. ``lineRange``, ``signature`` and ``docstring``
+    are optional enrichments captured from source; they are only serialised when present.
     """
 
     id: str
