@@ -1,4 +1,4 @@
-# ScopingLang — Software-Engineering Refactor Plan
+# codeglance — Software-Engineering Refactor Plan
 
 > Goal: make the codebase clean, packaged, and **configuration-driven** so visual/behavioural
 > tweaks happen in **one typed place** instead of hunting magic numbers across files.
@@ -9,7 +9,7 @@
 ## Part A — Current architecture (what we have)
 
 ```
-src/scopinglang/
+src/codeglance/
   __init__.py        public API — exports schema classes only
   cli.py             argparse CLI (analyze / render / dashboard)   ✅ clean
   schema.py          dataclasses: Node/Edge/Layer/TourStep/Project/KnowledgeGraph  ✅ good
@@ -27,11 +27,11 @@ src/scopinglang/
 ```
 
 **Already solid:** dataclasses with `to_dict`/`from_dict`, type hints, `validate()`, packaged via
-`pyproject.toml` (hatchling, `scopinglang` console script, pure-pip deps).
+`pyproject.toml` (hatchling, `codeglance` console script, pure-pip deps).
 
 ### Full repository tree (root → every source file)
 ```
-scopinglang/
+codeglance/
 ├── .claude
 │   └── launch.json
 ├── demo
@@ -97,7 +97,7 @@ scopinglang/
 │       ├── training.md
 │       └── transformers.md
 ├── src
-│   └── scopinglang
+│   └── codeglance
 │       ├── analyze
 │       │   ├── languages
 │       │   │   ├── __init__.py
@@ -187,9 +187,9 @@ scopinglang/
 
 ### Current package tree (the software itself)
 ```
-src/scopinglang/
+src/codeglance/
 ├── __init__.py          public API — re-exports schema classes only
-├── __main__.py          `python -m scopinglang`
+├── __main__.py          `python -m codeglance`
 ├── cli.py               argparse CLI (analyze / render / dashboard)     ✅
 ├── schema.py        ★   models: Node/Edge/Layer/TourStep/Project/Graph  ✅ + loose string sets
 ├── graph.py             analysis orchestrator (scan → analyze → graph)
@@ -210,7 +210,7 @@ src/scopinglang/
 
 ### Target package tree (after this refactor — ★ = new, ✦ = touched)
 ```
-src/scopinglang/
+src/codeglance/
 ├── enums.py        ★   NodeType · Complexity · EdgeType · ThemeName   (str-enums, JSON-safe)
 ├── schema.py       ✦   uses enums; validate() checks type/complexity validity
 ├── layout.py       ✦   compute_layered_layout(records, n_layers, config=DEFAULT_CONFIG)
@@ -271,7 +271,7 @@ while the interactive default is now **gold**. It also ignores node/layer colors
 
 ## Part C — Proposed plan (phased, each phase keeps tests green)
 
-### Phase 1 — Enums (new `src/scopinglang/enums.py`)
+### Phase 1 — Enums (new `src/codeglance/enums.py`)
 `str`-based enums so JSON stays **byte-identical** (value *is* the string):
 ```python
 class NodeType(str, Enum):
@@ -297,7 +297,7 @@ class ThemeName(str, Enum):
 - `Node.type` / `Node.complexity` stay `str` on the wire; helpers accept `str` **or** the enum
   (since `NodeType.FILE == "file"` is `True` for a `str`-enum).
 
-### Phase 2 — Central typed config (new `src/scopinglang/render/config.py`)
+### Phase 2 — Central typed config (new `src/codeglance/render/config.py`)
 ```python
 @dataclass(frozen=True)
 class VizConfig:
@@ -406,7 +406,7 @@ package dir + `pyproject` name + console-script + `.cache` dir + README in one p
 A **second, separate** output: instead of the canvas graph, render a clean, readable **single-page
 docs site** from the *same* analysis — "a generated wiki", low-jargon.
 
-**CLI:** `scopinglang wiki <path>`  (or `--format wiki`) -> writes `wiki.html` (self-contained, offline).
+**CLI:** `codeglance wiki <path>`  (or `--format wiki`) -> writes `wiki.html` (self-contained, offline).
 
 **Sections — all derived from the existing `KnowledgeGraph` + manifest detection:**
 1. **Overview** — name, description, languages, frameworks, headline stats.
@@ -437,19 +437,14 @@ plus `analyze/manifests.py` for install detection.
 
 ---
 
-## Part J — DECISION: rename `scopinglang` -> `codeglance`
-Chosen name: **codeglance** (verified free on PyPI). Execute as ONE atomic, verified commit.
-
-Rename checklist:
-- [ ] `git mv src/scopinglang src/codeglance`  (internal imports are **relative**, so unaffected)
-- [ ] `pyproject.toml`: `name = "codeglance"`, `packages = ["src/codeglance"]`,
-      `[project.scripts] codeglance = "codeglance.cli:main"`, update Homepage/urls
-- [ ] `cli.py`: `prog="codeglance"`; cache dir `GRAPH_DIR = ".codeglance"` (was `.scopinglang`)
-- [ ] `tests/test_smoke.py`: `from scopinglang...` -> `from codeglance...` (tests use absolute imports)
-- [ ] `README.md`, module docstrings, and the `scopinglang` strings in `template.py`/`static.py` footers
-- [ ] `.gitignore`: add `.codeglance/` (keep `.scopinglang/` for old example graphs)
-- [ ] `pip install -e .` so the `codeglance` console command resolves
-- [ ] regenerate example graphs + demos under the new name; re-run the 32 tests
-- [ ] update auto-memory + the target trees in this plan to `codeglance`
-
-Single commit "Rename scopinglang -> codeglance" -> clean history, old name fully traceable in git.
+## Part J — DONE ✅ : renamed `scopinglang` -> `codeglance`
+Completed 2026-06-09 as one atomic commit (`Rename scopinglang -> codeglance`, 38 git renames):
+- [x] `git mv src/scopinglang src/codeglance` (internal imports are relative -> unaffected)
+- [x] `pyproject.toml`: name / console-script / wheel packages -> `codeglance`
+- [x] cache dir `.scopinglang/` -> `.codeglance/` (cli, graph, fingerprint, ignore)
+- [x] tests, README, example READMEs, docstrings, static-render footer
+- [x] `.gitignore` cleaned; stale `.scopinglang/` dirs removed
+- [x] `pip install -e .`; **32 tests pass**; CLI re-validated end-to-end (`codeglance examples/*`)
+- [x] **Forgejo remote repo renamed** -> `forgejo.local/joselrnz/codeglance.git`; local remote updated
+- [x] auto-memory updated
+> Note: the `scopinglang` mentions in THIS section are a deliberate historical record of the rename.

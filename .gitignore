@@ -13,8 +13,6 @@ venv/
 
 # Generated graphs and rendered HTML (examples kept in demo/ are fine to regenerate)
 .codeglance/
-.scopinglang/
-.codescape/
 .understand-anything/
 demo/*.html
 
