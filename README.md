@@ -2,22 +2,29 @@
 
 A **pure-Python**, `pip`-installable port of [Understand-Anything](https://github.com/Lum1104/Understand-Anything).
 
-Point it at a codebase, and it produces an interactive **knowledge graph** of files, functions,
-classes and their relationships — rendered to a **single self-contained HTML file** you just
-double-click to open. No Node, no npm, no Vite, no server, no hosting.
+Point it at a codebase and it produces **three views of one analysis** — each a **single,
+self-contained file** you just open. No Node, no npm, no server, no hosting:
 
 ```bash
 pip install codeglance
 
-# Analyze a project -> writes .codeglance/knowledge-graph.json -> opens an HTML graph
+# 1) Interactive knowledge graph (files · functions · classes · dependencies) -> one HTML file
 codeglance /path/to/project
 
-# Re-render an existing graph to HTML
-codeglance render /path/to/project/.codeglance/knowledge-graph.json -o graph.html
+# 2) Readable docs/wiki page (getting-started, architecture, per-file reference)
+codeglance wiki /path/to/project
 
-# Zero-JavaScript static image instead (inline SVG, no interactivity)
+# 3) Compact, dependency-first "codebase map" for AI agents (Markdown to stdout)
+codeglance context /path/to/project
+
+# also: re-render an existing graph, or a zero-JavaScript static SVG
+codeglance render /path/to/project/.codeglance/knowledge-graph.json -o graph.html
 codeglance render knowledge-graph.json --static -o graph.svg.html
 ```
+
+> The **`context`** output is built for AI agents — it's the read-first hub files, a `file -> file`
+> dependency list, and a one-line summary + symbols per file, so an agent understands a repo's
+> structure without reading every line. There's a bundled Claude Code skill (`.claude/skills/codebase-map`).
 
 ## How it differs from the original
 

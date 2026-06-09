@@ -5,16 +5,24 @@ build-backend = "hatchling.build"
 [project]
 name = "codeglance"
 version = "0.1.0"
-description = "Turn any codebase into an interactive knowledge graph you can open as a single HTML file. Pure-Python port of Understand-Anything."
+description = "Turn any codebase into an interactive knowledge graph, a readable docs wiki, or a dependency map for AI agents — pure Python, single self-contained files, no server."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "joselrnz" }]
 keywords = ["codebase", "knowledge-graph", "visualization", "static-analysis", "documentation"]
 classifiers = [
-    "Programming Language :: Python :: 3",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Documentation",
+    "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 
 # One `pip install` gets everything: 50+ languages (tree-sitter) + layer detection (networkx).
@@ -36,7 +44,9 @@ all = ["anthropic>=0.40", "numpy>=1.24"]
 codeglance = "codeglance.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/Lum1104/Understand-Anything"
+Homepage = "https://github.com/joselrnz/codeglance"
+Repository = "https://github.com/joselrnz/codeglance"
+Issues = "https://github.com/joselrnz/codeglance/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/codeglance"]
