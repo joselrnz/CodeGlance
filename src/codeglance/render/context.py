@@ -1,0 +1,107 @@
+"""AI-context renderer — a compact, dependency-first "codebase map" for LLM agents.
+
+Instead of a graph (for exploring) or a wiki (for humans), this emits terse Markdown an agent can
+read **once** to grasp a repository: the most-connected files to read first, a file -> file
+dependency list, and a one-line summary + defined symbols + imports/used-by for every file. No
+source code, a small fraction of the tokens of the repo — so an agent understands the shape and
+the wiring without crawling every line.
+"""
+
+from __future__ import annotations
+
+from collections import defaultdict
+
+_FILE_LEVEL = {"file", "config", "document", "service", "pipeline", "table", "schema", "resource", "endpoint"}
+_SYMBOL = {"function", "class", "module"}
+
+
+def render_context_md(vm: dict) -> str:
+    """Render a view model into a compact dependency+summary Markdown map for AI context."""
+    nodes = vm.get("nodes", []) or []
+    edges = vm.get("edges", []) or []
+    project = vm.get("project", {})
+    stats = vm.get("stats", {})
+
+    path_of = [n.get("path") or "" for n in nodes]
+    defines: dict[str, list[str]] = defaultdict(list)
+    summary_of: dict[str, str] = {}
+    type_of: dict[str, str] = {}
+    complexity_of: dict[str, str] = {}
+    files: list[str] = []
+    seen: set[str] = set()
+    for i, n in enumerate(nodes):
+        p = path_of[i]
+        if not p:
+            continue
+        if n.get("type") in _FILE_LEVEL and p not in seen:
+            seen.add(p)
+            files.append(p)
+            summary_of[p] = (n.get("summary") or "").strip()
+            type_of[p] = n.get("type", "file")
+            complexity_of[p] = n.get("complexity", "")
+        if n.get("type") in _SYMBOL and n.get("name"):
+            defines[p].append(n["name"])
+
+    # cross-file dependencies, aggregated from the edges
+    out_deps: dict[str, set] = defaultdict(set)
+    in_deps: dict[str, set] = defaultdict(set)
+    for a, b, _ty in edges:
+        pa, pb = path_of[a], path_of[b]
+        if pa and pb and pa != pb:
+            out_deps[pa].add(pb)
+            in_deps[pb].add(pa)
+    for p in list(out_deps) + list(in_deps):  # include files only seen via edges
+        if p and p not in seen:
+            seen.add(p)
+            files.append(p)
+            summary_of.setdefault(p, "")
+            type_of.setdefault(p, "file")
+    files = sorted(set(files))
+
+    lines: list[str] = []
+    name = project.get("name", "project")
+    lines.append(f"# {name} — codebase map (AI context)")
+    if project.get("description"):
+        lines.append(f"> {project['description']}")
+    langs = ", ".join(project.get("languages", []) or []) or "—"
+    lines.append(f"{len(files)} files · {sum(len(v) for v in out_deps.values())} cross-file deps · "
+                 f"{stats.get('layers', 0)} layers · languages: {langs}")
+    lines.append("")
+
+    # read-first: files ranked by total connections
+    ranked = sorted(files, key=lambda p: -(len(out_deps[p]) + len(in_deps[p])))
+    hubs = [p for p in ranked if (len(out_deps[p]) + len(in_deps[p])) > 0][:8]
+    if hubs:
+        lines.append("## Read first (most-connected files)")
+        for p in hubs:
+            desc = f" — {summary_of[p]}" if summary_of.get(p) else ""
+            lines.append(f"- `{p}`{desc}  ({len(out_deps[p])} out, {len(in_deps[p])} in)")
+        lines.append("")
+
+    # dependency map
+    dep_files = sorted(p for p in files if out_deps[p])
+    if dep_files:
+        lines.append("## Dependency map (file -> depends on)")
+        for p in dep_files:
+            lines.append(f"- `{p}` -> " + ", ".join(sorted(out_deps[p])))
+        lines.append("")
+
+    # per-file detail
+    lines.append("## Files")
+    for p in files:
+        cx = complexity_of.get(p, "")
+        lines.append(f"### `{p}`  [{type_of.get(p, 'file')}" + (f" · {cx}" if cx else "") + "]")
+        if summary_of.get(p):
+            lines.append(summary_of[p])
+        if defines.get(p):
+            lines.append("defines: " + ", ".join(defines[p][:20]))
+        rel = []
+        if out_deps[p]:
+            rel.append("imports: " + ", ".join(sorted(out_deps[p])))
+        if in_deps[p]:
+            rel.append("used-by: " + ", ".join(sorted(in_deps[p])))
+        if rel:
+            lines.append(" · ".join(rel))
+        lines.append("")
+
+    return "\n".join(lines).rstrip() + "\n"

@@ -23,7 +23,7 @@ GRAPH_DIR = ".codeglance"
 GRAPH_FILE = "knowledge-graph.json"
 
 # Recognized subcommands; used to make `analyze` the implicit default command.
-_SUBCOMMANDS = {"analyze", "render", "dashboard", "wiki"}
+_SUBCOMMANDS = {"analyze", "render", "dashboard", "wiki", "context"}
 
 
 def _emit(msg: str) -> None:
@@ -156,8 +156,32 @@ def cmd_wiki(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_context(args: argparse.Namespace) -> int:
+    """Handle the `context` subcommand: emit a compact AI-context codebase map. Returns an exit code."""
+    from .render import render_context
+
+    root = Path(args.path).resolve()
+    if not root.is_dir():
+        _emit(f"Error: not a directory: {root}")
+        return 1
+    graph_path = root / GRAPH_DIR / GRAPH_FILE
+    if graph_path.is_file() and not args.full:
+        graph = KnowledgeGraph.load(graph_path)
+    else:
+        graph = analyze(root, use_llm=args.llm, model=args.model, progress=_emit, full=args.full)
+        graph.save(graph_path)
+        _write_meta(root, graph)
+    md = render_context(graph, root)
+    if args.output:
+        Path(args.output).write_text(md, encoding="utf-8")
+        _emit(f"✓ context map → {args.output}")
+    else:
+        print(md)  # stdout: machine-consumable for agents / skills
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
-    """Construct the argparse parser with the analyze/render/dashboard/wiki subcommands and flags."""
+    """Construct the argparse parser with the analyze/render/dashboard/wiki/context subcommands and flags."""
     p = argparse.ArgumentParser(
         prog="codeglance",
         description="Turn a codebase into an interactive knowledge-graph HTML file (pure Python).",
@@ -199,11 +223,24 @@ def build_parser() -> argparse.ArgumentParser:
     w.add_argument("--full", action="store_true", help="re-analyze even if a graph already exists")
     w.set_defaults(func=cmd_wiki)
 
+    c = sub.add_parser("context", help="print a compact dependency+summary codebase map (for AI agents)")
+    c.add_argument("path", nargs="?", default=".", help="project directory (default: .)")
+    c.add_argument("--llm", action="store_true", help="enrich summaries via an LLM (needs ANTHROPIC_API_KEY)")
+    c.add_argument("--model", default=None, help="LLM model id")
+    c.add_argument("-o", "--output", default=None, help="write to a file instead of stdout")
+    c.add_argument("--full", action="store_true", help="re-analyze even if a graph already exists")
+    c.set_defaults(func=cmd_context)
+
     return p
 
 
 def main(argv: list[str] | None = None) -> int:
     """CLI entry point: parse args (defaulting to `analyze`) and dispatch. Returns an exit code."""
+    for stream in (sys.stdout, sys.stderr):  # ensure UTF-8 output (Windows consoles default to cp1252)
+        try:
+            stream.reconfigure(encoding="utf-8")
+        except Exception:
+            pass
     argv = list(sys.argv[1:] if argv is None else argv)
     # Make `analyze` the default command: `codeglance .` == `codeglance analyze .`
     if argv and argv[0] not in _SUBCOMMANDS and argv[0] not in ("-h", "--help", "--version"):

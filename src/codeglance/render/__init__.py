@@ -396,3 +396,9 @@ def render_wiki(graph: KnowledgeGraph, root: Path | None = None, config: VizConf
     """Render a readable, low-jargon docs/wiki HTML page (overview, install, architecture, reference)."""
     from .wiki import render_wiki_html
     return render_wiki_html(build_view_model(graph, root, config))
+
+
+def render_context(graph: KnowledgeGraph, root: Path | None = None, config: VizConfig = DEFAULT_CONFIG) -> str:
+    """Render a compact, dependency-first Markdown 'codebase map' for AI agents (not a web page)."""
+    from .context import render_context_md
+    return render_context_md(build_view_model(graph, root, config))

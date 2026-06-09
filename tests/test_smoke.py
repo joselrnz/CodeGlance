@@ -458,3 +458,13 @@ def test_wiki_docs_mode_is_self_contained():
     repo_root = Path(__file__).resolve().parent.parent
     steps = _detect_install(repo_root)
     assert any("pip install" in s["command"] for s in steps)   # repo has pyproject.toml
+
+
+def test_context_map_is_dependency_first():
+    from codeglance.render import render_context
+    g = analyze(FIXTURES_IMPORTS, use_llm=False)   # fixtures with cross-file imports
+    md = render_context(g)
+    assert "codebase map (AI context)" in md
+    assert "## Dependency map" in md and "## Files" in md
+    assert "->" in md                               # file -> file dependencies present
+    assert "<html" not in md and "<script" not in md  # plain Markdown, not a web page
