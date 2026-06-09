@@ -5,10 +5,9 @@
   <img src="brand/codeglance-badge.svg" alt="codeglance v0.1.0 · py3">
 </p>
 
-A **pure-Python**, `pip`-installable tool that visualizes and documents any codebase — no Node, no server, no hosting.
+**Only Python needed.** `pip install` and point it at any codebase — no Node, no npm, no build step, no server.
 
-Point it at a codebase and it produces **three views of one analysis** — each a **single,
-self-contained file** you just open. No Node, no npm, no server, no hosting:
+It produces **three views of one analysis**, each a **single self-contained file** you just open:
 
 ```bash
 pip install codeglance
