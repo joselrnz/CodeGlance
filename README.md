@@ -2,7 +2,11 @@
   <img src="brand/codeglance-banner.svg" alt="codeglance" width="760">
 </p>
 <p align="center">
-  <img src="brand/codeglance-badge.svg" alt="codeglance v0.1.0 · py3">
+  <a href="https://pypi.org/project/codeglance/"><img alt="PyPI" src="https://img.shields.io/pypi/v/codeglance?color=0ea5e9&label=pypi"></a>
+  <img alt="Python 3.10+" src="https://img.shields.io/badge/python-3.10%2B-0ea5e9">
+  <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-22d3ee">
+  <img alt="Pure Python" src="https://img.shields.io/badge/stack-pure%20Python-1f6feb">
+  <img alt="Output: single-file, offline" src="https://img.shields.io/badge/output-single--file%20%C2%B7%20offline-155e75">
 </p>
 
 **Only Python needed.** `pip install` and point it at any codebase — no Node, no npm, no build step, no server.
@@ -93,7 +97,8 @@ extracted deterministically (no LLM). Try `codeglance examples/wiki` then click 
 `{ version, project, nodes[], edges[], layers[], tour[] }` — a plain, self-describing JSON format
 you can read, diff, or generate elsewhere.
 
-## Language coverage
+<details>
+<summary><strong>📚 Language coverage — ~50 languages from one <code>pip install</code></strong> (click to expand)</summary>
 
 Deep symbol extraction (functions, classes, methods, **variables & constants** → `contains` edges)
 — **all ~50 work out of the box from a single `pip install`** (tree-sitter ships as a normal pip
@@ -125,6 +130,8 @@ detail.
 **Import-graph edges** resolve intra-project dependencies for: Python (`ast`), JS/TS (relative),
 Go (go.mod module + packages), Rust (`mod` / `use crate::`), Java (dotted path), C/C++
 (`#include "..."`), Ruby (`require_relative`), and PHP (`require`/`include`).
+
+</details>
 
 ## Incremental updates
 
