@@ -15,18 +15,13 @@ WIDTH = 1400.0
 HEIGHT = 900.0
 
 
-# --- Layered "swimlane" layout: layers become stacked container boxes of gridded cards. -----
-CARD_W = 216.0
-CARD_H = 82.0
-_GAP_X = 26.0
-_GAP_Y = 22.0
-_PAD = 18.0
-_HEADER = 36.0
-_LANE_GAP = 48.0
-_LEFT = 48.0
-_TOP = 48.0
-# Max cards per row inside a lane before wrapping to a new row.
-_MAX_COLS = 8
+# --- Layered "swimlane" layout: per-layer containers of gridded cards. --------------------------
+# All sizing now lives in VizConfig (codeglance/config.py); the layout reads it from `config`.
+# CARD_W/CARD_H remain as module aliases for back-compat.
+from .config import DEFAULT_CONFIG, VizConfig
+
+CARD_W = DEFAULT_CONFIG.card_w
+CARD_H = DEFAULT_CONFIG.card_h
 # Sentinel layer key for nodes with no assigned layer (sorts last).
 _UNASSIGNED = 1_000_000
 
@@ -38,16 +33,17 @@ _TYPE_RANK = {
 
 
 def compute_layered_layout(
-    records: list[dict], n_layers: int
+    records: list[dict], n_layers: int, config: VizConfig = DEFAULT_CONFIG
 ) -> tuple[dict[str, tuple[float, float]], list[dict], float, float]:
     """records: list of {id, layer(int or -1), type, filePath, name}.
 
-    Lays each layer out as a stacked container of gridded cards.
-    Returns (positions{id:(cx,cy)}, containers[{layerKey,x,y,w,h,count}], CARD_W, CARD_H).
+    Lays each layer out as a stacked container of gridded cards, sized from ``config`` (VizConfig).
+    Returns (positions{id:(cx,cy)}, containers[{layerKey,x,y,w,h,count}], card_w, card_h).
     """
     import math
     from collections import defaultdict
 
+    cw_card, ch_card = config.card_w, config.card_h
     groups: dict[int, list] = defaultdict(list)
     for r in records:
         layer = r.get("layer")
@@ -56,25 +52,25 @@ def compute_layered_layout(
 
     positions: dict[str, tuple[float, float]] = {}
     containers: list[dict] = []
-    y = _TOP
+    y = config.lane_top
     for key in sorted(groups):
         members = groups[key]
         members.sort(key=lambda r: (r.get("filePath") or "", _TYPE_RANK.get(r["type"], 9), r["name"]))
         n = len(members)
-        cols = min(_MAX_COLS, max(1, int(math.ceil(math.sqrt(n * 1.7)))))
+        cols = min(config.max_cols, max(1, int(math.ceil(math.sqrt(n * 1.7)))))
         rows = int(math.ceil(n / cols))
-        inner_w = cols * CARD_W + (cols - 1) * _GAP_X
-        inner_h = rows * CARD_H + (rows - 1) * _GAP_Y
-        cw = inner_w + 2 * _PAD
-        ch = inner_h + _PAD + _HEADER
-        containers.append({"layerKey": key, "x": _LEFT, "y": y, "w": cw, "h": ch, "count": n})
+        inner_w = cols * cw_card + (cols - 1) * config.lane_gap_x
+        inner_h = rows * ch_card + (rows - 1) * config.lane_gap_y
+        cw = inner_w + 2 * config.lane_pad
+        ch = inner_h + config.lane_pad + config.lane_header
+        containers.append({"layerKey": key, "x": config.lane_left, "y": y, "w": cw, "h": ch, "count": n})
         for i, r in enumerate(members):
             rr, cc = divmod(i, cols)
-            cx = _LEFT + _PAD + cc * (CARD_W + _GAP_X) + CARD_W / 2
-            cy = y + _HEADER + rr * (CARD_H + _GAP_Y) + CARD_H / 2
+            cx = config.lane_left + config.lane_pad + cc * (cw_card + config.lane_gap_x) + cw_card / 2
+            cy = y + config.lane_header + rr * (ch_card + config.lane_gap_y) + ch_card / 2
             positions[r["id"]] = (round(cx, 1), round(cy, 1))
-        y += ch + _LANE_GAP
-    return positions, containers, CARD_W, CARD_H
+        y += ch + config.lane_spacing
+    return positions, containers, cw_card, ch_card
 
 
 def compute_layout(

@@ -5,7 +5,7 @@ Every tunable that used to be a magic number scattered across ``layout.py`` and 
 dataclass. To customise the output you build a ``VizConfig`` and pass it in; nothing is hunted for
 across files:
 
-    from codeglance.render.config import VizConfig
+    from codeglance.config import VizConfig
     from codeglance.render import render_interactive
     html = render_interactive(graph, config=VizConfig(card_w=240, default_theme="ocean"))
 
@@ -17,7 +17,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Mapping
 
-from ..enums import ThemeName
+from .enums import ThemeName
 
 # Node card colour by type (mirrors the original dashboard palette).
 _TYPE_COLORS: dict[str, str] = {

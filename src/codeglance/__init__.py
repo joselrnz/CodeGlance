@@ -4,3 +4,4 @@ __version__ = "0.1.0"
 
 from .schema import KnowledgeGraph, Node, Edge, Layer, TourStep  # noqa: F401
 from .enums import NodeType, Complexity, EdgeType, ThemeName  # noqa: F401
+from .config import VizConfig, DEFAULT_CONFIG  # noqa: F401
