@@ -13,18 +13,14 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+# Enums are re-exported here so `schema` stays the one place to import the model's vocabulary.
+from .enums import Complexity, EdgeType, FILE_LEVEL, NodeType, ThemeName, ENTITY_TYPES, values  # noqa: F401
+
 SCHEMA_VERSION = "1.0.0"
 
-# 13 node types from the original schema.
-NODE_TYPES = {
-    "file", "function", "class", "module", "concept", "config", "document",
-    "service", "table", "endpoint", "pipeline", "schema", "resource",
-}
-
-# File-level node types (everything that maps to a whole file, vs. a symbol inside one).
-FILE_LEVEL_TYPES = {
-    "file", "config", "document", "service", "pipeline", "table", "schema", "resource", "endpoint",
-}
+# Allowed node types / file-level types — derived from the enums (single source of truth).
+NODE_TYPES = values(NodeType)
+FILE_LEVEL_TYPES = frozenset(t.value for t in FILE_LEVEL)
 
 # Default edge weights by type (from the original SKILL reference table).
 EDGE_WEIGHTS: dict[str, float] = {
@@ -37,7 +33,7 @@ EDGE_WEIGHTS: dict[str, float] = {
 }
 DEFAULT_EDGE_WEIGHT = 0.5
 
-COMPLEXITY_VALUES = {"simple", "moderate", "complex"}
+COMPLEXITY_VALUES = values(Complexity)
 
 
 def edge_weight(edge_type: str) -> float:
