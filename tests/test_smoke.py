@@ -420,3 +420,26 @@ def test_offline_terminal_present():
     # it must stay self-contained — no network calls sneaking in
     assert "pyodide" not in html.lower()
     assert "cdn." not in html.lower()
+
+
+def test_enums_back_compat_and_str_behaviour():
+    from codeglance.enums import NodeType, Complexity, ThemeName
+    from codeglance import schema
+    assert NodeType.FILE == "file" and isinstance(NodeType.CLASS, str)   # str-enum
+    assert ThemeName.GOLD == "gold"
+    # legacy value-sets are derived from the enums (single source of truth)
+    assert schema.NODE_TYPES == {t.value for t in NodeType}
+    assert schema.COMPLEXITY_VALUES == {"simple", "moderate", "complex"}
+    assert "file" in schema.FILE_LEVEL_TYPES   # plain-string membership still works
+
+
+def test_vizconfig_overrides_flow_into_output():
+    from codeglance.config import VizConfig, DEFAULT_CONFIG
+    from codeglance.render import build_view_model, render_interactive
+    g = _sample_graph()
+    vm = build_view_model(g, config=VizConfig(type_colors={"file": "#ff0000"}, card_w=999.0))
+    file_node = next(n for n in vm["nodes"] if n["type"] == "file")
+    assert file_node["color"] == "#ff0000"          # colour override flows to the node
+    assert vm["cardW"] == 999.0                      # dimension override flows through layout
+    assert DEFAULT_CONFIG.card_w == 216.0            # default config left intact
+    assert "#ff0000" in render_interactive(g, config=VizConfig(type_colors={"file": "#ff0000"}))

@@ -448,3 +448,15 @@ Completed 2026-06-09 as one atomic commit (`Rename scopinglang -> codeglance`, 3
 - [x] **Forgejo remote repo renamed** -> `forgejo.local/joselrnz/codeglance.git`; local remote updated
 - [x] auto-memory updated
 > Note: the `scopinglang` mentions in THIS section are a deliberate historical record of the rename.
+
+---
+
+## Progress log (implementation)
+- ✅ **Phase 1 — enums** (`enums.py`; schema value-sets derived from them) — commit `9145de0`
+- ✅ **Phase 2 — VizConfig** (`config.py`, relocated top-level) — `efddb59`, `078e542`
+- ✅ **Phase 3 — wiring** — `layout.py` + `render/__init__.py` fully read from `config`; a custom
+  `VizConfig(...)` flows end-to-end into the HTML; defaults byte-identical — `078e542`, `eed0148`
+- ✅ **Phase 5 (config/enum tests)** — 34 tests green — this commit
+- 🔲 **Phase 3c** — inject `config.default_theme` into the template (theme is still hardcoded `gold`)
+- 🔲 **Phase 4** — `validate()` to flag unknown type/complexity + docstring sweep
+- 🔲 **Wiki / docs HTML mode** (Part H)
