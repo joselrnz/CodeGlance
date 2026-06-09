@@ -380,3 +380,57 @@ header, offline terminal.
 ## Suggested order to implement
 1. Phase 1 (enums) → 2. Phase 2 (config) → 3. Phase 3 wiring (layout → render → template → static)
 → 4. Phase 4 (validate + docstrings) → 5. Phase 5 (tests) → re-render demos → commit + push.
+
+---
+
+## Part G — Project name candidates (PyPI-checked live)
+The tool now does two things — an interactive **graph overview** and (planned) a **wiki/docs page** —
+so the name should read as "see / understand your codebase." Checked against PyPI just now:
+
+| Candidate | PyPI | Notes |
+|---|---|---|
+| **codescape**     | ✅ free | "the landscape of your code"; already our `.codescape/` cache dir; short, brandable |
+| **repolens**      | ✅ free | a lens onto your repo |
+| **repomap**       | ✅ free | plain-descriptive: a map of the repo |
+| **codeglance**    | ✅ free | at-a-glance overview |
+| **scopeview**     | ✅ free | scope + view |
+| **codecartograph**| ✅ free | cartography of code (longer) |
+| ~~codescope, codeatlas, knowgraph, structviz, codewiki, birdseye, reposcope~~ | ❌ taken | — |
+
+Recommendation: **`codescape`** (free, memorable, already our cache-dir name). On pick I rename the
+package dir + `pyproject` name + console-script + `.cache` dir + README in one pass.
+
+---
+
+## Part H — Planned feature: Wiki / Docs HTML mode (non-graphical)
+A **second, separate** output: instead of the canvas graph, render a clean, readable **single-page
+docs site** from the *same* analysis — "a generated wiki", low-jargon.
+
+**CLI:** `scopinglang wiki <path>`  (or `--format wiki`) -> writes `wiki.html` (self-contained, offline).
+
+**Sections — all derived from the existing `KnowledgeGraph` + manifest detection:**
+1. **Overview** — name, description, languages, frameworks, headline stats.
+2. **Getting started / Installation** — auto-detected from manifests: `pyproject.toml` / `requirements.txt`
+   (pip), `package.json` (npm/pnpm), `go.mod`, `Cargo.toml`, `Dockerfile`, Makefile targets.
+3. **Architecture** — layers & domains explained in **prose** (not a graph), with the inter-layer flows.
+4. **Reference** — one readable entry per file/module: summary, key classes/functions, signatures,
+   entities — an auto-README per file.
+5. **Reading order** — the guided tour rendered as a numbered walkthrough.
+
+**Design:** sidebar nav + content sections (docs-site / wiki feel), responsive, single inlined HTML
+(no canvas, no server). Shares `build_view_model()`; new module `render/wiki.py` (`render_wiki_html(vm, config)`),
+plus `analyze/manifests.py` for install detection.
+
+**Status:** PLAN ONLY — implement after the config/enums refactor (should consume `VizConfig` too).
+
+---
+
+## Part I — External references (for review / inspiration)
+- **vercel-labs/opensrc** — cloned to `~/github/opensrc`. CLI that fetches/caches any package's source
+  (npm / PyPI / crates / GitHub) for coding agents; clean **Turborepo + pnpm monorepo** with an
+  `apps/docs` documentation site -> reference for (a) clean packaging / CLI ergonomics and (b) the
+  wiki mode's look & structure.
+- **nexu-io/html-anything** — `e2e/ui/export-menu.test.ts`
+  (https://github.com/nexu-io/html-anything/blob/main/e2e/ui/export-menu.test.ts) -> reference for
+  **E2E UI testing** patterns we could adopt to test the *generated HTML* (export menu, terminal,
+  clusters) beyond today's Python smoke tests.
