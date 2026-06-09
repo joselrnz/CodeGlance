@@ -457,6 +457,10 @@ Completed 2026-06-09 as one atomic commit (`Rename scopinglang -> codeglance`, 3
 - ✅ **Phase 3 — wiring** — `layout.py` + `render/__init__.py` fully read from `config`; a custom
   `VizConfig(...)` flows end-to-end into the HTML; defaults byte-identical — `078e542`, `eed0148`
 - ✅ **Phase 5 (config/enum tests)** — 34 tests green — this commit
-- 🔲 **Phase 3c** — inject `config.default_theme` into the template (theme is still hardcoded `gold`)
-- 🔲 **Phase 4** — `validate()` to flag unknown type/complexity + docstring sweep
-- 🔲 **Wiki / docs HTML mode** (Part H)
+- ✅ **Phase 3c** — graph default theme now comes from `VizConfig.default_theme` — `be4ad4f`
+- ✅ **Phase 4** — `validate()` flags unknown type/complexity; docstrings added — `be4ad4f`
+- ✅ **Wiki / docs HTML mode** — `codeglance wiki`, 5 themes (Dark Ocean default), setup-first — `63a5419`/`a23ef9b`
+- ✅ **AI context map** — `codeglance context` (dependency-first map) + `.claude/skills/codebase-map` — `c476fca`
+
+**COMPLETE.** Config-driven (one `VizConfig`), enum-typed, three outputs from one analysis:
+graph (`codeglance .`), wiki (`codeglance wiki`), AI context map (`codeglance context`). 37 tests green.
