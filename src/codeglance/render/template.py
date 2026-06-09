@@ -12,7 +12,7 @@ _HTML = r"""<!doctype html>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>__TITLE__</title>
 <style>
-  :root { color-scheme: dark; --bg:#0a0a0a; --surface:#241c14; --elevated:#241c14; --card:#1a1a1a; --code-bg:#0f0d0b; --text:#f5f0eb; --text2:#a39787; --muted:#6b5f53; --accent:#d4a574; --accent-rgb:212,165,116; --tint:rgba(255,255,255,0.02); --font-heading:Georgia,"Times New Roman",serif; }
+  :root { color-scheme: dark; --bg:#0a0e14; --surface:#1b2530; --elevated:#1b2530; --card:#1a222c; --code-bg:#0b0f15; --text:#e8edf2; --text2:#87939f; --muted:#536b7a; --accent:#5ba4cf; --accent-rgb:91,164,207; --tint:rgba(255,255,255,0.02); --font-heading:Georgia,"Times New Roman",serif; }
   * { box-sizing: border-box; }
   html,body { margin:0; height:100%; overflow:hidden; background:var(--bg); color:var(--text);
     font-family: ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }

@@ -78,7 +78,7 @@ class VizConfig:
     unassigned_color: str = "#64748b"
 
     # --- theme + source embedding ---
-    default_theme: ThemeName = ThemeName.GOLD
+    default_theme: ThemeName = ThemeName.OCEAN   # project default (Dark Ocean) — the one place to change it
     max_source_bytes: int = 16_000
 
     # --- encapsulated accessors ("getters") ---

@@ -228,11 +228,11 @@ def test_domain_view_built_with_cross_domain_flows():
         assert {"a", "b", "label", "count"} <= set(e)
 
 
-def test_default_theme_is_gold_and_flow_animation_present():
+def test_default_theme_is_ocean_and_flow_animation_present():
     html = render_interactive(_sample_graph())
     # Dark Gold is the default — matches the original dashboard's signature accent (first paint + JS state)
-    assert "--accent:#d4a574" in html and '"defaultTheme": "gold"' in html  # default theme via view model
-    assert "212,165,116" in html  # gold accent rgb on :root
+    assert "--accent:#5ba4cf" in html and '"defaultTheme": "ocean"' in html  # default theme via view model
+    assert "91,164,207" in html  # gold accent rgb on :root
     # marching-ants edge-flow animation + Domain/Structural mode toggle are wired in
     for marker in ("drawCards", "setMode", "modeSeg", "btnAnim", "setAnim",
                    "dashPhase", "lineDashOffset", "DATA.domains", "cardInfoHTML"):
@@ -474,8 +474,8 @@ def test_default_theme_from_config_and_validate_flags_bad_values():
     from codeglance.render import render_interactive
     from codeglance.config import VizConfig
     g = _sample_graph()
-    assert '"defaultTheme": "gold"' in render_interactive(g)                                  # default
-    assert '"defaultTheme": "ocean"' in render_interactive(g, config=VizConfig(default_theme="ocean"))
+    assert '"defaultTheme": "ocean"' in render_interactive(g)                                  # default
+    assert '"defaultTheme": "gold"' in render_interactive(g, config=VizConfig(default_theme="gold"))
     bad = KnowledgeGraph(project=Project(name="x"),
                          nodes=[Node(id="n", type="weird", name="n", summary="s", complexity="huge")])
     issues, warnings = bad.validate()
