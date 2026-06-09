@@ -1,0 +1,53 @@
+<svg viewBox="0 0 1280 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="codeglance banner">
+  <defs>
+    <linearGradient id="oceanb" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#38BDF8"/><stop offset="100%" stop-color="#0E7490"/>
+    </linearGradient>
+    <linearGradient id="lensb" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22D3EE"/><stop offset="100%" stop-color="#2DD4BF"/>
+    </linearGradient>
+    <linearGradient id="wmb" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#38BDF8"/><stop offset="55%" stop-color="#22D3EE"/><stop offset="100%" stop-color="#2DD4BF"/>
+    </linearGradient>
+    <clipPath id="clipb"><circle cx="130" cy="130" r="86"/></clipPath>
+  </defs>
+  <rect width="1280" height="360" rx="24" fill="#0B141D"/>
+  <rect x="2" y="2" width="1276" height="356" rx="22" fill="none" stroke="#14222E" stroke-width="2"/>
+  <g transform="translate(208,74) scale(0.72)">
+    <g clip-path="url(#clipb)">
+      <rect x="44" y="44" width="172" height="172" fill="#0F1B26"/>
+      <g fill="#1A2A38">
+        <circle cx="62" cy="74" r="2.5"/><circle cx="98" cy="60" r="2.5"/><circle cx="190" cy="70" r="2.5"/>
+        <circle cx="206" cy="120" r="2.5"/><circle cx="64" cy="160" r="2.5"/><circle cx="186" cy="200" r="2.5"/>
+        <circle cx="120" cy="216" r="2.5"/><circle cx="74" cy="206" r="2.5"/>
+      </g>
+      <g stroke="#2DD4BF" stroke-width="3.5" opacity="0.9">
+        <line x1="116" y1="98" x2="166" y2="126"/>
+        <line x1="112" y1="102" x2="112" y2="154"/>
+        <line x1="130" y1="162" x2="164" y2="142"/>
+      </g>
+      <g fill="#2DD4BF">
+        <path d="M166 126 l-11 -1.5 5.5 -9.5 Z"/>
+        <path d="M112 154 l-5.5 -9.5 11 0 Z"/>
+      </g>
+      <rect x="86" y="74" width="54" height="36" rx="5" fill="url(#oceanb)"/>
+      <circle cx="102" cy="86" r="5" fill="#E6F6FB"/>
+      <rect x="156" y="116" width="48" height="32" rx="5" fill="#1B2A38" stroke="#24384A" stroke-width="1.5"/>
+      <rect x="86" y="154" width="46" height="30" rx="5" fill="#155E75"/>
+    </g>
+    <circle cx="130" cy="130" r="86" fill="none" stroke="url(#lensb)" stroke-width="11"/>
+    <path d="M 69 88 A 74 74 0 0 1 111 59" fill="none" stroke="#E6F6FB" stroke-width="5" stroke-linecap="round" opacity="0.35"/>
+    <line x1="192" y1="192" x2="222" y2="222" stroke="#2DD4BF" stroke-width="14" stroke-linecap="round" opacity="0.0"/>
+    <line x1="194" y1="194" x2="260" y2="260" stroke="url(#oceanb)" stroke-width="17" stroke-linecap="round"/>
+  </g>
+  <text x="772" y="168" text-anchor="middle" font-family="'JetBrains Mono','Fira Code','Cascadia Code',Consolas,monospace"
+        font-size="88" font-weight="700" letter-spacing="2" fill="url(#wmb)">codeglance</text>
+  <text x="772" y="216" text-anchor="middle" font-family="'JetBrains Mono','Fira Code',Consolas,monospace"
+        font-size="24" letter-spacing="2" fill="#7E8C9A">see any codebase &#183; graph &#183; wiki &#183; ai context</text>
+  <g transform="translate(495,244)" font-family="'JetBrains Mono',Consolas,monospace" font-size="21">
+    <rect x="0" y="0" width="362" height="40" rx="20" fill="#101C28" stroke="#1E3240" stroke-width="1.5"/>
+    <text x="22" y="27"><tspan fill="#2DD4BF">$</tspan><tspan fill="#C7D6DF" dx="12">pip install codeglance</tspan></text>
+    <rect x="382" y="0" width="172" height="40" rx="20" fill="none" stroke="#0E7490" stroke-width="2"/>
+    <text x="406" y="27" fill="#38BDF8">pure python</text>
+  </g>
+</svg>

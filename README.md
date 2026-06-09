@@ -1,4 +1,9 @@
-# codeglance
+<p align="center">
+  <img src="brand/codeglance-banner.svg" alt="codeglance" width="760">
+</p>
+<p align="center">
+  <img src="brand/codeglance-badge.svg" alt="codeglance v0.1.0 · py3">
+</p>
 
 A **pure-Python**, `pip`-installable port of [Understand-Anything](https://github.com/Lum1104/Understand-Anything).
 

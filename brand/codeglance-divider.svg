@@ -1,0 +1,5 @@
+<svg viewBox="0 0 1280 40" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="codeglance section divider">
+  <line x1="0" y1="20" x2="1212" y2="20" stroke="#1E3240" stroke-width="2"/>
+  <circle cx="1236" cy="18" r="12" fill="none" stroke="#22D3EE" stroke-width="4"/>
+  <line x1="1245" y1="27" x2="1256" y2="38" stroke="#0E7490" stroke-width="6" stroke-linecap="round"/>
+</svg>

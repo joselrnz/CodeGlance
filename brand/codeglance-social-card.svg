@@ -1,0 +1,58 @@
+<svg viewBox="0 0 1280 640" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="codeglance social card">
+  <defs>
+    <linearGradient id="oceans" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#38BDF8"/><stop offset="100%" stop-color="#0E7490"/>
+    </linearGradient>
+    <linearGradient id="lenss" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22D3EE"/><stop offset="100%" stop-color="#2DD4BF"/>
+    </linearGradient>
+    <linearGradient id="wms" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#38BDF8"/><stop offset="55%" stop-color="#22D3EE"/><stop offset="100%" stop-color="#2DD4BF"/>
+    </linearGradient>
+    <clipPath id="clips"><circle cx="130" cy="130" r="86"/></clipPath>
+  </defs>
+  <pattern id="grids" width="48" height="48" patternUnits="userSpaceOnUse">
+    <path d="M48 0 H0 V48" fill="none" stroke="#11202C" stroke-width="1"/>
+  </pattern>
+  <rect width="1280" height="640" fill="#0B141D"/>
+  <rect width="1280" height="640" fill="url(#grids)"/>
+  <circle cx="80" cy="660" r="310" fill="none" stroke="#22D3EE" stroke-width="22" opacity="0.07"/>
+  <circle cx="1230" cy="-30" r="200" fill="none" stroke="#2DD4BF" stroke-width="16" opacity="0.06"/>
+  <g transform="translate(112,128) scale(1.38)">
+    <g clip-path="url(#clips)">
+      <rect x="44" y="44" width="172" height="172" fill="#0F1B26"/>
+      <g fill="#1A2A38">
+        <circle cx="62" cy="74" r="2.5"/><circle cx="98" cy="60" r="2.5"/><circle cx="190" cy="70" r="2.5"/>
+        <circle cx="206" cy="120" r="2.5"/><circle cx="64" cy="160" r="2.5"/><circle cx="186" cy="200" r="2.5"/>
+        <circle cx="120" cy="216" r="2.5"/><circle cx="74" cy="206" r="2.5"/>
+      </g>
+      <g stroke="#2DD4BF" stroke-width="3.5" opacity="0.9">
+        <line x1="116" y1="98" x2="166" y2="126"/>
+        <line x1="112" y1="102" x2="112" y2="154"/>
+        <line x1="130" y1="162" x2="164" y2="142"/>
+      </g>
+      <g fill="#2DD4BF">
+        <path d="M166 126 l-11 -1.5 5.5 -9.5 Z"/>
+        <path d="M112 154 l-5.5 -9.5 11 0 Z"/>
+      </g>
+      <rect x="86" y="74" width="54" height="36" rx="5" fill="url(#oceans)"/>
+      <circle cx="102" cy="86" r="5" fill="#E6F6FB"/>
+      <rect x="156" y="116" width="48" height="32" rx="5" fill="#1B2A38" stroke="#24384A" stroke-width="1.5"/>
+      <rect x="86" y="154" width="46" height="30" rx="5" fill="#155E75"/>
+    </g>
+    <circle cx="130" cy="130" r="86" fill="none" stroke="url(#lenss)" stroke-width="11"/>
+    <path d="M 69 88 A 74 74 0 0 1 111 59" fill="none" stroke="#E6F6FB" stroke-width="5" stroke-linecap="round" opacity="0.35"/>
+    <line x1="192" y1="192" x2="222" y2="222" stroke="#2DD4BF" stroke-width="14" stroke-linecap="round" opacity="0.0"/>
+    <line x1="194" y1="194" x2="260" y2="260" stroke="url(#oceans)" stroke-width="17" stroke-linecap="round"/>
+  </g>
+  <text x="540" y="296" font-family="'JetBrains Mono','Fira Code',Consolas,monospace"
+        font-size="104" font-weight="700" letter-spacing="3" fill="url(#wms)">codeglance</text>
+  <text x="546" y="358" font-family="'JetBrains Mono',Consolas,monospace"
+        font-size="30" letter-spacing="2" fill="#7E8C9A">see any codebase</text>
+  <text x="546" y="402" font-family="'JetBrains Mono',Consolas,monospace"
+        font-size="30" letter-spacing="2" fill="#7E8C9A">graph &#183; wiki &#183; ai context</text>
+  <g transform="translate(546,444)" font-family="'JetBrains Mono',Consolas,monospace" font-size="24">
+    <rect x="0" y="0" width="414" height="48" rx="24" fill="#101C28" stroke="#1E3240" stroke-width="1.5"/>
+    <text x="26" y="32"><tspan fill="#2DD4BF">$</tspan><tspan fill="#C7D6DF" dx="14">pip install codeglance</tspan></text>
+  </g>
+</svg>
