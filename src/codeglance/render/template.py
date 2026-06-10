@@ -20,15 +20,17 @@ _HTML = r"""<!doctype html>
   .card { background:rgba(20,20,20,0.94); border:1px solid rgba(var(--accent-rgb),0.14); border-radius:12px;
     backdrop-filter: blur(6px); box-shadow:0 10px 34px rgba(0,0,0,0.45); }
   #topbar { position:fixed; top:14px; left:14px; right:14px; display:grid;
-    grid-template-columns:minmax(118px,max-content) auto auto minmax(270px,1fr) max-content;
-    grid-auto-rows:minmax(28px,auto); align-items:center; gap:8px 12px; padding:10px 14px 9px;
-    z-index:5; max-height:76px; overflow:hidden; }
-  body.show-facets #topbar { max-height:112px; }
-  #topbar .title { grid-column:1; min-width:118px; font-weight:700; font-size:15px; white-space:nowrap; }
+    grid-template-columns:minmax(150px,max-content) auto auto minmax(300px,1fr) max-content;
+    grid-auto-rows:minmax(32px,auto); align-items:center; gap:8px 14px; padding:11px 14px 10px;
+    z-index:5; max-height:82px; overflow:hidden; }
+  body.show-facets #topbar { max-height:120px; }
+  #topbar .brand { grid-column:1; min-width:150px; display:flex; flex-direction:column; gap:2px; line-height:1.05; }
+  #topbar .title { min-width:0; font-weight:700; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #topbar .meta { color:var(--muted); font-size:10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:210px; }
   #topbar .sub { color:var(--text2); font-size:12px; white-space:nowrap; }
-  #search { flex:1; min-width:0; background:var(--bg); border:1px solid rgba(var(--accent-rgb),0.28); color:var(--text);
-    padding:7px 11px; border-radius:8px; font-size:13px; outline:none; }
-  #search:focus { border-color:var(--accent); }
+  #search { flex:1; min-width:0; background:transparent; border:none; color:var(--text);
+    padding:7px 5px; border-radius:8px; font-size:13px; outline:none; }
+  #searchWrap:focus-within { border-color:rgba(var(--accent-rgb),0.62); box-shadow:0 0 0 3px rgba(var(--accent-rgb),0.10); }
   #topbar .hint { color:var(--muted); font-size:11px; white-space:nowrap; }
   .leg { position:fixed; left:14px; max-width:230px; overflow:auto; padding:10px 12px; z-index:5; font-size:12px; }
   #types { top:104px; max-height:34vh; } #legend { bottom:14px; max-height:40vh; }
@@ -102,7 +104,9 @@ _HTML = r"""<!doctype html>
   #filterMenu h5:first-child { margin-top:0; }
   #filterMenu label { display:flex; align-items:center; gap:7px; font-size:12px; padding:3px 4px; border-radius:6px; cursor:pointer; }
   #filterMenu label:hover { background:var(--elevated); } #filterMenu input { accent-color:var(--accent); }
-  #searchWrap { position:relative; display:grid; grid-template-columns:minmax(130px,1fr) auto; align-items:center; gap:6px; flex:none; }
+  #searchWrap { position:relative; display:grid; grid-template-columns:auto minmax(130px,1fr) auto; align-items:center; gap:6px; flex:none;
+    background:rgba(8,12,18,0.82); border:1px solid rgba(var(--accent-rgb),0.24); border-radius:10px; padding:0 6px; }
+  #searchWrap::before { content:"⌕"; color:var(--muted); font-size:14px; line-height:1; padding-left:2px; }
   .smode { display:flex; background:var(--elevated); border-radius:7px; padding:2px; }
   .smode button { border:none; background:transparent; color:var(--text2); font-size:10px; padding:3px 7px; border-radius:5px; cursor:pointer; }
   .smode button.on { background:rgba(var(--accent-rgb),0.2); color:var(--accent); }
@@ -113,6 +117,8 @@ _HTML = r"""<!doctype html>
   #moreMenu button { min-width:0; padding:5px 8px; font-size:11px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   #moreMenu button.on { color:var(--accent); border-color:rgba(var(--accent-rgb),0.5); background:rgba(var(--accent-rgb),0.16); }
   #moreMenu .mobile-only { display:none; }
+  #btnMore { min-width:76px; font-weight:600; border-color:rgba(var(--accent-rgb),0.36); background:rgba(var(--accent-rgb),0.10); }
+  #btnMore:hover { background:rgba(var(--accent-rgb),0.22); }
   #searchResults { position:fixed; z-index:9; width:330px; max-height:300px; overflow:auto; padding:6px; display:none; }
   #searchResults .sr { display:flex; align-items:center; gap:8px; padding:5px 7px; border-radius:6px; cursor:pointer; }
   #searchResults .sr:hover { background:var(--elevated); }
@@ -139,9 +145,11 @@ _HTML = r"""<!doctype html>
   }
   @media (max-width:640px){
     #topbar { display:grid; top:max(8px,env(safe-area-inset-top)); left:max(8px,env(safe-area-inset-left)); right:max(8px,env(safe-area-inset-right));
-      grid-template-columns:minmax(0,1fr) auto; grid-auto-rows:auto; align-items:center; gap:7px; padding:8px 10px; max-height:96px; overflow:hidden; }
+      grid-template-columns:minmax(0,1fr) auto; grid-auto-rows:auto; align-items:center; gap:7px; padding:8px 10px; max-height:104px; overflow:hidden; }
     body.show-facets #topbar { max-height:190px; overflow:auto; }
-    #topbar .title { grid-column:1; min-width:0; overflow:hidden; text-overflow:ellipsis; }
+    #topbar .brand { grid-column:1; min-width:0; }
+    #topbar .title { min-width:0; overflow:hidden; text-overflow:ellipsis; }
+    #topbar .meta { max-width:none; }
     #topbar .personas, #modeSeg { display:none; }
     #topbar .bar { grid-column:2; width:auto; min-width:0; margin-left:0; overflow:visible; scrollbar-width:none; padding-bottom:0; }
     #topbar .bar::-webkit-scrollbar { display:none; }
@@ -297,7 +305,7 @@ _HTML = r"""<!doctype html>
 <body>
 <canvas id="cv"></canvas>
 <div id="topbar" class="card">
-  <span class="title">__PROJECT_NAME__</span>
+  <span class="brand"><span class="title">__PROJECT_NAME__</span><span class="meta">__SUBTITLE__</span></span>
   <span class="personas">
     <button class="pa active" data-p="overview" title="High-level architecture — one card per layer">Overview</button>
     <button class="pa" data-p="all" title="Detailed view — clusters with files, classes &amp; functions">Explore</button>
