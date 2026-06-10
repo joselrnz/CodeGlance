@@ -72,7 +72,7 @@ _HTML = r"""<!doctype html>
     font-size:11px; color:#bfe3c8; white-space:pre; }
   .doc { color:var(--text); font-size:12px; line-height:1.5; white-space:pre-wrap; background:rgba(var(--accent-rgb),0.06);
     border:1px solid rgba(var(--accent-rgb),0.18); border-radius:6px; padding:8px 10px; }
-  .code { background:var(--code-bg); border:1px solid rgba(var(--accent-rgb),0.14); border-radius:8px; overflow:auto; max-height:340px;
+  .code { background:var(--code-bg); border:1px solid rgba(var(--accent-rgb),0.14); border-radius:8px; overflow:auto; max-height:min(230px,32vh);
     font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11px; line-height:1.5; }
   .code table.ct { border-collapse:collapse; width:100%; }
   .code td.ln { user-select:none; text-align:right; color:#5c5145; padding:0 9px; width:1%; white-space:nowrap;
@@ -180,7 +180,7 @@ _HTML = r"""<!doctype html>
       width:auto; max-height:44dvh; overflow:auto; }
     #term { left:max(8px,env(safe-area-inset-left)); right:max(8px,env(safe-area-inset-right)); bottom:max(8px,env(safe-area-inset-bottom));
       width:auto; height:min(48dvh,340px); }
-    .code { max-height:28dvh; }
+    .code { max-height:24dvh; }
     .modal { align-items:flex-end; padding:8px; }
     .modal .mbox { width:100%; max-width:100%; max-height:82dvh; border-radius:14px 14px 10px 10px; }
   }
@@ -1087,14 +1087,13 @@ const $=id=>document.getElementById(id);
 const moreMenu=$('moreMenu');
 function placeMoreMenu(){
   moreMenu.style.left=''; moreMenu.style.right='14px';
-  const p=$('panel'), open=p&&!p.classList.contains('collapsed')&&innerWidth>760;
+  const b=$('btnMore'); if(b){ const br=b.getBoundingClientRect(); moreMenu.style.right=Math.max(8, innerWidth-br.right)+'px'; }
+  const p=$('panel'), open=p&&!p.classList.contains('collapsed');
   if(!open)return;
   const pr=p.getBoundingClientRect(), mr=moreMenu.getBoundingClientRect();
-  const gap=12, right=Math.max(14, innerWidth-pr.left+gap);
-  moreMenu.style.right=right+'px';
-  const nr=moreMenu.getBoundingClientRect();
-  if(nr.left<14){ moreMenu.style.right=''; moreMenu.style.left='14px'; }
-  else if(mr.width<1){ moreMenu.style.right=right+'px'; }
+  const ix=Math.max(0,Math.min(mr.right,pr.right)-Math.max(mr.left,pr.left));
+  const iy=Math.max(0,Math.min(mr.bottom,pr.bottom)-Math.max(mr.top,pr.top));
+  if(ix*iy>0) togglePanel(false);
 }
 function toggleFacets(on){ const show=(on===undefined)?!document.body.classList.contains('show-facets'):on;
   document.body.classList.toggle('show-facets', show); refreshMoreControls(); if(typeof syncTopbarH==='function') syncTopbarH(); }

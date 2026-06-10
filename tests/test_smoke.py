@@ -474,6 +474,8 @@ def test_interactive_toolbar_stays_compact():
         "CLUSTER_CONTENT_TOP",
         "typeof v==='number'",
         "applyDetail(false)",
+        "max-height:min(230px,32vh)",
+        "innerWidth-br.right",
         "overflow-x:auto",
         "width:100%; max-width:100%",
         "#topbar .bar::-webkit-scrollbar",
