@@ -483,14 +483,17 @@ def test_interactive_toolbar_stays_compact():
         "overflow-x:auto",
         "width:100%; max-width:100%",
         "#topbar .bar::-webkit-scrollbar",
-        'id="btnMore"',
+        'id="toolsRail"',
         'id="moreMenu"',
+        "tools-collapsed",
         "tools-head",
         "data-tools-close",
-        "innerWidth>900",
+        "graphViewport",
+        "setToolsCollapsed",
         "refreshMoreControls",
     ):
         assert m in html, f"missing compact toolbar marker: {m}"
+    assert 'id="btnMore"' not in html
 
 
 def test_interactive_tour_hides_minimap():
