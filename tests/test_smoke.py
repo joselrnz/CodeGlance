@@ -98,8 +98,8 @@ def test_overview_layer_cards_and_drilldown():
     for marker in ("catFilters", "layerChips", "detailSeg", "fnToggle", "Start Tour"):
         assert marker in html, f"missing header chrome: {marker}"
     assert 'id="types"' not in html and 'id="legend"' not in html  # left panels removed
-    # sidebar Info/Files tabs + collapsible file tree + panel collapse
-    for marker in ("ptab", "filesHTML", "treeHTML", "fdirrow", "extBadge", "togglePanel", 'data-tab="files"'):
+    # inspector dropdown + collapsible file tree + panel collapse
+    for marker in ("pselect", "filesHTML", "treeHTML", "fdirrow", "extBadge", "togglePanel", 'value="files"'):
         assert marker in html, f"missing sidebar feature: {marker}"
     # a graph WITH layers yields exactly one layer card per layer
     g = analyze(FIXTURES, use_llm=False)
@@ -464,7 +464,9 @@ def test_interactive_toolbar_stays_compact():
         "display:grid",
         "grid-template-columns:minmax(118px,max-content) auto auto auto auto auto minmax(270px,1fr) minmax(360px,max-content)",
         "@media (max-width:1360px) and (min-width:641px)",
-        "max-height:112px",
+        "max-height:76px",
+        "body.show-facets #topbar",
+        'data-action="facets"',
         "overflow-x:auto",
         "width:100%; max-width:100%",
         "#topbar .bar::-webkit-scrollbar",
