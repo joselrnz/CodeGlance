@@ -268,6 +268,7 @@ The `examples/` folder has small repos you can use to test the different views:
 ```bash
 codeglance examples/taskman
 codeglance examples/microservices
+codeglance examples/canvas-cli
 codeglance examples/terraform-aws
 codeglance examples/terraform-azure
 codeglance examples/rust-cli
@@ -275,8 +276,8 @@ codeglance examples/java-service
 codeglance examples/wiki
 ```
 
-They cover Python apps, microservices, AWS and Azure Terraform modules, Rust modules, Java packages,
-and Markdown knowledge graphs.
+They cover Python apps, CLIs, microservices, AWS and Azure Terraform modules, Rust modules,
+Java packages, and Markdown knowledge graphs.
 
 ## Schema
 

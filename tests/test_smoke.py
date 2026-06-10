@@ -721,6 +721,14 @@ def test_more_example_projects_are_analyzable():
             "symbols": {"CliConfig", "build_report", "run"},
             "deps": [("src/main.rs", "src/config.rs"), ("src/main.rs", "src/report.rs")],
         },
+        "canvas-cli": {
+            "languages": {"python"},
+            "symbols": {"Canvas", "Shape", "ShapeKind", "render_svg", "main"},
+            "deps": [
+                ("canvas_cli/cli.py", "canvas_cli/commands.py"),
+                ("canvas_cli/renderer.py", "canvas_cli/models.py"),
+            ],
+        },
         "java-service": {
             "languages": {"java"},
             "symbols": {"App", "OrderService", "InMemoryOrderRepository"},
