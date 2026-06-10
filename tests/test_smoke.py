@@ -475,7 +475,8 @@ def test_interactive_toolbar_stays_compact():
         "typeof v==='number'",
         "applyDetail(false)",
         "max-height:min(230px,32vh)",
-        "innerWidth-br.right",
+        "left:14px",
+        "max-height:calc(100vh - var(--topbar-h,44px) - 40px)",
         'id="codeModal"',
         "openCodeModal",
         "source-expand",
@@ -484,6 +485,9 @@ def test_interactive_toolbar_stays_compact():
         "#topbar .bar::-webkit-scrollbar",
         'id="btnMore"',
         'id="moreMenu"',
+        "tools-head",
+        "data-tools-close",
+        "innerWidth>900",
         "refreshMoreControls",
     ):
         assert m in html, f"missing compact toolbar marker: {m}"

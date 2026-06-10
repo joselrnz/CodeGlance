@@ -110,13 +110,17 @@ _HTML = r"""<!doctype html>
   .smode { display:flex; background:var(--elevated); border-radius:7px; padding:2px; }
   .smode button { border:none; background:transparent; color:var(--text2); font-size:10px; padding:3px 7px; border-radius:5px; cursor:pointer; }
   .smode button.on { background:rgba(var(--accent-rgb),0.2); color:var(--accent); }
-  #moreMenu { position:fixed; top:calc(16px + var(--topbar-h,44px)); right:14px; z-index:9; width:250px; max-height:min(72vh,560px); overflow:auto; padding:10px; }
+  #moreMenu { position:fixed; top:calc(22px + var(--topbar-h,44px)); left:14px; right:auto; z-index:6; width:270px;
+    max-height:calc(100vh - var(--topbar-h,44px) - 40px); overflow:auto; padding:12px; }
+  #moreMenu .tools-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 0 10px; padding-bottom:8px;
+    border-bottom:1px solid var(--line); color:var(--text); font-size:12px; font-weight:700; letter-spacing:.02em; }
+  #moreMenu .tools-head button { width:28px; min-width:28px; height:28px; padding:0; border-radius:8px; font-size:14px; }
   #moreMenu h5 { margin:8px 0 5px; color:var(--text2); font-size:10px; text-transform:uppercase; letter-spacing:.06em; }
-  #moreMenu h5:first-child { margin-top:0; }
+  #moreMenu h5:first-of-type { margin-top:0; }
   #moreMenu .mrow { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:7px; }
   #moreMenu button { min-width:0; padding:5px 8px; font-size:11px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   #moreMenu button.on { color:var(--accent); border-color:rgba(var(--accent-rgb),0.5); background:rgba(var(--accent-rgb),0.16); }
-  #moreMenu .mobile-only { display:none; }
+  body.tour-active #moreMenu { visibility:hidden; pointer-events:none; }
   #btnMore { min-width:76px; font-weight:600; border-color:rgba(var(--accent-rgb),0.36); background:rgba(var(--accent-rgb),0.10); }
   #btnMore:hover { background:rgba(var(--accent-rgb),0.22); }
   #searchResults { position:fixed; z-index:9; width:330px; max-height:300px; overflow:auto; padding:6px; display:none; }
@@ -177,8 +181,6 @@ _HTML = r"""<!doctype html>
     #filterMenu, #themeMenu, #exportMenu, #moreMenu, #searchResults { left:max(8px,env(safe-area-inset-left)) !important;
       right:max(8px,env(safe-area-inset-right)) !important; width:auto !important; max-height:48dvh; }
     #filterMenu, #themeMenu, #exportMenu, #moreMenu { top:calc(max(8px,env(safe-area-inset-top)) + var(--topbar-h,44px) + 8px); }
-    #moreMenu h5.mobile-only { display:block; }
-    #moreMenu .mrow.mobile-only { display:grid; }
     #tour { left:max(8px,env(safe-area-inset-left)); right:max(8px,env(safe-area-inset-right)); bottom:max(8px,env(safe-area-inset-bottom));
       width:auto; max-height:44dvh; overflow:auto; }
     #term { left:max(8px,env(safe-area-inset-left)); right:max(8px,env(safe-area-inset-right)); bottom:max(8px,env(safe-area-inset-bottom));
@@ -352,6 +354,7 @@ _HTML = r"""<!doctype html>
 </div>
 <div id="themeMenu" class="card hidden"></div>
 <div id="moreMenu" class="card hidden">
+  <div class="tools-head"><span>Tools</span><button data-tools-close title="Hide tools">‹</button></div>
   <h5 class="mobile-only">View</h5>
   <div class="mrow mobile-only">
     <button data-persona="overview">Overview</button>
@@ -1103,16 +1106,6 @@ window.startTour=startTour;
 // --- toolbar: fit / export / path finder / help ---
 const $=id=>document.getElementById(id);
 const moreMenu=$('moreMenu');
-function placeMoreMenu(){
-  moreMenu.style.left=''; moreMenu.style.right='14px';
-  const b=$('btnMore'); if(b){ const br=b.getBoundingClientRect(); moreMenu.style.right=Math.max(8, innerWidth-br.right)+'px'; }
-  const p=$('panel'), open=p&&!p.classList.contains('collapsed');
-  if(!open)return;
-  const pr=p.getBoundingClientRect(), mr=moreMenu.getBoundingClientRect();
-  const ix=Math.max(0,Math.min(mr.right,pr.right)-Math.max(mr.left,pr.left));
-  const iy=Math.max(0,Math.min(mr.bottom,pr.bottom)-Math.max(mr.top,pr.top));
-  if(ix*iy>0) togglePanel(false);
-}
 function toggleFacets(on){ const show=(on===undefined)?!document.body.classList.contains('show-facets'):on;
   document.body.classList.toggle('show-facets', show); refreshMoreControls(); if(typeof syncTopbarH==='function') syncTopbarH(); }
 function fitAll(){ matched=null; pathNodes=null; pathEdges=null; focusSet=null; focusCenter=-1; fit(); draw(); }
@@ -1271,7 +1264,8 @@ $('btnTheme').onclick=()=>{ moreMenu.classList.add('hidden'); themeMenu.classLis
 $('btnMore').onclick=()=>{ const show=moreMenu.classList.contains('hidden');
   $('filterMenu').classList.add('hidden'); exMenu.classList.add('hidden'); themeMenu.classList.add('hidden');
   if(show&&innerWidth<=640) togglePanel(false);
-  refreshMoreControls(); moreMenu.classList.toggle('hidden', !show); if(show)placeMoreMenu(); };
+  refreshMoreControls(); moreMenu.classList.toggle('hidden', !show); };
+moreMenu.querySelector('[data-tools-close]').onclick=()=>moreMenu.classList.add('hidden');
 moreMenu.querySelectorAll('[data-mirror]').forEach(b=>b.onclick=()=>{ const target=$(b.dataset.mirror); if(target)target.click(); refreshMoreControls(); });
 moreMenu.querySelectorAll('[data-persona]').forEach(b=>b.onclick=()=>{ const src=document.querySelector('.pa[data-p="'+b.dataset.persona+'"]'); setPersona(b.dataset.persona, src); if(b.dataset.persona==='learn')moreMenu.classList.add('hidden'); refreshMoreControls(); });
 moreMenu.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{ if(b.disabled)return; setMode(b.dataset.mode); refreshMoreControls(); });
@@ -1320,6 +1314,7 @@ if(window.ResizeObserver){ try{ new ResizeObserver(syncTopbarH).observe(_topbarE
 window.addEventListener('resize',syncTopbarH); syncTopbarH();
 try{ const sv=JSON.parse(localStorage.getItem('sl-theme-v2')||'null'); if(sv&&THEMES[sv.name]) THEME_STATE=sv; }catch(e){}
 applyTheme(); applyDetail(); applyModeUI(); renderPanel(); togglePanel(false); fit(); resize();
+if(innerWidth>900) moreMenu.classList.remove('hidden');
 if(animOn) startAnim(); else { const _b=document.getElementById('btnAnim'); if(_b)_b.classList.remove('on'); }
 (function(){ try{ const m=/[#&]n=([^&]+)/.exec(location.hash||''); if(m){ const i=N.findIndex(n=>n.id===decodeURIComponent(m[1])); if(i>=0) goToNode(i); } }catch(e){} })();
 </script>
