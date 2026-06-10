@@ -20,7 +20,7 @@ _HTML = r"""<!doctype html>
   .card { background:rgba(20,20,20,0.94); border:1px solid rgba(var(--accent-rgb),0.14); border-radius:12px;
     backdrop-filter: blur(6px); box-shadow:0 10px 34px rgba(0,0,0,0.45); }
   #topbar { position:fixed; top:14px; left:14px; right:14px; display:grid;
-    grid-template-columns:minmax(118px,max-content) auto auto auto auto auto minmax(190px,1fr) minmax(360px,max-content);
+    grid-template-columns:minmax(118px,max-content) auto auto auto auto auto minmax(270px,1fr) minmax(360px,max-content);
     grid-auto-rows:minmax(28px,auto); align-items:center; gap:8px 12px; padding:10px 14px 9px;
     z-index:5; max-height:112px; overflow:hidden; }
   #topbar .title { grid-column:1; min-width:118px; font-weight:700; font-size:15px; white-space:nowrap; }
@@ -98,10 +98,16 @@ _HTML = r"""<!doctype html>
   #filterMenu h5:first-child { margin-top:0; }
   #filterMenu label { display:flex; align-items:center; gap:7px; font-size:12px; padding:3px 4px; border-radius:6px; cursor:pointer; }
   #filterMenu label:hover { background:var(--elevated); } #filterMenu input { accent-color:var(--accent); }
-  #searchWrap { position:relative; display:flex; align-items:center; gap:6px; flex:none; }
+  #searchWrap { position:relative; display:grid; grid-template-columns:minmax(130px,1fr) auto; align-items:center; gap:6px; flex:none; }
   .smode { display:flex; background:var(--elevated); border-radius:7px; padding:2px; }
   .smode button { border:none; background:transparent; color:var(--text2); font-size:10px; padding:3px 7px; border-radius:5px; cursor:pointer; }
   .smode button.on { background:rgba(var(--accent-rgb),0.2); color:var(--accent); }
+  #moreMenu { position:fixed; top:calc(16px + var(--topbar-h,44px)); right:14px; z-index:9; width:230px; padding:10px; }
+  #moreMenu h5 { margin:8px 0 5px; color:var(--text2); font-size:10px; text-transform:uppercase; letter-spacing:.06em; }
+  #moreMenu h5:first-child { margin-top:0; }
+  #moreMenu .mrow { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:7px; }
+  #moreMenu button { min-width:0; padding:5px 8px; font-size:11px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #moreMenu button.on { color:var(--accent); border-color:rgba(var(--accent-rgb),0.5); background:rgba(var(--accent-rgb),0.16); }
   #searchResults { position:fixed; z-index:9; width:330px; max-height:300px; overflow:auto; padding:6px; display:none; }
   #searchResults .sr { display:flex; align-items:center; gap:8px; padding:5px 7px; border-radius:6px; cursor:pointer; }
   #searchResults .sr:hover { background:var(--elevated); }
@@ -136,6 +142,9 @@ _HTML = r"""<!doctype html>
     #topbar .bar button { flex:0 0 auto; }
     #modeSeg { flex:1 1 100%; overflow-x:auto; }
     #topbar #search, #topbar #searchWrap { flex:1 1 100%; width:auto; order:9; }
+    #btnDiff, #detailSeg, #fnToggle, #searchMode,
+    #btnFit, #btnPath, #btnFilter, #btnExport, #btnAnim, #btnTheme, #btnTerm { display:none; }
+    #topbar .bar { justify-content:flex-end; overflow:visible; }
     #topbar .grow { display:none; }
     #crumb, #mm, #zoom { display:none; }
     #tourstart { display:block; top:calc(max(8px,env(safe-area-inset-top)) + var(--topbar-h,44px) + 8px);
@@ -147,9 +156,9 @@ _HTML = r"""<!doctype html>
     #panel.collapsed { transform:translateY(120%); }
     #panelReopen { top:auto; right:max(8px,env(safe-area-inset-right)); bottom:max(10px,env(safe-area-inset-bottom));
       border-radius:999px; padding:10px 12px; }
-    #filterMenu, #themeMenu, #exportMenu, #searchResults { left:max(8px,env(safe-area-inset-left)) !important;
+    #filterMenu, #themeMenu, #exportMenu, #moreMenu, #searchResults { left:max(8px,env(safe-area-inset-left)) !important;
       right:max(8px,env(safe-area-inset-right)) !important; width:auto !important; max-height:48dvh; }
-    #filterMenu, #themeMenu, #exportMenu { top:calc(max(8px,env(safe-area-inset-top)) + var(--topbar-h,44px) + 8px); }
+    #filterMenu, #themeMenu, #exportMenu, #moreMenu { top:calc(max(8px,env(safe-area-inset-top)) + var(--topbar-h,44px) + 8px); }
     #tour { left:max(8px,env(safe-area-inset-left)); right:max(8px,env(safe-area-inset-right)); bottom:max(8px,env(safe-area-inset-bottom));
       width:auto; max-height:44dvh; overflow:auto; }
     #term { left:max(8px,env(safe-area-inset-left)); right:max(8px,env(safe-area-inset-right)); bottom:max(8px,env(safe-area-inset-bottom));
@@ -206,11 +215,17 @@ _HTML = r"""<!doctype html>
   .chip { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--text2); cursor:pointer; white-space:nowrap; }
   .chip:hover{color:var(--text);} .chip.dim{opacity:.4;} .chip.active{color:var(--text);font-weight:600;}
   .chip .muted{color:var(--muted);margin-left:1px;}
-  @media (max-width:1200px) and (min-width:641px){
-    #topbar { grid-template-columns:minmax(118px,max-content) auto auto minmax(180px,1fr) minmax(220px,32vw); }
-    #btnDiff, #detailSeg, #fnToggle, #searchMode { display:none; }
+  @media (min-width:1361px){ #btnMore { display:none; } }
+  @media (max-width:1360px) and (min-width:641px){
+    #topbar { grid-template-columns:minmax(118px,max-content) auto auto minmax(220px,1fr) max-content; }
+    #btnDiff, #detailSeg, #fnToggle, #searchMode,
+    #btnFit, #btnPath, #btnFilter, #btnExport, #btnAnim, #btnTheme, #btnTerm { display:none; }
     #searchWrap { grid-column:4 !important; }
-    #topbar .bar { grid-column:5 !important; max-width:100%; }
+    #topbar .bar { grid-column:5 !important; max-width:100%; overflow:visible; justify-content:flex-end; }
+  }
+  @media (max-width:1100px) and (min-width:641px){
+    #topbar { grid-template-columns:minmax(118px,max-content) auto auto minmax(220px,1fr) max-content; }
+    #topbar .bar { overflow:visible; justify-content:flex-end; }
   }
   .bigbtn { width:100%; background:rgba(var(--accent-rgb),0.1); border:1px solid rgba(var(--accent-rgb),0.3); color:var(--accent);
     padding:9px; border-radius:8px; margin:6px 0 10px; cursor:pointer; font-size:13px; }
@@ -301,10 +316,39 @@ _HTML = r"""<!doctype html>
     <button id="btnAnim" class="on" title="Toggle edge flow animation (a)">≈ Flow</button>
     <button id="btnTheme" title="Theme (t)">◑ Theme</button>
     <button id="btnTerm" title="Terminal — query the graph + run JS, offline (~)">&gt;_ Term</button>
+    <button id="btnMore" title="More toolbar options">⋯ More</button>
     <button id="btnHelp" title="Shortcuts (?)">?</button>
   </span>
 </div>
 <div id="themeMenu" class="card hidden"></div>
+<div id="moreMenu" class="card hidden">
+  <h5>Analysis</h5>
+  <div class="mrow">
+    <button data-mirror="btnDiff">Diff</button>
+    <button data-mirror="fnToggle">Functions</button>
+  </div>
+  <h5>Detail</h5>
+  <div class="mrow">
+    <button data-detail="file">Files</button>
+    <button data-detail="class">+Classes</button>
+  </div>
+  <h5>Search</h5>
+  <div class="mrow">
+    <button data-search-mode="fuzzy">Fuzzy</button>
+    <button data-search-mode="semantic">Semantic</button>
+  </div>
+  <h5>Actions</h5>
+  <div class="mrow">
+    <button data-mirror="btnFit">Fit</button>
+    <button data-mirror="btnPath">Path</button>
+    <button data-mirror="btnFilter">Filter</button>
+    <button data-mirror="btnExport">Export</button>
+    <button data-mirror="btnAnim">Flow</button>
+    <button data-mirror="btnTheme">Theme</button>
+    <button data-mirror="btnTerm">Term</button>
+    <button data-mirror="btnHelp">Help</button>
+  </div>
+</div>
 <div id="crumb" class="card"></div>
 <div id="zoom" class="">
   <button id="zin" class="card" title="Zoom in">+</button>
@@ -857,8 +901,11 @@ function runSearch(q){ q=(q||'').trim().toLowerCase();
 gid('search').addEventListener('input',e=>runSearch(e.target.value));
 gid('search').addEventListener('focus',()=>{ if(searchResults.length) renderSearchResults(); });
 gid('search').addEventListener('blur',()=>setTimeout(()=>{ const el=gid('searchResults'); if(el)el.style.display='none'; },180));
-document.querySelectorAll('#searchMode button').forEach(b=>b.onclick=()=>{ searchMode=b.dataset.m;
-  document.querySelectorAll('#searchMode button').forEach(x=>x.classList.toggle('on',x.dataset.m===searchMode)); runSearch(gid('search').value); });
+function setSearchMode(mode){ searchMode=mode;
+  document.querySelectorAll('#searchMode button').forEach(x=>x.classList.toggle('on',x.dataset.m===searchMode));
+  document.querySelectorAll('#moreMenu [data-search-mode]').forEach(x=>x.classList.toggle('on',x.dataset.searchMode===searchMode));
+  runSearch(gid('search').value); }
+document.querySelectorAll('#searchMode button').forEach(b=>b.onclick=()=>setSearchMode(b.dataset.m));
 
 // --- header: category filters, detail toggle, layer chips (like the original dashboard) ---
 const CATS=[
@@ -890,9 +937,17 @@ function applyDetail(){ ['class','function','variable','constant'].forEach(t=>hi
   else if(!showFns){ ['function','variable','constant'].forEach(t=>hiddenTypes.add(t)); }
   document.querySelectorAll('#detailSeg button').forEach(b=>b.classList.toggle('on', b.dataset.d===detail));
   document.getElementById('fnToggle').classList.toggle('on', showFns);
+  refreshMoreControls();
   draw(); }
 document.querySelectorAll('#detailSeg button').forEach(b=>b.onclick=()=>{ detail=b.dataset.d; if(detail==='file')showFns=false; applyDetail(); });
 document.getElementById('fnToggle').onclick=()=>{ showFns=!showFns; if(showFns)detail='class'; applyDetail(); };
+function refreshMoreControls(){
+  document.querySelectorAll('#moreMenu [data-detail]').forEach(b=>b.classList.toggle('on', b.dataset.detail===detail));
+  document.querySelectorAll('#moreMenu [data-search-mode]').forEach(b=>b.classList.toggle('on', b.dataset.searchMode===searchMode));
+  const fn=document.querySelector('#moreMenu [data-mirror="fnToggle"]'); if(fn)fn.classList.toggle('on', showFns);
+  const df=document.querySelector('#moreMenu [data-mirror="btnDiff"]'); if(df)df.classList.toggle('on', diffOn);
+  document.querySelectorAll('#moreMenu [data-mirror]').forEach(b=>{ const t=$(b.dataset.mirror); if(t&&!['fnToggle','btnDiff'].includes(b.dataset.mirror)) b.classList.toggle('on', t.classList.contains('on')); });
+}
 
 // camera
 let drag=false,lx,ly,moved=false;
@@ -983,6 +1038,7 @@ if(!TOUR.length) document.getElementById('tourstart').classList.add('hidden');
 window.startTour=startTour;
 // --- toolbar: fit / export / path finder / help ---
 const $=id=>document.getElementById(id);
+const moreMenu=$('moreMenu');
 function fitAll(){ matched=null; pathNodes=null; pathEdges=null; focusSet=null; focusCenter=-1; fit(); draw(); }
 // focus mode: isolate a node + its 1-hop neighbors (others dim heavily)
 function focusOn(i){ if(i<0)return;
@@ -1005,9 +1061,9 @@ function buildFilterMenu(){ const fm=$('filterMenu'); let h='<h5>Node types</h5>
   fm.querySelector('.fm-reset').onclick=()=>{ hiddenComplex.clear(); hiddenTypes.clear(); applyDetail(); buildFilterMenu(); syncCatChips(); draw(); };
 }
 $('btnFilter').onclick=()=>{ const fm=$('filterMenu'); const show=fm.classList.contains('hidden');
-  exMenu.classList.add('hidden'); themeMenu.classList.add('hidden'); if(show) buildFilterMenu(); fm.classList.toggle('hidden'); };
+  exMenu.classList.add('hidden'); themeMenu.classList.add('hidden'); moreMenu.classList.add('hidden'); if(show) buildFilterMenu(); fm.classList.toggle('hidden'); };
 // diff overlay: highlight nodes whose file changed since the last analysis (incremental runs)
-function setDiff(on){ if(!hasDiff)return; diffOn=on; const b=$('btnDiff'); if(b){ b.textContent='Diff '+(on?'ON':'OFF'); b.classList.toggle('on',on); } draw(); }
+function setDiff(on){ if(!hasDiff)return; diffOn=on; const b=$('btnDiff'); if(b){ b.textContent='Diff '+(on?'ON':'OFF'); b.classList.toggle('on',on); } refreshMoreControls(); draw(); }
 $('btnDiff').onclick=()=>setDiff(!diffOn);
 if(!hasDiff){ const b=$('btnDiff'); if(b){ b.style.opacity=0.4; b.title='No changes detected since the last analysis'; } }
 $('btnFit').onclick=fitAll;
@@ -1027,7 +1083,7 @@ document.querySelectorAll('.pa').forEach(b=>b.onclick=()=>setPersona(b.dataset.p
 // export (PNG of current view, full-graph SVG, or the graph data as JSON)
 function dl(blob,name){ const u=URL.createObjectURL(blob),a=document.createElement('a'); a.href=u; a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(u),1500); }
 const exMenu=$('exportMenu');
-$('btnExport').onclick=()=>exMenu.classList.toggle('hidden');
+$('btnExport').onclick=()=>{ moreMenu.classList.add('hidden'); exMenu.classList.toggle('hidden'); };
 exMenu.querySelectorAll('button').forEach(b=>b.onclick=()=>{ exMenu.classList.add('hidden'); const x=b.dataset.x, nm=(DATA.project.name||'graph');
   if(x==='png') cv.toBlob(bl=>dl(bl,nm+'.png'));
   else if(x==='json') dl(new Blob([JSON.stringify(DATA,null,2)],{type:'application/json'}),nm+'.json');
@@ -1104,6 +1160,7 @@ termIn.addEventListener('keydown',e=>{ e.stopPropagation();
   else if(e.key==='ArrowDown'){ termHi=Math.min(termHi+1,termHist.length); termIn.value=termHist[termHi]||''; e.preventDefault(); } });
 function toggleTerm(on){ const t=$('term'); const show=(on===undefined)?t.classList.contains('hidden'):on;
   t.classList.toggle('hidden',!show); const b=$('btnTerm'); if(b)b.classList.toggle('on',show);
+  if(show) moreMenu.classList.add('hidden');
   if(show){ if(!termOut.childElementCount) TERM_CMDS.help(); termIn.focus(); } }
 window.toggleTerm=toggleTerm; $('btnTerm').onclick=()=>toggleTerm();
 
@@ -1134,7 +1191,14 @@ function refreshThemeMenu(){ const acc=THEME_STATE.accent||THEMES[THEME_STATE.na
   themeMenu.querySelectorAll('[data-acc]').forEach(b=>b.classList.toggle('on', b.dataset.acc.toLowerCase()===acc.toLowerCase()));
   themeMenu.querySelectorAll('[data-font]').forEach(b=>b.classList.toggle('on', b.dataset.font===(THEME_STATE.font||'Serif'))); }
 buildThemeMenu();
-$('btnTheme').onclick=()=>{ themeMenu.classList.toggle('hidden'); refreshThemeMenu(); };
+$('btnTheme').onclick=()=>{ moreMenu.classList.add('hidden'); themeMenu.classList.toggle('hidden'); refreshThemeMenu(); };
+$('btnMore').onclick=()=>{ const show=moreMenu.classList.contains('hidden');
+  $('filterMenu').classList.add('hidden'); exMenu.classList.add('hidden'); themeMenu.classList.add('hidden');
+  refreshMoreControls(); moreMenu.classList.toggle('hidden', !show); };
+moreMenu.querySelectorAll('[data-mirror]').forEach(b=>b.onclick=()=>{ const target=$(b.dataset.mirror); if(target)target.click(); refreshMoreControls(); });
+moreMenu.querySelectorAll('[data-detail]').forEach(b=>b.onclick=()=>{ detail=b.dataset.detail; if(detail==='file')showFns=false; applyDetail(); });
+moreMenu.querySelectorAll('[data-search-mode]').forEach(b=>b.onclick=()=>setSearchMode(b.dataset.searchMode));
+refreshMoreControls();
 
 window.addEventListener('keydown',e=>{
   if(e.target&&e.target.tagName==='INPUT'){ if(e.key==='Escape')e.target.blur(); return; }
