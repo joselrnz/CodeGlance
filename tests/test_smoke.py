@@ -54,6 +54,20 @@ def test_render_interactive_is_self_contained():
     assert 'src="http' not in html and 'href="http' not in html  # no external refs
 
 
+def test_render_interactive_escapes_embedded_json_for_script_parser():
+    graph = _sample_graph()
+    graph.nodes[1].summary = "uses <!-- comments, <script>, </script>, and Map<String, Order>"
+    html = render_interactive(graph)
+    match = re.search(r"const DATA = (.*?);\nconst N=", html, re.S)
+    assert match
+    payload = match.group(1)
+    assert "<" not in payload
+    assert ">" not in payload
+    assert "&" not in payload
+    assert "\\u003cscript\\u003e" in payload
+    assert "\\u003c/script\\u003e" in payload
+
+
 def test_render_uses_cards_containers_and_type_colors():
     from codeglance.render import build_view_model, TYPE_COLORS
     vm = build_view_model(_sample_graph())
@@ -439,6 +453,7 @@ def test_interactive_mobile_touch_support():
         "tapCanvas",
         "two-finger pinch zoom",
         "58dvh",
+        "#tourstart { display:block;",
     ):
         assert m in html, f"missing mobile support marker: {m}"
 
@@ -454,6 +469,19 @@ def test_interactive_toolbar_stays_compact():
         "#topbar .bar::-webkit-scrollbar",
     ):
         assert m in html, f"missing compact toolbar marker: {m}"
+
+
+def test_interactive_tour_hides_minimap():
+    html = render_interactive(_sample_graph())
+    for m in (
+        "body.tour-active #mm",
+        "body.tour-active #panel",
+        "visibility:hidden",
+        "document.body.classList.add('tour-active')",
+        "document.body.classList.remove('tour-active')",
+        "#tour { position:fixed; right:14px",
+    ):
+        assert m in html, f"missing tour/minimap layout marker: {m}"
 
 
 def test_offline_terminal_present():

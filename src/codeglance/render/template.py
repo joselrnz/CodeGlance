@@ -41,6 +41,7 @@ _HTML = r"""<!doctype html>
   .lg .nm { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .lg .ct { color:var(--muted); }
   #panel { position:fixed; right:14px; top:calc(22px + var(--topbar-h,44px)); width:min(360px,calc(100vw - 28px)); max-height:calc(100vh - var(--topbar-h,44px) - 40px); overflow:auto;
     padding:16px; z-index:6; }
+  body.tour-active #panel, body.tour-active #panelReopen { display:none; }
   #panel .close { position:absolute; top:10px; right:12px; cursor:pointer; color:var(--muted); font-size:16px; }
   #panel .ptype { display:inline-block; font-size:10px; text-transform:uppercase; letter-spacing:.05em;
     padding:2px 7px; border-radius:99px; border:1px solid; }
@@ -77,8 +78,10 @@ _HTML = r"""<!doctype html>
   .code tr.hl { background:rgba(var(--accent-rgb),0.14); } .code tr.hl td.ln { color:var(--accent); }
   #tip { position:fixed; pointer-events:none; z-index:9; max-width:320px; padding:8px 10px; font-size:12px; display:none; }
   #tip .tn{font-weight:600} #tip .tt{color:var(--text2);font-size:11px} #tip .ts{color:var(--text);margin-top:3px}
-  #mm { position:fixed; right:14px; bottom:14px; width:210px; height:140px; z-index:5; padding:0; cursor:crosshair; }
-  #tour { position:fixed; right:240px; bottom:14px; width:340px; padding:14px 16px; z-index:6; }
+  #mm { position:fixed; right:14px; bottom:14px; width:210px; height:140px; z-index:5; padding:0; cursor:crosshair;
+    transition:opacity .16s ease, transform .16s ease; }
+  body.tour-active #mm { opacity:0; visibility:hidden; pointer-events:none; transform:translateY(8px); }
+  #tour { position:fixed; right:14px; bottom:14px; width:340px; padding:14px 16px; z-index:6; }
   #tour h4 { margin:0 0 4px; font-size:14px; } #tour .desc { font-size:13px; color:var(--text); line-height:1.5; margin:6px 0 12px; }
   .tourbtns { display:flex; gap:8px; align-items:center; }
   button { background:var(--elevated); color:var(--text); border:1px solid rgba(var(--accent-rgb),0.28); border-radius:8px; padding:6px 12px; font-size:12px; cursor:pointer; }
@@ -134,7 +137,9 @@ _HTML = r"""<!doctype html>
     #modeSeg { flex:1 1 100%; overflow-x:auto; }
     #topbar #search, #topbar #searchWrap { flex:1 1 100%; width:auto; order:9; }
     #topbar .grow { display:none; }
-    #crumb, #mm, #zoom, #tourstart { display:none; }
+    #crumb, #mm, #zoom { display:none; }
+    #tourstart { display:block; top:calc(max(8px,env(safe-area-inset-top)) + var(--topbar-h,44px) + 8px);
+      right:max(8px,env(safe-area-inset-right)); bottom:auto; }
     #panel { left:max(8px,env(safe-area-inset-left)); right:max(8px,env(safe-area-inset-right)); width:auto; top:auto;
       bottom:max(8px,env(safe-area-inset-bottom)); max-height:58dvh; padding:20px 14px 14px; border-radius:14px 14px 10px 10px; }
     #panel::before { content:""; position:absolute; top:7px; left:50%; transform:translateX(-50%); width:42px; height:4px;
@@ -968,8 +973,8 @@ function showStep(){ const s=TOUR[tIdx]; focusSet=new Set(s.nodeIds); s.nodeIds.
   // drill into the layer the step's first node lives in, so it's actually visible
   if(s.nodeIds.length){ const ly=N[s.nodeIds[0]].layer; if(ly>=0) view=ly; sel=s.nodeIds[0]; renderPanel(); }
   center(s.nodeIds,true); startAnim(); draw(); }
-function startTour(){ if(!TOUR.length)return; tIdx=0; document.getElementById('tour').classList.remove('hidden'); document.getElementById('tourstart').classList.add('hidden'); showStep(); }
-function endTour(){ tIdx=-1; focusSet=null; document.getElementById('tour').classList.add('hidden'); document.getElementById('tourstart').classList.remove('hidden'); draw(); }
+function startTour(){ if(!TOUR.length)return; tIdx=0; document.body.classList.add('tour-active'); document.getElementById('tour').classList.remove('hidden'); document.getElementById('tourstart').classList.add('hidden'); showStep(); }
+function endTour(){ tIdx=-1; focusSet=null; document.body.classList.remove('tour-active'); document.getElementById('tour').classList.add('hidden'); document.getElementById('tourstart').classList.remove('hidden'); draw(); }
 document.getElementById('tourstart').onclick=startTour;
 document.getElementById('tprev').onclick=()=>{if(tIdx>0){tIdx--;showStep();}};
 document.getElementById('tnext').onclick=()=>{if(tIdx<TOUR.length-1){tIdx++;showStep();}else endTour();};
@@ -1181,7 +1186,12 @@ if(animOn) startAnim(); else { const _b=document.getElementById('btnAnim'); if(_
 
 def render_interactive_html(view_model: dict) -> str:
     """Render a view model into the self-contained interactive HTML graph document."""
-    data_json = json.dumps(view_model, ensure_ascii=False).replace("</", "<\\/")
+    data_json = (
+        json.dumps(view_model, ensure_ascii=False)
+        .replace("&", "\\u0026")
+        .replace("<", "\\u003c")
+        .replace(">", "\\u003e")
+    )
     project = view_model.get("project", {})
     name = project.get("name", "project")
     stats = view_model.get("stats", {})
