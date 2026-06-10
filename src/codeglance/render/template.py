@@ -106,12 +106,13 @@ _HTML = r"""<!doctype html>
   .smode { display:flex; background:var(--elevated); border-radius:7px; padding:2px; }
   .smode button { border:none; background:transparent; color:var(--text2); font-size:10px; padding:3px 7px; border-radius:5px; cursor:pointer; }
   .smode button.on { background:rgba(var(--accent-rgb),0.2); color:var(--accent); }
-  #moreMenu { position:fixed; top:calc(16px + var(--topbar-h,44px)); right:14px; z-index:9; width:230px; padding:10px; }
+  #moreMenu { position:fixed; top:calc(16px + var(--topbar-h,44px)); right:14px; z-index:9; width:250px; max-height:min(72vh,560px); overflow:auto; padding:10px; }
   #moreMenu h5 { margin:8px 0 5px; color:var(--text2); font-size:10px; text-transform:uppercase; letter-spacing:.06em; }
   #moreMenu h5:first-child { margin-top:0; }
   #moreMenu .mrow { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:7px; }
   #moreMenu button { min-width:0; padding:5px 8px; font-size:11px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   #moreMenu button.on { color:var(--accent); border-color:rgba(var(--accent-rgb),0.5); background:rgba(var(--accent-rgb),0.16); }
+  #moreMenu .mobile-only { display:none; }
   #searchResults { position:fixed; z-index:9; width:330px; max-height:300px; overflow:auto; padding:6px; display:none; }
   #searchResults .sr { display:flex; align-items:center; gap:8px; padding:5px 7px; border-radius:6px; cursor:pointer; }
   #searchResults .sr:hover { background:var(--elevated); }
@@ -165,6 +166,8 @@ _HTML = r"""<!doctype html>
     #filterMenu, #themeMenu, #exportMenu, #moreMenu, #searchResults { left:max(8px,env(safe-area-inset-left)) !important;
       right:max(8px,env(safe-area-inset-right)) !important; width:auto !important; max-height:48dvh; }
     #filterMenu, #themeMenu, #exportMenu, #moreMenu { top:calc(max(8px,env(safe-area-inset-top)) + var(--topbar-h,44px) + 8px); }
+    #moreMenu h5.mobile-only { display:block; }
+    #moreMenu .mrow.mobile-only { display:grid; }
     #tour { left:max(8px,env(safe-area-inset-left)); right:max(8px,env(safe-area-inset-right)); bottom:max(8px,env(safe-area-inset-bottom));
       width:auto; max-height:44dvh; overflow:auto; }
     #term { left:max(8px,env(safe-area-inset-left)); right:max(8px,env(safe-area-inset-right)); bottom:max(8px,env(safe-area-inset-bottom));
@@ -332,14 +335,14 @@ _HTML = r"""<!doctype html>
 </div>
 <div id="themeMenu" class="card hidden"></div>
 <div id="moreMenu" class="card hidden">
-  <h5>View</h5>
-  <div class="mrow">
+  <h5 class="mobile-only">View</h5>
+  <div class="mrow mobile-only">
     <button data-persona="overview">Overview</button>
     <button data-persona="all">Explore</button>
     <button data-persona="learn">Tour</button>
   </div>
-  <h5>Map</h5>
-  <div class="mrow">
+  <h5 class="mobile-only">Map</h5>
+  <div class="mrow mobile-only">
     <button data-mode="structural">Structural</button>
     <button data-mode="domain">Domain</button>
     <button data-mode="knowledge">Knowledge</button>
@@ -1073,6 +1076,17 @@ window.startTour=startTour;
 // --- toolbar: fit / export / path finder / help ---
 const $=id=>document.getElementById(id);
 const moreMenu=$('moreMenu');
+function placeMoreMenu(){
+  moreMenu.style.left=''; moreMenu.style.right='14px';
+  const p=$('panel'), open=p&&!p.classList.contains('collapsed')&&innerWidth>760;
+  if(!open)return;
+  const pr=p.getBoundingClientRect(), mr=moreMenu.getBoundingClientRect();
+  const gap=12, right=Math.max(14, innerWidth-pr.left+gap);
+  moreMenu.style.right=right+'px';
+  const nr=moreMenu.getBoundingClientRect();
+  if(nr.left<14){ moreMenu.style.right=''; moreMenu.style.left='14px'; }
+  else if(mr.width<1){ moreMenu.style.right=right+'px'; }
+}
 function toggleFacets(on){ const show=(on===undefined)?!document.body.classList.contains('show-facets'):on;
   document.body.classList.toggle('show-facets', show); refreshMoreControls(); if(typeof syncTopbarH==='function') syncTopbarH(); }
 function fitAll(){ matched=null; pathNodes=null; pathEdges=null; focusSet=null; focusCenter=-1; fit(); draw(); }
@@ -1230,7 +1244,8 @@ buildThemeMenu();
 $('btnTheme').onclick=()=>{ moreMenu.classList.add('hidden'); themeMenu.classList.toggle('hidden'); refreshThemeMenu(); };
 $('btnMore').onclick=()=>{ const show=moreMenu.classList.contains('hidden');
   $('filterMenu').classList.add('hidden'); exMenu.classList.add('hidden'); themeMenu.classList.add('hidden');
-  refreshMoreControls(); moreMenu.classList.toggle('hidden', !show); };
+  if(show&&innerWidth<=640) togglePanel(false);
+  refreshMoreControls(); moreMenu.classList.toggle('hidden', !show); if(show)placeMoreMenu(); };
 moreMenu.querySelectorAll('[data-mirror]').forEach(b=>b.onclick=()=>{ const target=$(b.dataset.mirror); if(target)target.click(); refreshMoreControls(); });
 moreMenu.querySelectorAll('[data-persona]').forEach(b=>b.onclick=()=>{ const src=document.querySelector('.pa[data-p="'+b.dataset.persona+'"]'); setPersona(b.dataset.persona, src); if(b.dataset.persona==='learn')moreMenu.classList.add('hidden'); refreshMoreControls(); });
 moreMenu.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{ if(b.disabled)return; setMode(b.dataset.mode); refreshMoreControls(); });
