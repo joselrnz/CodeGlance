@@ -84,8 +84,8 @@ _HTML = r"""<!doctype html>
   button { background:var(--elevated); color:var(--text); border:1px solid rgba(var(--accent-rgb),0.28); border-radius:8px; padding:6px 12px; font-size:12px; cursor:pointer; }
   button:hover { background:rgba(var(--accent-rgb),0.28); } #tcount { flex:1; text-align:center; color:var(--text2); font-size:12px; }
   #tourstart { position:fixed; right:240px; bottom:14px; z-index:5; }
-  #topbar .bar { grid-column:8; display:flex; gap:6px; flex:none; justify-content:flex-end; min-width:0;
-    max-width:min(640px,42vw); overflow-x:auto; scrollbar-width:none; }
+  #topbar .bar { grid-column:8; justify-self:end; display:flex; gap:6px; flex:none; justify-content:flex-end;
+    width:max-content; max-width:min(640px,42vw); overflow-x:auto; scrollbar-width:none; }
   #topbar .bar::-webkit-scrollbar { display:none; }
   #topbar .bar button { padding:5px 9px; font-size:11px; }
   #topbar .bar button.on { color:var(--accent); border-color:rgba(var(--accent-rgb),0.5); background:rgba(var(--accent-rgb),0.12); }
@@ -118,7 +118,6 @@ _HTML = r"""<!doctype html>
   /* responsive: progressively shed non-essential header controls as the window narrows */
   @media (max-width:1360px){ #layerChips { display:none; } }
   @media (max-width:1160px){ #catFilters { display:none; } }
-  @media (max-width:1000px){ #detailSeg, #fnToggle, #btnDiff, #searchMode { display:none; } #topbar #search { width:130px; } }
   @media (max-width:860px){ #mm { width:150px; height:100px; } }
   @media (hover:none) and (pointer:coarse){
     button, .pa, .cat, .chip, .ptab, .pact, .tm-row, .tm-fbtn { min-height:36px; }
@@ -202,6 +201,12 @@ _HTML = r"""<!doctype html>
   .chip { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--text2); cursor:pointer; white-space:nowrap; }
   .chip:hover{color:var(--text);} .chip.dim{opacity:.4;} .chip.active{color:var(--text);font-weight:600;}
   .chip .muted{color:var(--muted);margin-left:1px;}
+  @media (max-width:1200px) and (min-width:641px){
+    #topbar { grid-template-columns:auto auto auto minmax(180px,1fr) minmax(220px,30vw); }
+    #btnDiff, #detailSeg, #fnToggle, #searchMode { display:none; }
+    #searchWrap { grid-column:4 !important; }
+    #topbar .bar { grid-column:5 !important; max-width:30vw; }
+  }
   .bigbtn { width:100%; background:rgba(var(--accent-rgb),0.1); border:1px solid rgba(var(--accent-rgb),0.3); color:var(--accent);
     padding:9px; border-radius:8px; margin:6px 0 10px; cursor:pointer; font-size:13px; }
   .bigbtn:hover{ background:rgba(var(--accent-rgb),0.2); }
