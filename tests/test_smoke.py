@@ -472,6 +472,8 @@ def test_interactive_toolbar_stays_compact():
         'data-action="facets"',
         "#btnDiff, #detailSeg, #fnToggle, #searchMode",
         "CLUSTER_CONTENT_TOP",
+        "typeof v==='number'",
+        "applyDetail(false)",
         "overflow-x:auto",
         "width:100%; max-width:100%",
         "#topbar .bar::-webkit-scrollbar",

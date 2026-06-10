@@ -718,6 +718,7 @@ window.collapseAllClusters=collapseAllClusters;
 
 function setView(v){ if(graphMode!=='structural'){ graphMode='structural'; selDomain=-1; applyModeUI(); }
   view=v; sel=-1; matched=null; pathNodes=null; pathEdges=null; focusSet=null; lhover=-1; chHover=null;
+  if(typeof v==='number'){ detail='class'; showFns=false; applyDetail(false); }
   const s=document.getElementById('search'); if(s)s.value=''; renderPanel(); fit(); draw(); }
 window.setView=setView;
 function updateCrumb(){ const cr=document.getElementById('crumb'); if(!cr)return;
@@ -967,13 +968,13 @@ function refreshChips(){ document.querySelectorAll('#layerChips .chip').forEach(
 // Small projects (e.g. one main() function) show functions by default so the
 // drill-in view isn't nearly empty; larger graphs stay at the cleaner file/class level.
 let detail='class', showFns=(N.length<=24);
-function applyDetail(){ ['class','function','variable','constant'].forEach(t=>hiddenTypes.delete(t));
+function applyDetail(redraw=true){ ['class','function','variable','constant'].forEach(t=>hiddenTypes.delete(t));
   if(detail==='file'){ ['class','function','variable','constant'].forEach(t=>hiddenTypes.add(t)); }
   else if(!showFns){ ['function','variable','constant'].forEach(t=>hiddenTypes.add(t)); }
   document.querySelectorAll('#detailSeg button').forEach(b=>b.classList.toggle('on', b.dataset.d===detail));
   document.getElementById('fnToggle').classList.toggle('on', showFns);
   refreshMoreControls();
-  draw(); }
+  if(redraw)draw(); }
 document.querySelectorAll('#detailSeg button').forEach(b=>b.onclick=()=>{ detail=b.dataset.d; if(detail==='file')showFns=false; applyDetail(); });
 document.getElementById('fnToggle').onclick=()=>{ showFns=!showFns; if(showFns)detail='class'; applyDetail(); };
 function refreshMoreControls(){
