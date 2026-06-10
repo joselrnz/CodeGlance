@@ -7,8 +7,9 @@ CodeGlance is organized as a Python SDK with a thin CLI on top.
 | Area | Path | Purpose |
 | --- | --- | --- |
 | Public SDK | `src/codeglance/api.py` | Python-callable workflows: analyze, render, generate, load, save. |
-| Public models | `src/codeglance/models.py` | Stable model facade over the internal schema dataclasses. |
-| CLI parser | `src/codeglance/cli.py` | Argument parsing and dispatch only. |
+| Services | `src/codeglance/services/` | Reusable workflow implementation used by SDK and CLI. |
+| Public models | `src/codeglance/models/` | Stable model facade over the internal schema dataclasses. |
+| CLI parser | `src/codeglance/cli/` | Entrypoint and argument parser only. |
 | CLI commands | `src/codeglance/commands/` | Command implementations split by workflow. |
 | Analysis | `src/codeglance/analyze/` | Language registry, structural extraction, layers, tours, LLM enrichment. |
 | Output bundles | `src/codeglance/output/` | Generated bundle profiles, LLM context, TOON, index, orchestration. |
@@ -24,9 +25,10 @@ command families for environment, agent, tool, and settings workflows.
 CodeGlance follows the same shape at package scale:
 
 - `api.py` is the SDK entrypoint.
-- `cli.py` is only parser/dispatch.
+- `services/` owns reusable workflows.
+- `cli/` is only parser/dispatch.
 - `commands/` owns workflow-specific CLI handlers.
-- `models.py` is the stable import target for graph data structures.
+- `models/` is the stable import target for graph data structures.
 - `output/` owns generated artifacts for humans and agents.
 
 ## Pydantic-style boundary

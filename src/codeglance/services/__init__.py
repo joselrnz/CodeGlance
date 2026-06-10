@@ -1,8 +1,6 @@
-"""Public Python API for analyzing and rendering codebases."""
+"""Reusable workflow services used by the SDK and CLI."""
 
-from __future__ import annotations
-
-from .services.projects import (
+from .projects import (
     analyze_project,
     generate_bundle,
     load_graph,

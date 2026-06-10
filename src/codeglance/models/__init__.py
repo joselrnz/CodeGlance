@@ -1,26 +1,17 @@
-"""Stable public model facade.
+"""Public model imports for codeglance.
 
-Internally these classes live in `schema.py`. This module gives SDK users a
-clear, Pydantic-style import target without adding a runtime Pydantic dependency.
+Use this package as the stable SDK-facing model namespace.
 """
 
-from __future__ import annotations
-
-from .schema import (
+from .constants import (
     COMPLEXITY_VALUES,
     DEFAULT_EDGE_WEIGHT,
     EDGE_WEIGHTS,
     FILE_LEVEL_TYPES,
     NODE_TYPES,
     SCHEMA_VERSION,
-    Edge,
-    KnowledgeGraph,
-    Layer,
-    Node,
-    Project,
-    TourStep,
-    edge_weight,
 )
+from .graph import Edge, KnowledgeGraph, Layer, Node, Project, TourStep, edge_weight
 
 __all__ = [
     "COMPLEXITY_VALUES",
