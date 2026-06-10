@@ -63,6 +63,48 @@ codeglance serve . --host 0.0.0.0
 
 Then open the printed URL on your desktop or phone on the same Wi-Fi.
 
+## Project Structure
+
+CodeGlance is a Python package with a thin CLI over reusable SDK services.
+
+```text
+codeglance/
+├── brand/                  # banner, logo, badge, favicon, social-card SVGs
+├── demo/                   # generated demo HTML/Markdown outputs
+├── docs/                   # structure, agent-context, and project notes
+├── examples/               # sample repos used for validation and demos
+├── src/codeglance/
+│   ├── analyze/            # scanners, language registry, symbol extraction, layers, tours
+│   ├── cli/                # console entrypoint and argparse parser
+│   ├── commands/           # CLI command handlers
+│   ├── models/             # public model facade: KnowledgeGraph, Node, Edge, Layer
+│   ├── output/             # generated output bundles, llms.txt, TOON, schema, index
+│   ├── render/             # interactive HTML, static HTML, wiki, and agent context renderers
+│   ├── services/           # reusable workflows used by API and CLI
+│   ├── api.py              # public Python SDK surface
+│   ├── graph.py            # analysis orchestration
+│   ├── schema.py           # canonical graph dataclasses and JSON schema behavior
+│   ├── scan.py             # file discovery, language/framework detection
+│   └── serve.py            # local output browser
+├── tests/                  # smoke tests and fixture repos
+├── pyproject.toml
+└── README.md
+```
+
+Public Python usage:
+
+```python
+from codeglance.api import analyze_project, generate_bundle, render_html
+from codeglance.models import KnowledgeGraph
+
+graph: KnowledgeGraph = analyze_project(".")
+html = render_html(graph, ".")
+generate_bundle(".", ".codeglance/outputs")
+```
+
+The older `codeglance.schema` imports still work, but new integrations should prefer
+`codeglance.models` and `codeglance.api`.
+
 ## Outputs
 
 ### Interactive Graph
@@ -127,14 +169,16 @@ codeglance generate . --out .codeglance/outputs
 
 The default `minimal` profile contains:
 
-- `index.html`
-- `llms.txt`
-- `glance.html`
-- `agent.md`
-- `llm-context.schema.json`
-- `knowledge-graph.toon`
-- `knowledge-graph.json`
-- `meta.json`
+| File | Audience | Purpose |
+| --- | --- | --- |
+| `index.html` | human | Clickable output-folder landing page. |
+| `llms.txt` | agent | Small read-first entrypoint with artifact order and usage rules. |
+| `glance.html` | human | Interactive visual codebase map. |
+| `agent.md` | agent | Compact, low-token repo handoff. |
+| `llm-context.schema.json` | agent/tool | Machine-readable contract for all generated artifacts. |
+| `knowledge-graph.toon` | agent | Compact graph context for prompts. |
+| `knowledge-graph.json` | tool | Canonical structured graph for parsing and re-rendering. |
+| `meta.json` | human/tool | Analysis metadata: version, commit, analyzed file count. |
 
 Use profiles when you want a different bundle:
 
@@ -255,6 +299,13 @@ codeglance render .codeglance/knowledge-graph.json -o graph.html
 codeglance render .codeglance/knowledge-graph.json --static -o graph.static.html
 ```
 
+## Documentation Map
+
+- `docs/STRUCTURE.md`: package layout, module responsibilities, and SDK/CLI boundaries
+- `docs/AGENT_CONTEXT.md`: agent reading protocol and generated context strategy
+- `docs/README.md`: documentation index and screenshot guidance
+- `REFACTOR_PLAN.md`: longer-term cleanup and enhancement plan
+
 ## Current Version
 
 Package version is static for now: `0.0.1`.
@@ -268,11 +319,12 @@ When the package version changes, update:
 
 ## Next Build Plan
 
-The current local server is a first step. The next useful pieces are:
+The current package structure is now split into SDK, services, CLI, commands, models, output,
+renderers, and analysis. The next useful pieces are:
 
 - `codeglance serve --watch` to regenerate outputs when files change
 - browser auto-refresh when `.codeglance` artifacts update
 - richer output-folder landing pages with screenshots and project stats
-- optional `llms.txt` generation pointing agents to the right local files
-- JSON context mode for tools that prefer structured ingestion
+- optional strict Pydantic models behind a `pydantic` extra
+- JSON context mode for tools that prefer smaller structured ingestion
 - changed-only context mode for fast review after edits
