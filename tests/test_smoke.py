@@ -427,6 +427,22 @@ def test_collapsible_clusters_and_responsive_resize():
         assert m in html, f"missing shortcuts-modal feature: {m}"
 
 
+def test_interactive_mobile_touch_support():
+    html = render_interactive(_sample_graph())
+    for m in (
+        "viewport-fit=cover",
+        "safe-area-inset",
+        "touch-action:none",
+        "touchstart",
+        "touchmove",
+        "touchend",
+        "tapCanvas",
+        "two-finger pinch zoom",
+        "58dvh",
+    ):
+        assert m in html, f"missing mobile support marker: {m}"
+
+
 def test_offline_terminal_present():
     html = render_interactive(_sample_graph())
     # in-HTML terminal: graph-query commands + live JS eval, fully offline (no CDN/fetch)

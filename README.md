@@ -120,6 +120,7 @@ Useful controls are built in:
 - file tree with source snippets and highlighted symbols
 - export to PNG, SVG, or JSON
 - themes and keyboard shortcuts
+- mobile-friendly bottom-sheet panels, safe-area layout, one-finger pan/tap, and two-finger pinch zoom
 
 Open it directly as a file, or serve it through `codeglance serve`.
 
