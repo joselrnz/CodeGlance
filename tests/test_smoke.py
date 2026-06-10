@@ -462,11 +462,13 @@ def test_interactive_toolbar_stays_compact():
     html = render_interactive(_sample_graph())
     for m in (
         "display:grid",
-        "grid-template-columns:minmax(118px,max-content) auto auto auto auto auto minmax(270px,1fr) minmax(360px,max-content)",
+        "grid-template-columns:minmax(118px,max-content) auto auto minmax(270px,1fr) max-content",
         "@media (max-width:1360px) and (min-width:641px)",
         "max-height:76px",
         "body.show-facets #topbar",
         'data-action="facets"',
+        "#btnDiff, #detailSeg, #fnToggle, #searchMode",
+        "CLUSTER_CONTENT_TOP",
         "overflow-x:auto",
         "width:100%; max-width:100%",
         "#topbar .bar::-webkit-scrollbar",

@@ -20,7 +20,7 @@ _HTML = r"""<!doctype html>
   .card { background:rgba(20,20,20,0.94); border:1px solid rgba(var(--accent-rgb),0.14); border-radius:12px;
     backdrop-filter: blur(6px); box-shadow:0 10px 34px rgba(0,0,0,0.45); }
   #topbar { position:fixed; top:14px; left:14px; right:14px; display:grid;
-    grid-template-columns:minmax(118px,max-content) auto auto auto auto auto minmax(270px,1fr) minmax(360px,max-content);
+    grid-template-columns:minmax(118px,max-content) auto auto minmax(270px,1fr) max-content;
     grid-auto-rows:minmax(28px,auto); align-items:center; gap:8px 12px; padding:10px 14px 9px;
     z-index:5; max-height:76px; overflow:hidden; }
   body.show-facets #topbar { max-height:112px; }
@@ -88,12 +88,14 @@ _HTML = r"""<!doctype html>
   button { background:var(--elevated); color:var(--text); border:1px solid rgba(var(--accent-rgb),0.28); border-radius:8px; padding:6px 12px; font-size:12px; cursor:pointer; }
   button:hover { background:rgba(var(--accent-rgb),0.28); } #tcount { flex:1; text-align:center; color:var(--text2); font-size:12px; }
   #tourstart { position:fixed; right:240px; bottom:14px; z-index:5; }
-  #topbar .bar { grid-column:8; justify-self:stretch; display:flex; gap:6px; min-width:0; justify-content:flex-end;
+  #topbar .bar { grid-column:5; justify-self:stretch; display:flex; gap:6px; min-width:0; justify-content:flex-end;
     width:100%; max-width:100%; overflow-x:auto; scrollbar-width:none; }
   #topbar .bar::-webkit-scrollbar { display:none; }
   #topbar .bar button { padding:5px 9px; font-size:11px; }
   #topbar .bar button.on { color:var(--accent); border-color:rgba(var(--accent-rgb),0.5); background:rgba(var(--accent-rgb),0.12); }
   #btnHelp { display:none; }
+  #btnDiff, #detailSeg, #fnToggle, #searchMode,
+  #btnFit, #btnPath, #btnFilter, #btnExport, #btnAnim, #btnTheme, #btnTerm { display:none; }
   #exportMenu { position:fixed; top:calc(16px + var(--topbar-h,44px)); right:14px; z-index:8; display:flex; flex-direction:column; padding:6px; gap:2px; min-width:130px; }
   #filterMenu { position:fixed; top:calc(16px + var(--topbar-h,44px)); right:14px; z-index:9; width:240px; max-height:78vh; overflow:auto; padding:12px; }
   #filterMenu h5 { margin:11px 2px 5px; font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--text2); }
@@ -199,7 +201,8 @@ _HTML = r"""<!doctype html>
   #detailSeg { grid-column:5; }
   #btnDiff { grid-column:4; }
   #fnToggle { grid-column:6; }
-  #searchWrap { grid-column:7; min-width:0; width:100%; }
+  #searchWrap { grid-column:4; min-width:0; width:100%; }
+  #topbar .bar { grid-column:5; }
   .seg { display:flex; background:var(--elevated); border-radius:8px; padding:2px; flex:none; gap:2px; }
   .seg button { padding:4px 9px; font-size:11px; border:none; background:transparent; color:var(--text2); border-radius:6px; }
   .seg button.on { background:rgba(var(--accent-rgb),0.2); color:var(--accent); }
@@ -459,7 +462,7 @@ function iconForNode(n){ if(!n.path) return null; const low=(n.path.split('/').p
 let view='overview', lhover=-1, sidebarTab='info';   // 'overview'=layer cards (default landing); 'clusters'=collapsible swimlanes (Explore); a number drills into one layer
 const collapsed=new Set();                 // container layer-keys collapsed in the cluster view
 let chHover=null, _cl=null, _allCol=false; // hovered cluster header; cached cluster layout (cleared on collapse); all-collapsed toggle
-const CLUSTER_HEAD=44, _LANE_GAP=48;       // collapsed header-band height + vertical gap between swimlanes (mirrors layout.py)
+const CLUSTER_HEAD=44, CLUSTER_CONTENT_TOP=42, _LANE_GAP=48;       // header-safe swimlane spacing (mirrors layout.py)
 let graphMode='structural', dhover=-1, selDomain=-1; // graphMode: 'structural' | 'domain'
 const REDUCED=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 let animOn=!REDUCED, dashPhase=0, pulse=0, _animRunning=false, _flyReq=null;    // marching-ants edge-flow + selection "heartbeat" pulse
@@ -505,8 +508,8 @@ const SX=x=>x*scale+ox, SY=y=>y*scale+oy;
 // cluster layout: reflow swimlanes top-to-bottom, shrinking collapsed ones to a header band.
 // Returns {layerKey:{key,x,y,w,h,dy,collapsed,name,color,count}} in world coordinates.
 function CLL(){ if(_cl)return _cl; const cs=CT.slice().sort((a,b)=>a.y-b.y); const o={}; let yy=cs.length?cs[0].y:48;
-  for(const c of cs){ const col=collapsed.has(c.layer), h=col?CLUSTER_HEAD:c.h;
-    o[c.layer]={key:c.layer,x:c.x,y:yy,w:c.w,h:h,dy:yy-c.y,collapsed:col,name:c.name,color:c.color,count:c.count}; yy+=h+_LANE_GAP; }
+  for(const c of cs){ const col=collapsed.has(c.layer), h=col?CLUSTER_HEAD:c.h+CLUSTER_CONTENT_TOP, dy=yy-c.y+(col?0:CLUSTER_CONTENT_TOP);
+    o[c.layer]={key:c.layer,x:c.x,y:yy,w:c.w,h:h,dy:dy,collapsed:col,name:c.name,color:c.color,count:c.count}; yy+=h+_LANE_GAP; }
   _cl=o; return o; }
 function vis(i){ const n=N[i]; if(hiddenTypes.has(n.type)||hiddenComplex.has(n.complexity))return false;
   if(view==='clusters')return !collapsed.has(n.layer);
