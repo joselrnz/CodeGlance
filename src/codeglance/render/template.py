@@ -130,6 +130,9 @@ _HTML = r"""<!doctype html>
   #panel .fbtn-focus.on { color:var(--accent); border-color:var(--accent); background:rgba(var(--accent-rgb),0.16); }
   /* node-action row — sits below the tabs (no more absolute buttons overlapping the FILES tab) */
   .pacts { display:flex; align-items:center; gap:6px; margin:2px 0 12px; }
+  .source-head { display:flex; align-items:center; gap:8px; }
+  .source-head span { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .source-head .pact { margin:0; text-transform:none; letter-spacing:0; }
   .pact { font-size:10px; padding:4px 9px; border:1px solid rgba(var(--accent-rgb),0.28); background:var(--card); color:var(--text2); border-radius:7px; cursor:pointer; }
   .pact:hover { color:var(--text); border-color:rgba(var(--accent-rgb),0.5); }
   .pact.on { color:var(--accent); border-color:var(--accent); background:rgba(var(--accent-rgb),0.16); }
@@ -187,8 +190,14 @@ _HTML = r"""<!doctype html>
   #exportMenu button { text-align:left; }
   .modal { position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:20; display:flex; align-items:center; justify-content:center; }
   .modal .mbox { width:440px; max-width:92vw; max-height:80vh; overflow:auto; padding:18px; position:relative; }
+  .modal .close { position:absolute; top:12px; right:14px; cursor:pointer; color:var(--muted); font-size:16px; z-index:2; }
+  .modal .close:hover { color:var(--text); }
   .modal h4 { margin:0 0 12px; font-size:15px; }
   .modal select { width:100%; margin:5px 0; background:var(--bg); color:var(--text); border:1px solid rgba(var(--accent-rgb),0.28); border-radius:6px; padding:7px; font-size:12px; }
+  #codeModal .mbox { width:min(1120px,94vw); height:min(82vh,760px); max-height:86vh; display:flex; flex-direction:column; overflow:hidden; }
+  #codeModal h4 { padding-right:26px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #codeBody { flex:1; min-height:0; display:flex; }
+  #codeModal .code { flex:1; max-height:none; width:100%; }
   #pathResult { margin-top:12px; font-size:12px; }
   #pathResult .step { display:flex; align-items:center; gap:8px; padding:4px 6px; border-radius:6px; cursor:pointer; }
   #pathResult .step:hover { background:var(--elevated); } #pathResult .num { color:var(--bg); background:var(--accent); border-radius:99px; width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; }
@@ -407,6 +416,9 @@ _HTML = r"""<!doctype html>
   <select id="pathFrom"></select><select id="pathTo"></select>
   <div class="tourbtns"><button id="pathFind">Find path</button><button id="pathClear">Clear</button></div>
   <div id="pathResult"></div>
+</div></div>
+<div id="codeModal" class="modal hidden"><div class="mbox card">
+  <span class="close" onclick="closeCodeModal()">✕</span><h4 id="codeTitle">Source</h4><div id="codeBody"></div>
 </div></div>
 <div id="term" class="card hidden">
   <div class="thead"><span class="tt">terminal</span><span>· graph queries + JS · 100% offline · type <b>help</b></span><span class="tclose" onclick="toggleTerm(false)">✕</span></div>
@@ -820,6 +832,11 @@ function codeHTML(src, range){ const lines=src.split('\n'); const s=(range&&rang
   for(let i=0;i<lines.length;i++){ const ln=i+1, hl=(ln>=s&&ln<=e)?' class="hl"':'';
     h+='<tr'+hl+'><td class="ln">'+ln+'</td><td class="lc">'+hl_code(lines[i]||' ')+'</td></tr>'; }
   return h+'</table></div>'; }
+function openCodeModal(i){ const n=N[i], src=n&&DATA.sources[n.path]; if(!src)return;
+  $('codeTitle').textContent=n.path||n.name||'Source'; $('codeBody').innerHTML=codeHTML(src,n.lineRange);
+  $('codeModal').classList.remove('hidden'); const hl=$('codeBody').querySelector('.ct tr.hl'); if(hl)hl.scrollIntoView({block:'center'}); }
+function closeCodeModal(){ $('codeModal').classList.add('hidden'); $('codeBody').innerHTML=''; }
+window.openCodeModal=openCodeModal; window.closeCodeModal=closeCodeModal;
 function infoHTML(i){ const n=N[i];
   let h='<div class="pacts">'
     +'<button class="pact'+(focusCenter===i?' on':'')+'" onclick="focusOn('+i+')" title="Isolate this node + its neighbors (x)">⊙ '+(focusCenter===i?'Unfocus':'Focus')+'</button>'
@@ -838,7 +855,7 @@ function infoHTML(i){ const n=N[i];
   if(conns.length){ h+='<div class="ov-h">Connections ('+conns.length+')</div>';
     for(const j of conns.slice(0,60)) h+='<div class="nb" data-i="'+j+'"><span class="et">'+esc(edgeBetween(i,j))+'</span> '+esc(N[j].name)+'</div>'; }
   const src=DATA.sources[n.path];
-  if(src){ h+='<div class="ov-h">Source · '+esc(n.path)+'</div>'+codeHTML(src, n.lineRange); }
+  if(src){ h+='<div class="ov-h source-head"><span>Source · '+esc(n.path)+'</span><button class="pact source-expand" data-code-i="'+i+'" title="Open source in a larger viewer">Expand</button></div>'+codeHTML(src, n.lineRange); }
   return h; }
 // --- collapsible file-tree (IDE-style) ---
 const openDirs=new Set(); let FTREE=null;
@@ -889,6 +906,7 @@ function renderPanel(){
   panel.querySelectorAll('.nb[data-dom]').forEach(el=>el.onclick=()=>selectDomain(+el.dataset.dom));
   panel.querySelectorAll('.nb[data-i]').forEach(el=>el.onclick=()=>goToNode(+el.dataset.i));
   panel.querySelectorAll('.fitem[data-i]').forEach(el=>el.onclick=()=>goToNode(+el.dataset.i));
+  panel.querySelectorAll('.source-expand[data-code-i]').forEach(el=>el.onclick=()=>openCodeModal(+el.dataset.codeI));
   panel.querySelectorAll('.fdirrow').forEach(el=>el.onclick=()=>{ const p=el.dataset.d;
     if(openDirs.has(p))openDirs.delete(p); else openDirs.add(p); renderPanel(); });
   panel.querySelectorAll('.tstep').forEach(el=>el.onclick=()=>{ startTour(); tIdx=+el.dataset.t; showStep(); });
