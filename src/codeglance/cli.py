@@ -3,8 +3,10 @@
     codeglance [path]                 analyze a project, write the graph, open an HTML view
     codeglance render <graph.json>    re-render an existing knowledge-graph.json to HTML
     codeglance dashboard [path]       open the HTML view for a project's existing graph
+    codeglance generate [path]        generate all human/agent outputs into one folder
+    codeglance serve [path]           host generated HTML/Markdown/JSON outputs locally
 
-Flags: --static (zero-JS SVG), --llm (LLM enrichment), -o/--output, --no-open, --graph-only.
+Flags: --static (zero-JS SVG), --llm (LLM enrichment), -o/--output/--out, --no-open, --graph-only.
 """
 
 from __future__ import annotations
@@ -23,7 +25,7 @@ GRAPH_DIR = ".codeglance"
 GRAPH_FILE = "knowledge-graph.json"
 
 # Recognized subcommands; used to make `analyze` the implicit default command.
-_SUBCOMMANDS = {"analyze", "render", "dashboard", "wiki", "context"}
+_SUBCOMMANDS = {"analyze", "render", "dashboard", "wiki", "context", "generate", "serve"}
 
 
 def _emit(msg: str) -> None:
@@ -142,12 +144,9 @@ def cmd_wiki(args: argparse.Namespace) -> int:
         _emit(f"Error: not a directory: {root}")
         return 1
     graph_path = root / GRAPH_DIR / GRAPH_FILE
-    if graph_path.is_file() and not args.full:
-        graph = KnowledgeGraph.load(graph_path)
-    else:
-        graph = analyze(root, use_llm=args.llm, model=args.model, progress=_emit, full=args.full)
-        graph.save(graph_path)
-        _write_meta(root, graph)
+    graph = analyze(root, use_llm=args.llm, model=args.model, progress=_emit, full=args.full)
+    graph.save(graph_path)
+    _write_meta(root, graph)
     out = Path(args.output) if args.output else root / GRAPH_DIR / "wiki.html"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(render_wiki(graph, root), encoding="utf-8")
@@ -165,13 +164,11 @@ def cmd_context(args: argparse.Namespace) -> int:
         _emit(f"Error: not a directory: {root}")
         return 1
     graph_path = root / GRAPH_DIR / GRAPH_FILE
-    if graph_path.is_file() and not args.full:
-        graph = KnowledgeGraph.load(graph_path)
-    else:
-        graph = analyze(root, use_llm=args.llm, model=args.model, progress=_emit, full=args.full)
-        graph.save(graph_path)
-        _write_meta(root, graph)
-    md = render_context(graph, root)
+    graph = analyze(root, use_llm=args.llm, model=args.model, progress=_emit, full=args.full)
+    graph.save(graph_path)
+    _write_meta(root, graph)
+    mode = "agent" if args.brief else args.mode
+    md = render_context(graph, root, mode=mode)
     if args.output:
         Path(args.output).write_text(md, encoding="utf-8")
         _emit(f"✓ context map → {args.output}")
@@ -180,8 +177,64 @@ def cmd_context(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_generate(args: argparse.Namespace) -> int:
+    """Handle the `generate` subcommand: write the full output bundle from one analysis pass."""
+    from .output import generate_outputs, mirror_to_codeglance
+    from .serve import serve_directory
+
+    root = Path(args.path).resolve()
+    if not root.is_dir():
+        _emit(f"Error: not a directory: {root}")
+        return 1
+    out = Path(args.output).resolve() if args.output else root / GRAPH_DIR / "outputs"
+    graph, outputs = generate_outputs(
+        root,
+        out,
+        use_llm=args.llm,
+        model=args.model,
+        full=args.full,
+        profile=args.profile,
+        progress=_emit,
+    )
+    mirror_to_codeglance(root, outputs)
+    stats = graph.stats()
+    _emit("")
+    _emit(f"✓ generated {len(outputs)} {args.profile} outputs for {graph.project.name}")
+    _emit(f"  {stats['nodes']} nodes · {stats['edges']} edges · {stats['layers']} layers")
+    _emit(f"  Output folder: {out}")
+    if any(item.path.name == "index.html" for item in outputs):
+        _emit(f"  Index: {out / 'index.html'}")
+    if args.serve:
+        serve_directory(out, host=args.host, port=args.port, open_browser=args.open)
+    return 0
+
+
+def _resolve_serve_dir(path: str, output_dir: str | None = None) -> Path:
+    """Resolve the folder that `serve` should host."""
+    base = Path(path).resolve()
+    if output_dir:
+        out = Path(output_dir)
+        return out.resolve() if out.is_absolute() else (base / out).resolve()
+    if (base / GRAPH_DIR).is_dir() and not any(base.glob("*.html")):
+        return (base / GRAPH_DIR).resolve()
+    return base
+
+
+def cmd_serve(args: argparse.Namespace) -> int:
+    """Handle the `serve` subcommand: host generated output artifacts from a local folder."""
+    from .serve import serve_directory
+
+    serve_dir = _resolve_serve_dir(args.path, args.dir)
+    if not serve_dir.is_dir():
+        _emit(f"Error: output folder not found: {serve_dir}")
+        _emit("Run `codeglance generate .` first, or pass an existing folder such as `demo`.")
+        return 1
+    serve_directory(serve_dir, host=args.host, port=args.port, open_browser=args.open)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
-    """Construct the argparse parser with the analyze/render/dashboard/wiki/context subcommands and flags."""
+    """Construct the CLI parser with all subcommands and flags."""
     p = argparse.ArgumentParser(
         prog="codeglance",
         description="Turn a codebase into an interactive knowledge-graph HTML file (pure Python).",
@@ -227,9 +280,34 @@ def build_parser() -> argparse.ArgumentParser:
     c.add_argument("path", nargs="?", default=".", help="project directory (default: .)")
     c.add_argument("--llm", action="store_true", help="enrich summaries via an LLM (needs ANTHROPIC_API_KEY)")
     c.add_argument("--model", default=None, help="LLM model id")
+    c.add_argument("--mode", choices=("full", "agent"), default="full",
+                   help="context format: full file/symbol map or compact agent handoff")
+    c.add_argument("--brief", action="store_true", help="alias for --mode agent")
     c.add_argument("-o", "--output", default=None, help="write to a file instead of stdout")
-    c.add_argument("--full", action="store_true", help="re-analyze even if a graph already exists")
+    c.add_argument("--full", action="store_true", help="force a full rebuild, ignoring fingerprints")
     c.set_defaults(func=cmd_context)
+
+    g = sub.add_parser("generate", help="generate graph, wiki, context, JSON, and an output index")
+    g.add_argument("path", nargs="?", default=".", help="project directory (default: .)")
+    g.add_argument("-o", "--output", "--out", default=None, help="output folder (default: .codeglance/outputs)")
+    g.add_argument("--llm", action="store_true", help="enrich summaries via an LLM (needs ANTHROPIC_API_KEY)")
+    g.add_argument("--model", default=None, help="LLM model id")
+    g.add_argument("--full", action="store_true", help="force a full rebuild, ignoring fingerprints")
+    g.add_argument("--profile", choices=("minimal", "human", "agent", "all"), default="minimal",
+                   help="output set: minimal (default), human, agent, or all")
+    g.add_argument("--serve", action="store_true", help="serve the output folder after generation")
+    g.add_argument("--host", default="127.0.0.1", help="serve host when --serve is used")
+    g.add_argument("--port", type=int, default=8765, help="serve port when --serve is used")
+    g.add_argument("--open", action="store_true", help="open the generated output index when serving")
+    g.set_defaults(func=cmd_generate)
+
+    s = sub.add_parser("serve", help="host generated HTML/Markdown/JSON outputs locally")
+    s.add_argument("path", nargs="?", default=".", help="project or output directory (default: .)")
+    s.add_argument("--dir", default=None, help="output directory relative to path, e.g. demo or .codeglance")
+    s.add_argument("--host", default="127.0.0.1", help="bind host (use 0.0.0.0 for phone access)")
+    s.add_argument("--port", type=int, default=8765, help="port to bind (default: 8765)")
+    s.add_argument("--open", action="store_true", help="open the local index in a browser")
+    s.set_defaults(func=cmd_serve)
 
     return p
 

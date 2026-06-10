@@ -114,7 +114,7 @@ def name_layers(layers: list[Layer], nodes: list[Node], model: str | None = None
     )
     mapping = _complete_json(prompt, model, progress)
     updated = 0
-    by_id = {l.id: l for l in layers}
+    by_id = {layer.id: layer for layer in layers}
     for lid, val in (mapping or {}).items():
         layer = by_id.get(lid)
         if layer and isinstance(val, dict):

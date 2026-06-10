@@ -102,6 +102,8 @@ class Node:
 
 @dataclass
 class Edge:
+    """A directed relationship between two graph nodes."""
+
     source: str
     target: str
     type: str
@@ -109,6 +111,7 @@ class Edge:
     weight: float = DEFAULT_EDGE_WEIGHT
 
     def to_dict(self) -> dict[str, Any]:
+        """Serialise this edge to the portable JSON schema."""
         return {
             "source": self.source,
             "target": self.target,
@@ -119,6 +122,7 @@ class Edge:
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> "Edge":
+        """Build an Edge from a dict, defaulting the weight from the edge type when omitted."""
         return cls(
             source=d["source"],
             target=d["target"],
@@ -129,17 +133,21 @@ class Edge:
 
     @property
     def key(self) -> tuple[str, str, str]:
+        """Stable de-duplication key for this edge."""
         return (self.source, self.target, self.type)
 
 
 @dataclass
 class Layer:
+    """A visual/architectural grouping of related file nodes."""
+
     id: str
     name: str
     description: str = ""
     nodeIds: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
+        """Serialise this layer to the portable JSON schema."""
         return {
             "id": self.id,
             "name": self.name,
@@ -149,6 +157,7 @@ class Layer:
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> "Layer":
+        """Build a Layer from current or legacy dict shapes."""
         node_ids = d.get("nodeIds") or d.get("nodes") or []
         # Tolerate `nodes` entries that are objects with an `id` field.
         node_ids = [n["id"] if isinstance(n, dict) else n for n in node_ids]
@@ -162,6 +171,8 @@ class Layer:
 
 @dataclass
 class TourStep:
+    """A guided-tour waypoint that highlights one or more important nodes."""
+
     order: int
     title: str
     description: str = ""
@@ -169,6 +180,7 @@ class TourStep:
     languageLesson: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
+        """Serialise this tour step to the portable JSON schema."""
         d: dict[str, Any] = {
             "order": self.order,
             "title": self.title,
@@ -181,6 +193,7 @@ class TourStep:
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> "TourStep":
+        """Build a TourStep from current or legacy dict shapes."""
         node_ids = d.get("nodeIds") or d.get("nodesToInspect") or []
         return cls(
             order=int(d.get("order", 0)),
@@ -193,6 +206,8 @@ class TourStep:
 
 @dataclass
 class Project:
+    """Project-level metadata captured at analysis time."""
+
     name: str = "project"
     languages: list[str] = field(default_factory=list)
     frameworks: list[str] = field(default_factory=list)
@@ -201,6 +216,7 @@ class Project:
     gitCommitHash: str = ""
 
     def to_dict(self) -> dict[str, Any]:
+        """Serialise project metadata to the portable JSON schema."""
         return {
             "name": self.name,
             "languages": list(self.languages),
@@ -212,6 +228,7 @@ class Project:
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> "Project":
+        """Build Project metadata from a dict, tolerating missing optional fields."""
         return cls(
             name=d.get("name", "project"),
             languages=list(d.get("languages") or []),
@@ -224,6 +241,8 @@ class Project:
 
 @dataclass
 class KnowledgeGraph:
+    """Complete analyzed codebase graph: metadata, nodes, edges, layers, and tour steps."""
+
     project: Project = field(default_factory=Project)
     nodes: list[Node] = field(default_factory=list)
     edges: list[Edge] = field(default_factory=list)
@@ -232,34 +251,38 @@ class KnowledgeGraph:
     version: str = SCHEMA_VERSION
 
     def to_dict(self) -> dict[str, Any]:
+        """Serialise the full graph to the portable JSON schema."""
         return {
             "version": self.version,
             "project": self.project.to_dict(),
             "nodes": [n.to_dict() for n in self.nodes],
             "edges": [e.to_dict() for e in self.edges],
-            "layers": [l.to_dict() for l in self.layers],
+            "layers": [layer.to_dict() for layer in self.layers],
             "tour": [t.to_dict() for t in self.tour],
         }
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> "KnowledgeGraph":
+        """Build a KnowledgeGraph from a dict, including legacy-tolerant children."""
         return cls(
             version=d.get("version", SCHEMA_VERSION),
             project=Project.from_dict(d.get("project") or {}),
             nodes=[Node.from_dict(n) for n in d.get("nodes") or []],
             edges=[Edge.from_dict(e) for e in d.get("edges") or []],
-            layers=[Layer.from_dict(l) for l in d.get("layers") or []],
+            layers=[Layer.from_dict(layer) for layer in d.get("layers") or []],
             tour=[TourStep.from_dict(t) for t in sorted(d.get("tour") or [], key=lambda s: s.get("order", 0))],
         )
 
     # --- I/O ---------------------------------------------------------------
     def save(self, path: str | Path) -> None:
+        """Write the graph as UTF-8 JSON, creating the parent folder if needed."""
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(self.to_dict(), indent=2, ensure_ascii=False), encoding="utf-8")
 
     @classmethod
     def load(cls, path: str | Path) -> "KnowledgeGraph":
+        """Load a KnowledgeGraph from a UTF-8 JSON file."""
         return cls.from_dict(json.loads(Path(path).read_text(encoding="utf-8")))
 
     # --- Validation --------------------------------------------------------
@@ -303,6 +326,7 @@ class KnowledgeGraph:
         return issues, warnings
 
     def stats(self) -> dict[str, Any]:
+        """Return compact aggregate counts used by the CLI and renderers."""
         node_types: dict[str, int] = {}
         for n in self.nodes:
             node_types[n.type] = node_types.get(n.type, 0) + 1

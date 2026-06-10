@@ -6,6 +6,8 @@ from ..registry import register
 
 @register
 class CSharp(TreeSitterLang):
+    """Tree-sitter extraction rules for C# source files."""
+
     id = "csharp"
     grammar = "csharp"
     extensions = (".cs",)

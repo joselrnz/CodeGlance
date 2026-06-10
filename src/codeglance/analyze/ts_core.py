@@ -116,12 +116,14 @@ def _generic_classify(kind: str) -> str | None:
 
 
 def supported_languages() -> set[str]:
+    """Return scan language ids supported by tree-sitter or the generic classifier."""
     # All languages we can parse — explicit specs plus generic-classifier coverage.
     return set(_TS_NAME)
 
 
 @lru_cache(maxsize=1)
 def is_available() -> bool:
+    """Return True when the optional tree-sitter language pack can be imported."""
     try:
         import tree_sitter_language_pack  # noqa: F401
         return True
@@ -416,7 +418,8 @@ def extract_symbols(language: str, path: str, text: str):
         if depth == 1 and var_types and k in var_types and not inside_class:
             base = "constant" if ("const" in k or "static" in k) else "variable"
             for nm, kk in _var_names(node, sb, base):
-                s = _symbol(node, kk, sb, lead_text(lead)); s["name"] = nm
+                s = _symbol(node, kk, sb, lead_text(lead))
+                s["name"] = nm
                 symbols.append(s)
             return
         if k in cls_types:
@@ -433,7 +436,8 @@ def extract_symbols(language: str, path: str, text: str):
                         elif ck in _FIELD_KINDS:
                             base = "constant" if "const" in ck else "variable"
                             for nm, kk in _var_names(ch, sb, base):
-                                fs = _symbol(ch, kk, sb, lead_text(c)); fs["name"] = nm
+                                fs = _symbol(ch, kk, sb, lead_text(c))
+                                fs["name"] = nm
                                 sym.setdefault("fields", []).append(fs)
                 symbols.append(sym)
             return  # don't descend (methods already captured; avoids double-counting)

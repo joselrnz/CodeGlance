@@ -6,6 +6,8 @@ from ..registry import register
 
 @register
 class JavaScript(TreeSitterLang):
+    """Tree-sitter extraction rules for JavaScript and JSX files."""
+
     id = "javascript"
     grammar = "javascript"
     extensions = (".js", ".jsx", ".mjs", ".cjs")

@@ -9,6 +9,8 @@ from ..registry import register
 
 @register
 class TypeScript(TreeSitterLang):
+    """Tree-sitter extraction rules for TypeScript and TSX files."""
+
     id = "typescript"
     grammar = "typescript"
     extensions = (".ts", ".tsx")

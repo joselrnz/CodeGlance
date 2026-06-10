@@ -5,7 +5,11 @@ __pycache__/
 build/
 dist/
 .eggs/
+target/
 .pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
 .mypy_cache/
 .ruff_cache/
 .venv/
@@ -14,8 +18,10 @@ venv/
 # Generated graphs and rendered HTML (examples kept in demo/ are fine to regenerate)
 .codeglance/
 demo/*.html
+demo/*.md
 
 # Editor / tooling
+.agents/
 .claude/launch.json
 .idea/
 .vscode/

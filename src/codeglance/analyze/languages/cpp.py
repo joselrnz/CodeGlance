@@ -6,6 +6,8 @@ from ..registry import register
 
 @register
 class Cpp(TreeSitterLang):
+    """Tree-sitter extraction rules for C++ source and header files."""
+
     id = "cpp"
     grammar = "cpp"
     extensions = (".cc", ".cpp", ".cxx", ".hh", ".hpp")

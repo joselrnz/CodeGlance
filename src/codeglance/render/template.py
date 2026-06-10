@@ -1110,6 +1110,7 @@ if(animOn) startAnim(); else { const _b=document.getElementById('btnAnim'); if(_
 
 
 def render_interactive_html(view_model: dict) -> str:
+    """Render a view model into the self-contained interactive HTML graph document."""
     data_json = json.dumps(view_model, ensure_ascii=False).replace("</", "<\\/")
     project = view_model.get("project", {})
     name = project.get("name", "project")

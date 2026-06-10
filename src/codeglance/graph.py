@@ -14,7 +14,7 @@ from .analyze import llm as llm_mod
 from .analyze import tour as tour_mod
 from .analyze.pipeline import build_structural
 from .scan import ScanResult, scan
-from .schema import KnowledgeGraph, Layer, Node, Project, FILE_LEVEL_TYPES, _kebab
+from .schema import KnowledgeGraph, Layer, Project, FILE_LEVEL_TYPES
 
 # Location of the persisted knowledge graph, relative to the project root.
 GRAPH_PATH = ".codeglance/knowledge-graph.json"
@@ -42,9 +42,9 @@ def _normalize_layers(layers: list[Layer], file_ids: list[str],
     keep: list[Layer] = []
     overflow: list[str] = []
 
-    big = [l for l in layers if len(l.nodeIds) >= min_members]
-    small = [l for l in layers if len(l.nodeIds) < min_members]
-    big.sort(key=lambda l: len(l.nodeIds), reverse=True)
+    big = [layer for layer in layers if len(layer.nodeIds) >= min_members]
+    small = [layer for layer in layers if len(layer.nodeIds) < min_members]
+    big.sort(key=lambda layer: len(layer.nodeIds), reverse=True)
 
     for layer in big[: max_layers - 1]:
         members = [nid for nid in layer.nodeIds if nid not in assigned]

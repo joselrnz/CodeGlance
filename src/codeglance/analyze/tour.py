@@ -61,7 +61,7 @@ def build_tour(nodes: list[Node], edges: list[Edge], layers: list[Layer], max_st
         order += 1
 
     # 3. Most-connected file per layer.
-    layers_sorted = sorted(layers, key=lambda l: len(l.nodeIds), reverse=True)
+    layers_sorted = sorted(layers, key=lambda layer: len(layer.nodeIds), reverse=True)
     for layer in layers_sorted:
         if len(steps) >= max_steps:
             break

@@ -6,6 +6,8 @@ from ..registry import register
 
 @register
 class Scala(TreeSitterLang):
+    """Tree-sitter extraction rules for Scala source files."""
+
     id = "scala"
     grammar = "scala"
     extensions = (".scala",)

@@ -24,7 +24,7 @@ Font stack: `'JetBrains Mono','Fira Code','Cascadia Code',Consolas,monospace`
 | codeglance-favicon.svg | 64 | `<link rel="icon" type="image/svg+xml" href="codeglance-favicon.svg">` — legible at 16px |
 | codeglance-logo-light.svg | 820×180 | docs sites / light backgrounds (transparent) |
 | codeglance-mono.svg | 280 | single-color stencil, recolors via CSS `currentColor` |
-| codeglance-badge.svg | 262×28 | shields-style `codeglance | v0.1.0 · py3` — version is one <text> element |
+| codeglance-badge.svg | 262×28 | shields-style `codeglance | v0.0.1 · py3` — version is one <text> element |
 | codeglance-divider.svg | 1280×40 | horizontal rule between README sections |
 
 ## Embeds

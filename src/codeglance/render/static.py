@@ -23,13 +23,17 @@ def render_static_html(vm: dict) -> str:
     pos = {i: (n["x"], n["y"]) for i, n in enumerate(nodes)}
 
     if containers:
-        minx = min(c["x"] for c in containers); miny = min(c["y"] for c in containers)
-        maxx = max(c["x"] + c["w"] for c in containers); maxy = max(c["y"] + c["h"] for c in containers)
+        minx = min(c["x"] for c in containers)
+        miny = min(c["y"] for c in containers)
+        maxx = max(c["x"] + c["w"] for c in containers)
+        maxy = max(c["y"] + c["h"] for c in containers)
     elif nodes:
-        xs = [n["x"] for n in nodes]; ys = [n["y"] for n in nodes]
+        xs = [n["x"] for n in nodes]
+        ys = [n["y"] for n in nodes]
         minx, maxx, miny, maxy = min(xs), max(xs), min(ys), max(ys)
     else:
-        minx = miny = 0; maxx = maxy = 100
+        minx = miny = 0
+        maxx = maxy = 100
     pad = 40
     vb = f"{minx - pad:.0f} {miny - pad:.0f} {(maxx - minx) + 2 * pad:.0f} {(maxy - miny) + 2 * pad:.0f}"
 
@@ -49,14 +53,16 @@ def render_static_html(vm: dict) -> str:
     # edges
     parts.append('<g stroke="#536b7a" stroke-width="1" stroke-opacity="0.5">')
     for a, b, _ty in edges:
-        ax, ay = pos[a]; bx, by = pos[b]
+        ax, ay = pos[a]
+        bx, by = pos[b]
         # stop at target card's top/center-ish so the arrow is visible
         parts.append(f'<line x1="{ax:.0f}" y1="{ay:.0f}" x2="{bx:.0f}" y2="{by:.0f}" marker-end="url(#arr)"/>')
     parts.append("</g>")
     # cards
     maxchars = int((cw - 18) / 7)
     for n in nodes:
-        x = n["x"] - cw / 2; y = n["y"] - ch / 2
+        x = n["x"] - cw / 2
+        y = n["y"] - ch / 2
         parts.append(
             f'<g><rect x="{x:.0f}" y="{y:.0f}" width="{cw:.0f}" height="{ch:.0f}" rx="7" '
             f'fill="#1a222c" stroke="rgba(91,164,207,0.18)"/>'
@@ -75,9 +81,9 @@ def render_static_html(vm: dict) -> str:
         for t in types
     )
     layer_rows = "\n".join(
-        f'<div class="lg"><span class="sw" style="background:{l["color"]}"></span>'
-        f'<span class="nm">{html.escape(l["name"])}</span><span class="ct">{l["count"]}</span></div>'
-        for l in layers
+        f'<div class="lg"><span class="sw" style="background:{layer["color"]}"></span>'
+        f'<span class="nm">{html.escape(layer["name"])}</span><span class="ct">{layer["count"]}</span></div>'
+        for layer in layers
     )
     name = html.escape(project.get("name", "project"))
     subtitle = f'{stats.get("nodes", 0)} nodes · {stats.get("edges", 0)} edges · {len(layers)} layers (static)'

@@ -164,7 +164,7 @@ def render_wiki_html(vm: dict) -> str:
     nav_items.append(("reference", "Reference"))
     if tour:
         nav_items.append(("reading-order", "Reading order"))
-    nav_html = "".join(f'<a href="#{a}">{_esc(l)}</a>' for a, l in nav_items)
+    nav_html = "".join(f'<a href="#{anchor}">{_esc(label)}</a>' for anchor, label in nav_items)
     theme_opts = "".join(
         f'<option value="{k}"{" selected" if k == _DEFAULT_THEME else ""}>{_esc(_THEME_LABELS[k])}</option>'
         for k in _THEMES

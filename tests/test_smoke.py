@@ -1,7 +1,10 @@
 """Smoke tests: schema round-trip, multi-language extraction, and rendering."""
 
 from pathlib import Path
+import json
+import re
 
+import codeglance
 from codeglance.analyze import ts_core as ts
 from codeglance.graph import analyze
 from codeglance.render import render_interactive, render_static
@@ -10,6 +13,18 @@ from codeglance.schema import Edge, KnowledgeGraph, Node, Project
 FIXTURES = Path(__file__).parent / "fixtures" / "multilang"
 FIXTURES_IMPORTS = Path(__file__).parent / "fixtures" / "imports"
 FIXTURES_LEGACY = Path(__file__).parent / "fixtures" / "legacy"
+EXAMPLES = Path(__file__).resolve().parent.parent / "examples"
+
+
+def test_package_version_matches_pyproject():
+    root = Path(__file__).resolve().parent.parent
+    pyproject = (root / "pyproject.toml").read_text(encoding="utf-8")
+    match = re.search(r'^version = "([^"]+)"', pyproject, re.MULTILINE)
+    assert match
+    assert codeglance.__version__ == match.group(1) == "0.0.1"
+    readme = (root / "README.md").read_text(encoding="utf-8")
+    assert "pypi/v/codeglance" not in readme
+    assert "pypi-v0.0.1" in readme
 
 
 def _sample_graph() -> KnowledgeGraph:
@@ -423,7 +438,7 @@ def test_offline_terminal_present():
 
 
 def test_enums_back_compat_and_str_behaviour():
-    from codeglance.enums import NodeType, Complexity, ThemeName
+    from codeglance.enums import NodeType, ThemeName
     from codeglance import schema
     assert NodeType.FILE == "file" and isinstance(NodeType.CLASS, str)   # str-enum
     assert ThemeName.GOLD == "gold"
@@ -468,6 +483,211 @@ def test_context_map_is_dependency_first():
     assert "## Dependency map" in md and "## Files" in md
     assert "->" in md                               # file -> file dependencies present
     assert "<html" not in md and "<script" not in md  # plain Markdown, not a web page
+
+
+def test_agent_context_is_low_token_handoff():
+    from codeglance.render import render_context
+
+    g = analyze(FIXTURES_IMPORTS, use_llm=False)
+    md = render_context(g, mode="agent")
+    assert "agent context" in md
+    assert "## Snapshot" in md and "## Agent Rules" in md
+    assert "## AI Reading Protocol" in md and "## Context Budget" in md
+    assert "Open source only after this map points to it" in md
+    assert "refresh after edits" in md and "--mode agent" in md
+    assert "## Files" not in md  # compact mode omits the full per-file catalog
+    assert len(md) < len(render_context(g))
+    changed = next(n for n in g.nodes if n.filePath == "main.go")
+    g.changed = {changed.id}
+    changed_md = render_context(g, mode="agent")
+    assert "## Changed Since Last Run" in changed_md and "`main.go`" in changed_md
+
+
+def test_serve_index_lists_output_artifacts(tmp_path):
+    from codeglance.cli import _resolve_serve_dir
+    from codeglance.serve import build_index_html, iter_artifacts
+
+    out = tmp_path / "demo"
+    out.mkdir()
+    (out / "glance.html").write_text("<html></html>", encoding="utf-8")
+    (out / "agent.md").write_text("# Agent", encoding="utf-8")
+    (out / "knowledge-graph.json").write_text("{}", encoding="utf-8")
+    (out / "scratch.py").write_text("print('ignored')", encoding="utf-8")
+
+    artifacts = iter_artifacts(out)
+    names = {artifact.path for artifact in artifacts}
+    assert names == {"agent.md", "glance.html", "knowledge-graph.json"}
+
+    html = build_index_html(out)
+    assert "glance.html" in html and "agent.md" in html and "knowledge-graph.json" in html
+    assert "scratch.py" not in html and "/__file__/glance.html" in html
+
+    project = tmp_path / "project"
+    generated = project / ".codeglance"
+    generated.mkdir(parents=True)
+    assert _resolve_serve_dir(str(project)) == generated.resolve()
+    assert _resolve_serve_dir(str(project), "demo") == (project / "demo").resolve()
+    assert _resolve_serve_dir(str(out)) == out.resolve()
+
+
+def test_generate_outputs_writes_complete_bundle(tmp_path):
+    from codeglance.output import generate_outputs
+
+    project = tmp_path / "project"
+    project.mkdir()
+    (project / "README.md").write_text("# Demo\n\nSmall project.\n", encoding="utf-8")
+    (project / "app.py").write_text("def main():\n    return 'ok'\n", encoding="utf-8")
+    out = tmp_path / "site"
+
+    graph, outputs = generate_outputs(project, out, full=True, profile="all")
+    names = {item.path.name for item in outputs}
+    expected = {
+        "llms.txt",
+        "glance.html",
+        "graph.static.html",
+        "wiki.html",
+        "context.md",
+        "agent.md",
+        "llm-context.schema.json",
+        "knowledge-graph.toon",
+        "knowledge-graph.json",
+        "meta.json",
+        "index.html",
+    }
+    assert expected <= names
+    assert graph.nodes
+    assert "<canvas" in (out / "glance.html").read_text(encoding="utf-8")
+    assert "agent context" in (out / "agent.md").read_text(encoding="utf-8")
+    index = (out / "index.html").read_text(encoding="utf-8")
+    assert "glance.html" in index and "llm-context.schema.json" in index
+    llms = (out / "llms.txt").read_text(encoding="utf-8")
+    assert "Read Order" in llms and "`agent.md`" in llms
+    assert "`knowledge-graph.toon`" in llms
+    toon = (out / "knowledge-graph.toon").read_text(encoding="utf-8")
+    assert "nodes[" in toon and "{id,type,name,path,summary,complexity,tags}" in toon
+    assert "edges[" in toon and "{source,target,type,weight}" in toon
+    schema = json.loads((out / "llm-context.schema.json").read_text(encoding="utf-8"))
+    assert schema["schema"] == "codeglance.llm-context"
+    assert schema["readOrder"][0] == "llms.txt"
+    assert "knowledgeGraphSchema" in schema
+    assert "knowledge-graph.toon" in schema["generatedArtifacts"]
+    assert "file" in schema["nodeTypes"]
+    assert "imports" in schema["edgeTypes"]
+
+
+def test_generate_outputs_default_profile_is_minimal(tmp_path):
+    from codeglance.output import generate_outputs
+
+    project = tmp_path / "project"
+    project.mkdir()
+    (project / "app.py").write_text("def main():\n    return 'ok'\n", encoding="utf-8")
+    out = tmp_path / "site"
+
+    _graph, outputs = generate_outputs(project, out, full=True)
+    names = {item.path.name for item in outputs}
+    assert names == {
+        "llms.txt",
+        "glance.html",
+        "agent.md",
+        "llm-context.schema.json",
+        "knowledge-graph.toon",
+        "knowledge-graph.json",
+        "meta.json",
+        "index.html",
+    }
+    assert (out / "glance.html").is_file()
+    assert (out / "agent.md").is_file()
+    assert (out / "llms.txt").is_file()
+    assert (out / "llm-context.schema.json").is_file()
+    assert (out / "knowledge-graph.toon").is_file()
+    assert not (out / "wiki.html").exists()
+    assert not (out / "context.md").exists()
+    assert not (out / "graph.static.html").exists()
+
+
+def test_generate_outputs_rejects_unknown_profile(tmp_path):
+    from codeglance.output import generate_outputs
+
+    project = tmp_path / "project"
+    project.mkdir()
+    try:
+        generate_outputs(project, tmp_path / "out", profile="everything")
+    except ValueError as exc:
+        assert "unknown output profile" in str(exc)
+    else:
+        raise AssertionError("generate_outputs should reject an unknown profile")
+
+
+def test_generate_outputs_rejects_missing_root(tmp_path):
+    from codeglance.output import generate_outputs
+
+    missing = tmp_path / "missing"
+    try:
+        generate_outputs(missing, tmp_path / "out")
+    except NotADirectoryError as exc:
+        assert str(missing.resolve()) in str(exc)
+    else:
+        raise AssertionError("generate_outputs should reject a missing root")
+
+
+def test_generate_accepts_out_alias():
+    from codeglance.cli import build_parser
+
+    args = build_parser().parse_args(["generate", ".", "--out", "demo", "--profile", "agent"])
+    assert args.output == "demo"
+    assert args.profile == "agent"
+
+
+def test_more_example_projects_are_analyzable():
+    examples = {
+        "terraform-azure": {
+            "languages": {"terraform"},
+            "symbols": {"resource azurerm_resource_group.main", "module app"},
+            "deps": [("outputs.tf", "main.tf")],
+        },
+        "rust-cli": {
+            "languages": {"rust"},
+            "symbols": {"CliConfig", "build_report", "run"},
+            "deps": [("src/main.rs", "src/config.rs"), ("src/main.rs", "src/report.rs")],
+        },
+        "java-service": {
+            "languages": {"java"},
+            "symbols": {"App", "OrderService", "InMemoryOrderRepository"},
+            "deps": [("src/main/java/com/example/orders/App.java",
+                      "src/main/java/com/example/orders/service/OrderService.java")],
+        },
+    }
+    for name, expected in examples.items():
+        graph = analyze(EXAMPLES / name, use_llm=False, full=True)
+        if expected["languages"]:
+            assert expected["languages"] <= set(graph.project.languages), name
+        symbols = {node.name for node in graph.nodes}
+        assert expected["symbols"] <= symbols, name
+        paths = {node.id: node.filePath for node in graph.nodes}
+        deps = {(paths[e.source], paths[e.target]) for e in graph.edges if e.type in {"imports", "depends_on"}}
+        for pair in expected["deps"]:
+            assert pair in deps, f"{name} missing dependency {pair}"
+
+
+def test_llm_helpers_are_safe_without_api_key(monkeypatch, tmp_path):
+    from codeglance.analyze import llm
+
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    assert llm.is_available() is False
+    assert llm.availability_hint() == "ANTHROPIC_API_KEY is not set."
+    assert llm.enrich(_sample_graph(), root=tmp_path) == 0
+    assert llm.name_layers([], []) == 0
+    assert llm.narrate_tour([], []) == 0
+
+    prompt = llm._build_prompt(
+        "demo",
+        [{"id": "file:a.py", "path": "a.py", "current": "old", "head": "def f(): pass"}],
+    )
+    assert "file:a.py" in prompt and "Return ONLY a JSON object" in prompt
+    assert llm._parse_json_object('```json\n{"file:a.py": "A tiny module."}\n```') == {
+        "file:a.py": "A tiny module."
+    }
+    assert llm._parse_json_object("no json here") == {}
 
 
 def test_default_theme_from_config_and_validate_flags_bad_values():

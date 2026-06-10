@@ -2,140 +2,277 @@
   <img src="brand/codeglance-banner.svg" alt="codeglance" width="760">
 </p>
 <p align="center">
-  <a href="https://pypi.org/project/codeglance/"><img alt="PyPI" src="https://img.shields.io/pypi/v/codeglance?color=0ea5e9&label=pypi"></a>
+  <a href="https://pypi.org/project/codeglance/"><img alt="PyPI package v0.0.1" src="https://img.shields.io/badge/pypi-v0.0.1-0ea5e9"></a>
   <img alt="Python 3.10+" src="https://img.shields.io/badge/python-3.10%2B-0ea5e9">
-  <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-22d3ee">
-  <img alt="Pure Python" src="https://img.shields.io/badge/stack-pure%20Python-1f6feb">
-  <img alt="Output: single-file, offline" src="https://img.shields.io/badge/output-single--file%20%C2%B7%20offline-155e75">
+  <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-22d3ee">
+  <img alt="Python based" src="https://img.shields.io/badge/runtime-Python--based-1f6feb">
+  <img alt="Offline HTML" src="https://img.shields.io/badge/output-offline%20HTML-155e75">
 </p>
 
-**Only Python needed.** `pip install` and point it at any codebase — no Node, no npm, no build step, no server.
+`codeglance` turns a codebase into files you can actually inspect:
 
-It produces **three views of one analysis**, each a **single self-contained file** you just open:
+- an interactive HTML graph for humans
+- a readable wiki page for humans
+- a compact Markdown map for AI agents
+- a low-token agent handoff that can be refreshed after edits
+- a local output browser so you can view generated HTMLs from your laptop or phone
+
+No Node. No npm. No hosted service. Install it with pip, point it at a folder, open the output.
 
 ```bash
 pip install codeglance
-
-# 1) Interactive knowledge graph (files · functions · classes · dependencies) -> one HTML file
 codeglance /path/to/project
-
-# 2) Readable docs/wiki page (getting-started, architecture, per-file reference)
-codeglance wiki /path/to/project
-
-# 3) Compact, dependency-first "codebase map" for AI agents (Markdown to stdout)
-codeglance context /path/to/project
-
-# also: re-render an existing graph, or a zero-JavaScript static SVG
-codeglance render /path/to/project/.codeglance/knowledge-graph.json -o graph.html
-codeglance render knowledge-graph.json --static -o graph.svg.html
 ```
 
-> The **`context`** output is built for AI agents — it's the read-first hub files, a `file -> file`
-> dependency list, and a one-line summary + symbols per file, so an agent understands a repo's
-> structure without reading every line. There's a bundled Claude Code skill (`.claude/skills/codebase-map`).
+## Quick Start
 
-## What makes it different
+Generate the main graph:
 
-- **Python only** — `pip install` and go. No Node, npm, Vite, or build step.
-- **Single self-contained file** — open the HTML directly (`file://`); no dev server, no hosting.
-- **Deterministic by default** — tree-sitter / Python `ast` structural analysis; optional `--llm` enrichment.
-- **Portable schema** — a plain `knowledge-graph.json` (`{ version, project, nodes, edges, layers, tour }`).
+```bash
+codeglance .
+```
 
-## Analysis modes (hybrid)
+That writes:
 
-- **Default (deterministic, offline, free):** tree-sitter / Python `ast` structural extraction —
-  files, functions, classes, imports, Louvain-detected layers, a heuristic tour.
-- **`--llm` (optional):** enrich node summaries, layer names and the guided tour via an LLM API
-  (set `ANTHROPIC_API_KEY`). Everything still works without it.
+```text
+.codeglance/knowledge-graph.json
+.codeglance/knowledge-graph.html
+.codeglance/meta.json
+```
 
-## Visual modes
+Generate the wiki:
 
-- **Interactive (default):** a self-contained HTML canvas app —
-  **labeled node cards** colored **by type** (with a type badge), **layer container boxes**,
-  **directional edge arrows**, a **project-overview** panel, and a rich **node panel** when you
-  click a card: the **signature**, the **docstring / leading doc-comment** pulled from the code,
-  tags, complexity, typed connections, and the **syntax-highlighted source code with line numbers**
-  (the node's own line range highlighted). Plus pan/zoom, search, layer + node-type legends, a
-  minimap, **directional curved edges with type labels**, **animated _marching-ants_ flow edges**
-  (dashes glide from source → target; toggle with the **≈ Flow** button or `a`), a **path finder**
-  (shortest path between any two nodes), a **Filter popup** (by node type & complexity), a
-  **Fuzzy / Semantic search** with a ranked results dropdown, a **Focus mode** (isolate a node +
-  its 1-hop neighbors), a **Diff overlay** (highlight files changed since the last analysis),
-  **export to PNG / SVG / JSON**, **persona tabs** (Overview / Explore / Tour), **zoom
-  controls**, a guided tour, and keyboard shortcuts (`/ f p e a d t i x b ?`). It
-  opens on an **overview of layer cards** (name, description, complexity, file count) and you
-  **click a layer to drill into its files**, with a breadcrumb back to the overview. The header has
-  **persona tabs**, a **Files/+Classes/`fn`** detail toggle, **category
-  filter buttons** (Code/Config/Docs/Infra/Data/Domain/Knowledge), a **Structural / Domain / Knowledge** view
-  toggle, and **inline layer chips**;
-  the sidebar has **Info / Files tabs** — a collapsible file explorer with **VS Code-style
-  file-type icons** ([vscode-icons](https://github.com/vscode-icons/vscode-icons), MIT, inlined)
-  plus the **guided-tour steps**. A **theme picker** (**Dark Ocean** by default, plus Dark Gold /
-  Forest / Rose / Light Minimal, 8 accent colors, Serif/Sans/Mono heading font) recolors
-  everything — all base colors are CSS variables, so you can also just open the `.html` and tweak
-  them. Fully offline.
-- **`--static`:** a zero-JavaScript inline-SVG rendering (cards + containers + arrows). A picture,
-  but truly no JS.
+```bash
+codeglance wiki . -o .codeglance/wiki.html
+```
 
-### Domain view
+Generate AI context:
 
-Toggle **Domain** in the header (or press `d`) for a higher-level **domain map**: each top-level
-package / service directory becomes a **domain card** (its classes/types listed as **entities**),
-and the imports/calls between domains become **animated flow edges**. It's inferred deterministically
-from the project structure — no LLM required — so a microservices repo shows each service and how
-they depend on one another. Try `codeglance examples/microservices` then click **Domain**.
+```bash
+codeglance context . --mode full -o .codeglance/context.md
+codeglance context . --mode agent -o AGENTS.md
+```
 
-### Knowledge view
+Browse every generated output locally:
 
-Toggle **Knowledge** (or press `k`) for a **knowledge graph** of your docs: each markdown file
-becomes an **article** card (its headings listed as **topics**), and `[[wikilinks]]` / `[](other.md)`
-links between docs become **related / cites** edges — the Obsidian / Karpathy-wiki pattern,
-extracted deterministically (no LLM). Try `codeglance examples/wiki` then click **Knowledge**.
+```bash
+codeglance generate . --out .codeglance/outputs
+codeglance generate . --out .codeglance/outputs --profile all
+codeglance serve . --host 0.0.0.0
+```
 
-## Knowledge graph schema
+Then open the printed URL on your desktop or phone on the same Wi-Fi.
 
-`{ version, project, nodes[], edges[], layers[], tour[] }` — a plain, self-describing JSON format
-you can read, diff, or generate elsewhere.
+## Outputs
 
-<details>
-<summary><strong>📚 Language coverage — ~50 languages from one <code>pip install</code></strong> (click to expand)</summary>
+### Interactive Graph
 
-Deep symbol extraction (functions, classes, methods, **variables & constants** → `contains` edges)
-— **all ~50 work out of the box from a single `pip install`** (tree-sitter ships as a normal pip
-wheel; no Node, no build):
+The default HTML graph is a self-contained canvas app. It shows files, functions, classes,
+dependencies, layers, domains, documentation links, and changed files from the last analysis.
 
-- **Python** — stdlib `ast`: functions, classes, methods, **module-level variables/constants, and
-  class attributes** (`UPPER_CASE` → constant, otherwise variable).
-- **~50 more** via bundled tree-sitter grammars:
-  - *Tuned* (precise method/impl handling): JavaScript, TypeScript/TSX, Go, Rust, Java, Ruby,
-    PHP, C#, C, C++, Kotlin, Swift, Scala, Lua. Top-level **`var` / `const` / `let` / `static`
-    declarations** plus **class fields & properties** are captured as variable/constant nodes
-    across these languages (function-local variables are intentionally skipped to keep the graph
-    readable). The *generic* classifier also picks up variable/constant/**signal** declarations in
-    the other ~30 languages (e.g. VHDL signals, Fortran/Ada variables) where the grammar exposes
-    them — so variables work across essentially all languages, not just a few.
-  - *Terraform/HCL* — resource / module / variable / output blocks, **plus `depends_on` edges**
-    between blocks that reference each other (resource → security group → module → variable).
-  - *Generic node-kind classifier* (works across any grammar): VHDL, Verilog, COBOL, Fortran,
-    Ada, Pascal, Haskell, OCaml, Erlang, Elixir, Clojure, Elm, Julia, R, Perl, Groovy, Dart,
-    Zig, Nim, Crystal, D, Solidity, Objective-C, MATLAB, PowerShell, Tcl, Common Lisp, Scheme,
-    Racket, Gleam, Odin, GLSL/HLSL/WGSL, shell — and more.
-- **Any other text file** — file-level node with a heuristic summary; import edges where supported.
+Useful controls are built in:
 
-Yes, including VHDL and COBOL. The generic classifier matches function/type node kinds by name
-across arbitrary tree-sitter grammars, so adding a language is usually just a file-extension entry.
-Without the extra, non-Python files still appear as file nodes — you just don't get per-symbol
-detail.
+- overview cards for architecture layers
+- structural, domain, and knowledge views
+- search, filters, focus mode, path finding, and guided tour
+- file tree with source snippets and highlighted symbols
+- export to PNG, SVG, or JSON
+- themes and keyboard shortcuts
 
-**Import-graph edges** resolve intra-project dependencies for: Python (`ast`), JS/TS (relative),
-Go (go.mod module + packages), Rust (`mod` / `use crate::`), Java (dotted path), C/C++
-(`#include "..."`), Ruby (`require_relative`), and PHP (`require`/`include`).
+Open it directly as a file, or serve it through `codeglance serve`.
 
-</details>
+### Wiki
 
-## Incremental updates
+The wiki output is a readable HTML document:
 
-Re-running `codeglance .` is cheap: per-file content fingerprints (`.codeglance/fingerprints.json`)
-detect what changed. Unchanged files keep their existing summaries (so prior `--llm` enrichment is
-preserved for free), and `--llm` only re-summarizes changed/added files. Pass `--full` to force a
-complete rebuild.
+- getting started
+- project overview
+- architecture layers
+- inferred domains
+- per-file reference
+- suggested reading order
+
+Use it when you want a cleaner document instead of a graph.
+
+### Agent Context
+
+Agents should not need to read the whole repo before every task. `codeglance context` gives them
+a smaller entry point.
+
+Full mode:
+
+```bash
+codeglance context . --mode full
+```
+
+Includes the read-first files, file-to-file dependencies, summaries, symbols, imports, and used-by
+relationships.
+
+Agent mode:
+
+```bash
+codeglance context . --mode agent -o AGENTS.md
+```
+
+Keeps the handoff small: snapshot, read-first files, layers, dependency hotspots, changed files,
+context budget, reading protocol, and refresh rules.
+
+### Local Output Browser
+
+`generate` writes a compact output folder from one analysis pass:
+
+```bash
+codeglance generate . --out .codeglance/outputs
+```
+
+The default `minimal` profile contains:
+
+- `index.html`
+- `llms.txt`
+- `glance.html`
+- `agent.md`
+- `llm-context.schema.json`
+- `knowledge-graph.toon`
+- `knowledge-graph.json`
+- `meta.json`
+
+Use profiles when you want a different bundle:
+
+```bash
+codeglance generate . --profile minimal  # LLM entrypoint + Glance visual + compact agent context + JSON metadata
+codeglance generate . --profile human    # LLM entrypoint + Glance visual + wiki + JSON metadata
+codeglance generate . --profile agent    # LLM entrypoint + compact agent context + JSON metadata
+codeglance generate . --profile all      # every generated artifact
+```
+
+The `all` profile adds:
+
+- `graph.static.html`
+- `wiki.html`
+- `context.md`
+
+LLM-specific generated files:
+
+- `llms.txt`: tiny entrypoint with read order and artifact pointers
+- `llm-context.schema.json`: structured contract for agents and tools, including artifact tiers,
+  graph fields, node types, edge types, and output profiles
+- `knowledge-graph.toon`: compact structured graph for LLM prompt context, with repeated JSON
+  field names collapsed into TOON-style tables
+- `knowledge-graph.json`: canonical graph for parsers, tooling, re-rendering, and compatibility
+
+`serve` hosts an output folder and generates a simple index page for artifacts:
+
+```bash
+codeglance serve .
+codeglance serve . --dir .codeglance
+codeglance serve .codeglance/outputs --host 0.0.0.0
+codeglance serve demo --host 0.0.0.0
+```
+
+It lists HTML, Markdown, JSON, TXT, and SVG files. This is the easiest way to check all generated
+views from a phone without pushing or deploying anything.
+
+## How It Stays Fast
+
+Codeglance stores fingerprints in `.codeglance/fingerprints.json`. Re-running analysis compares
+file hashes, keeps prior summaries for unchanged files, and only marks changed files for the diff
+overlay.
+
+```bash
+codeglance .
+codeglance wiki .
+codeglance context . --mode agent -o AGENTS.md
+```
+
+Use `--full` when you want to rebuild from scratch.
+
+## Analysis
+
+The default path is deterministic and offline:
+
+- Python uses the standard library `ast` module.
+- Other languages use bundled tree-sitter grammars.
+- Imports become dependency edges where local resolution is supported.
+- Layers are inferred from the graph structure.
+- Tours and summaries have deterministic fallbacks.
+
+Optional LLM enrichment is available:
+
+```bash
+ANTHROPIC_API_KEY=... codeglance . --llm
+```
+
+The package still works without an API key.
+
+## Language Coverage
+
+Python is first-class. Tree-sitter coverage adds broad symbol extraction across common and older
+languages:
+
+- JavaScript, TypeScript/TSX, Go, Rust, Java, Ruby, PHP, C#, C, C++, Kotlin, Swift, Scala, Lua
+- Terraform/HCL resources, modules, variables, outputs, and dependency references
+- VHDL, Verilog, COBOL, Fortran, Ada, Haskell, OCaml, Erlang, Elixir, Clojure, Julia, Dart,
+  Solidity, PowerShell, Tcl, Common Lisp, Scheme, Racket, Gleam, shell, and more
+
+Unsupported text files still appear as file-level nodes with summaries.
+
+## Example Projects
+
+The `examples/` folder has small repos you can use to test the different views:
+
+```bash
+codeglance examples/taskman
+codeglance examples/microservices
+codeglance examples/terraform-aws
+codeglance examples/terraform-azure
+codeglance examples/rust-cli
+codeglance examples/java-service
+codeglance examples/wiki
+```
+
+They cover Python apps, microservices, AWS and Azure Terraform modules, Rust modules, Java packages,
+and Markdown knowledge graphs.
+
+## Schema
+
+The graph is plain JSON:
+
+```json
+{
+  "version": "1.0.0",
+  "project": {},
+  "nodes": [],
+  "edges": [],
+  "layers": [],
+  "tour": []
+}
+```
+
+You can diff it, inspect it, or render it again:
+
+```bash
+codeglance render .codeglance/knowledge-graph.json -o graph.html
+codeglance render .codeglance/knowledge-graph.json --static -o graph.static.html
+```
+
+## Current Version
+
+Package version is static for now: `0.0.1`.
+
+When the package version changes, update:
+
+- `pyproject.toml`
+- `src/codeglance/__init__.py`
+- this README badge
+- brand badge text
+
+## Next Build Plan
+
+The current local server is a first step. The next useful pieces are:
+
+- `codeglance serve --watch` to regenerate outputs when files change
+- browser auto-refresh when `.codeglance` artifacts update
+- richer output-folder landing pages with screenshots and project stats
+- optional `llms.txt` generation pointing agents to the right local files
+- JSON context mode for tools that prefer structured ingestion
+- changed-only context mode for fast review after edits

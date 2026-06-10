@@ -11,6 +11,8 @@ from __future__ import annotations
 import math
 import random
 
+from .config import DEFAULT_CONFIG, VizConfig
+
 WIDTH = 1400.0
 HEIGHT = 900.0
 
@@ -18,8 +20,6 @@ HEIGHT = 900.0
 # --- Layered "swimlane" layout: per-layer containers of gridded cards. --------------------------
 # All sizing now lives in VizConfig (codeglance/config.py); the layout reads it from `config`.
 # CARD_W/CARD_H remain as module aliases for back-compat.
-from .config import DEFAULT_CONFIG, VizConfig
-
 CARD_W = DEFAULT_CONFIG.card_w
 CARD_H = DEFAULT_CONFIG.card_h
 # Sentinel layer key for nodes with no assigned layer (sorts last).

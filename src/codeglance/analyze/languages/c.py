@@ -6,6 +6,8 @@ from ..registry import register
 
 @register
 class C(TreeSitterLang):
+    """Tree-sitter extraction rules for C source and header files."""
+
     id = "c"
     grammar = "c"
     extensions = (".c", ".h")

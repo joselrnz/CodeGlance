@@ -6,6 +6,8 @@ from ..registry import register
 
 @register
 class Java(TreeSitterLang):
+    """Tree-sitter extraction rules for Java source files."""
+
     id = "java"
     grammar = "java"
     extensions = (".java",)

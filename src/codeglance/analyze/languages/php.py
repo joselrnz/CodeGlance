@@ -6,6 +6,8 @@ from ..registry import register
 
 @register
 class Php(TreeSitterLang):
+    """Tree-sitter extraction rules for PHP source files."""
+
     id = "php"
     grammar = "php"
     extensions = (".php",)

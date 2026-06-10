@@ -60,7 +60,7 @@ LANG_BY_NAME: dict[str, str] = {
     "requirements.txt": "plaintext", "go.mod": "go", "go.sum": "plaintext",
 }
 
-# Language ids that count as source code (drive the "code" category and language stats).
+# Language ids that count as source code (drive the "code" category).
 CODE_LANGS = {
     "python", "javascript", "typescript", "go", "rust", "ruby", "php", "java", "kotlin",
     "swift", "scala", "c", "cpp", "csharp", "lua", "vue", "svelte",
@@ -70,6 +70,7 @@ CODE_LANGS = {
     "crystal", "d", "solidity", "objc", "matlab", "tcl", "commonlisp", "scheme", "racket",
     "gleam", "odin", "glsl", "hlsl", "wgsl",
 }
+STATS_LANGS = CODE_LANGS | {"terraform", "hcl"}
 # Language buckets used to assign a high-level file category in categorize().
 CONFIG_LANGS = {"json", "yaml", "toml", "ini", "env", "xml"}
 DOC_LANGS = {"markdown", "restructuredtext", "plaintext"}
@@ -190,7 +191,7 @@ def scan(root: str | Path, max_file_lines: int = 50_000) -> ScanResult:
                 continue
             category = categorize(language, rel)
             result.files.append(ScannedFile(rel, language, category, lines))
-            if language in CODE_LANGS:
+            if language in STATS_LANGS:
                 langs.add(language)
 
     result.languages = sorted(langs)

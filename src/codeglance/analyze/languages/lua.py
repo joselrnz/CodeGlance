@@ -6,6 +6,8 @@ from ..registry import register
 
 @register
 class Lua(TreeSitterLang):
+    """Tree-sitter extraction rules for Lua source files."""
+
     id = "lua"
     grammar = "lua"
     extensions = (".lua",)

@@ -24,6 +24,7 @@ from .languages.python import _ModuleIndex, _python_extract, _resolve_py_import
 # ---------------------------------------------------------------------------
 
 def node_type_for(f: ScannedFile) -> str:
+    """Map a scanned file to the graph node type used for its file-level node."""
     lang, cat, path = f.language, f.category, f.path.lower()
     if lang == "terraform":
         return "resource"
@@ -47,6 +48,7 @@ def node_type_for(f: ScannedFile) -> str:
 
 
 def file_node_id(node_type: str, rel_path: str) -> str:
+    """Return the stable graph node id for a file-level node."""
     return f"{node_type}:{rel_path}"
 
 
@@ -116,6 +118,7 @@ def _fallback_summary(f: ScannedFile) -> str:
 # ---------------------------------------------------------------------------
 
 def build_structural(scan_result: ScanResult) -> tuple[list[Node], list[Edge]]:
+    """Build deterministic graph nodes and edges from scanned files, without LLM enrichment."""
     root = scan_result.root
     nodes: list[Node] = []
     edges: list[Edge] = []

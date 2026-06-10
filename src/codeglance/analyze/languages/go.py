@@ -6,6 +6,8 @@ from ..registry import register
 
 @register
 class Go(TreeSitterLang):
+    """Tree-sitter extraction rules for Go source files."""
+
     id = "go"
     grammar = "go"
     extensions = (".go",)

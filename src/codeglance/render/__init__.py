@@ -155,6 +155,7 @@ def _build_knowledge(graph: KnowledgeGraph, sources: dict, index_of: dict, confi
 
 
 def build_view_model(graph: KnowledgeGraph, root: Path | None = None, config: VizConfig = DEFAULT_CONFIG) -> dict:
+    """Convert a KnowledgeGraph into the renderer-neutral view model used by all outputs."""
     node_ids = [n.id for n in graph.nodes]
     id_set = set(node_ids)
     index_of = {nid: i for i, nid in enumerate(node_ids)}
@@ -198,9 +199,9 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None, config: Vi
         containers_vm.append({"name": name, "color": color, "layer": -1 if key == _UNASSIGNED_KEY else key,
                               "x": c["x"], "y": c["y"], "w": c["w"], "h": c["h"], "count": c["count"]})
 
-    layers_vm = [{"id": l.id, "name": l.name, "description": l.description,
-                  "color": layer_colors[i], "count": len([n for n in l.nodeIds if n in id_set])}
-                 for i, l in enumerate(graph.layers)]
+    layers_vm = [{"id": layer.id, "name": layer.name, "description": layer.description,
+                  "color": layer_colors[i], "count": len([n for n in layer.nodeIds if n in id_set])}
+                 for i, layer in enumerate(graph.layers)]
 
     type_counts = Counter(n.type for n in graph.nodes)
     types_vm = [{"type": t, "color": config.color_for_type(t), "count": c}
@@ -223,9 +224,9 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None, config: Vi
     LW, LH, GX, GY = config.layer_card_w, config.layer_card_h, config.layer_gap_x, config.layer_gap_y
     cols = max(1, int(_math.ceil(_math.sqrt(len(layers_vm)))))
     layer_cards = []
-    for i, l in enumerate(layers_vm):
+    for i, layer in enumerate(layers_vm):
         r, c = divmod(i, cols)
-        layer_cards.append({**l, "i": i, "complexity": comp_by_layer.get(i, "moderate"),
+        layer_cards.append({**layer, "i": i, "complexity": comp_by_layer.get(i, "moderate"),
                             "x": round(60 + c * (LW + GX) + LW / 2, 1),
                             "y": round(60 + r * (LH + GY) + LH / 2, 1)})
     pair: Counter = Counter()
@@ -384,11 +385,13 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None, config: Vi
 
 
 def render_interactive(graph: KnowledgeGraph, root: Path | None = None, config: VizConfig = DEFAULT_CONFIG) -> str:
+    """Render the interactive, self-contained HTML canvas graph."""
     from .template import render_interactive_html
     return render_interactive_html(build_view_model(graph, root, config))
 
 
 def render_static(graph: KnowledgeGraph, root: Path | None = None, config: VizConfig = DEFAULT_CONFIG) -> str:
+    """Render the zero-JavaScript, self-contained static SVG HTML graph."""
     from .static import render_static_html
     return render_static_html(build_view_model(graph, root, config))
 
@@ -399,7 +402,12 @@ def render_wiki(graph: KnowledgeGraph, root: Path | None = None, config: VizConf
     return render_wiki_html(build_view_model(graph, root, config))
 
 
-def render_context(graph: KnowledgeGraph, root: Path | None = None, config: VizConfig = DEFAULT_CONFIG) -> str:
+def render_context(
+    graph: KnowledgeGraph,
+    root: Path | None = None,
+    config: VizConfig = DEFAULT_CONFIG,
+    mode: str = "full",
+) -> str:
     """Render a compact, dependency-first Markdown 'codebase map' for AI agents (not a web page)."""
     from .context import render_context_md
-    return render_context_md(build_view_model(graph, root, config))
+    return render_context_md(build_view_model(graph, root, config), mode=mode)

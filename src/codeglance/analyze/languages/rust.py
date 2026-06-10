@@ -9,6 +9,8 @@ from ..registry import register
 
 @register
 class Rust(TreeSitterLang):
+    """Tree-sitter extraction rules for Rust source files."""
+
     id = "rust"
     grammar = "rust"
     extensions = (".rs",)

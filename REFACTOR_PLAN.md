@@ -206,7 +206,7 @@ src/codeglance/
     ├── static.py    ⚠   zero-JS SVG — 10 hardcoded ocean hex colors (out of sync w/ gold)
     └── icons.py         vendored devicon SVGs
 ```
-(plus `examples/` — 6 sample projects, and `tests/` — `test_smoke.py` + `fixtures/` for ~40 languages.)
+(plus `examples/` — 9 sample projects, and `tests/` — `test_smoke.py` + `fixtures/` for ~40 languages.)
 
 ### Target package tree (after this refactor — ★ = new, ✦ = touched)
 ```
@@ -462,5 +462,6 @@ Completed 2026-06-09 as one atomic commit (`Rename scopinglang -> codeglance`, 3
 - ✅ **Wiki / docs HTML mode** — `codeglance wiki`, 5 themes (Dark Ocean default), setup-first — `63a5419`/`a23ef9b`
 - ✅ **AI context map** — `codeglance context` (dependency-first map) + `.claude/skills/codebase-map` — `c476fca`
 
-**COMPLETE.** Config-driven (one `VizConfig`), enum-typed, three outputs from one analysis:
-graph (`codeglance .`), wiki (`codeglance wiki`), AI context map (`codeglance context`). 37 tests green.
+**COMPLETE.** Config-driven (one `VizConfig`), enum-typed, human and agent outputs from one analysis:
+graph (`codeglance .`), wiki (`codeglance wiki`), AI context map (`codeglance context`), bundle generation
+(`codeglance generate`), and local artifact browsing (`codeglance serve`). 48 tests green.

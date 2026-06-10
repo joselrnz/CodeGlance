@@ -6,6 +6,8 @@ from ..registry import register
 
 @register
 class Kotlin(TreeSitterLang):
+    """Tree-sitter extraction rules for Kotlin source files."""
+
     id = "kotlin"
     grammar = "kotlin"
     extensions = (".kt", ".kts")

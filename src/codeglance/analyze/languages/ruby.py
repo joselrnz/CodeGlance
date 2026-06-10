@@ -6,6 +6,8 @@ from ..registry import register
 
 @register
 class Ruby(TreeSitterLang):
+    """Tree-sitter extraction rules for Ruby source files."""
+
     id = "ruby"
     grammar = "ruby"
     extensions = (".rb",)

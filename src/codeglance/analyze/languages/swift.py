@@ -6,6 +6,8 @@ from ..registry import register
 
 @register
 class Swift(TreeSitterLang):
+    """Tree-sitter extraction rules for Swift source files."""
+
     id = "swift"
     grammar = "swift"
     extensions = (".swift",)
