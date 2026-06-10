@@ -443,6 +443,18 @@ def test_interactive_mobile_touch_support():
         assert m in html, f"missing mobile support marker: {m}"
 
 
+def test_interactive_toolbar_stays_compact():
+    html = render_interactive(_sample_graph())
+    for m in (
+        "display:grid",
+        "grid-template-columns:auto auto auto auto auto auto minmax(180px,1fr) auto",
+        "max-height:112px",
+        "overflow-x:auto",
+        "#topbar .bar::-webkit-scrollbar",
+    ):
+        assert m in html, f"missing compact toolbar marker: {m}"
+
+
 def test_offline_terminal_present():
     html = render_interactive(_sample_graph())
     # in-HTML terminal: graph-query commands + live JS eval, fully offline (no CDN/fetch)
