@@ -638,6 +638,20 @@ def test_generate_accepts_out_alias():
     assert args.profile == "agent"
 
 
+def test_public_api_and_model_facade():
+    import codeglance
+    from codeglance.api import analyze_project, render_agent_context, render_html
+    from codeglance.models import KnowledgeGraph as PublicKnowledgeGraph
+
+    root = Path("examples/taskman")
+    graph = analyze_project(root, full=True)
+
+    assert codeglance.analyze_project is analyze_project
+    assert isinstance(graph, PublicKnowledgeGraph)
+    assert "<!doctype html>" in render_html(graph, root)
+    assert "AI Reading Protocol" in render_agent_context(graph, root, mode="agent")
+
+
 def test_more_example_projects_are_analyzable():
     examples = {
         "terraform-azure": {
