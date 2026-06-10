@@ -447,9 +447,10 @@ def test_interactive_toolbar_stays_compact():
     html = render_interactive(_sample_graph())
     for m in (
         "display:grid",
-        "grid-template-columns:auto auto auto auto auto auto minmax(180px,1fr) auto",
+        "grid-template-columns:minmax(118px,max-content) auto auto auto auto auto minmax(190px,1fr) minmax(360px,max-content)",
         "max-height:112px",
         "overflow-x:auto",
+        "width:100%; max-width:100%",
         "#topbar .bar::-webkit-scrollbar",
     ):
         assert m in html, f"missing compact toolbar marker: {m}"
