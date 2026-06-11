@@ -497,17 +497,23 @@ def test_interactive_toolbar_stays_compact():
     assert 'id="btnMore"' not in html
 
 
-def test_interactive_tour_hides_minimap():
+def test_interactive_tour_keeps_app_chrome():
     html = render_interactive(_sample_graph())
     for m in (
         "body.tour-active #mm",
-        "body.tour-active #panel",
         "visibility:hidden",
+        "ensureSidebarsVisible(); tIdx=0",
         "document.body.classList.add('tour-active')",
         "document.body.classList.remove('tour-active')",
-        "#tour { position:fixed; right:14px",
+        "#tour { position:fixed; left:calc(var(--tools-w) + 34px)",
+        "body.inspector-collapsed #tour",
+        "body.tour-active #zoom",
+        "const NID=new Map",
+        "function tourIdxs",
     ):
         assert m in html, f"missing tour/minimap layout marker: {m}"
+    assert "body.tour-active #panel" not in html
+    assert "body.tour-active #moreMenu" not in html
 
 
 def test_offline_terminal_present():

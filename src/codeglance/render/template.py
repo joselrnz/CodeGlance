@@ -45,7 +45,6 @@ _HTML = r"""<!doctype html>
   .lg .nm { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .lg .ct { color:var(--muted); }
   #panel { position:fixed; right:14px; top:calc(22px + var(--topbar-h,44px)); width:min(360px,calc(100vw - 28px)); max-height:calc(100vh - var(--topbar-h,44px) - 40px); overflow:auto;
     padding:16px; z-index:6; }
-  body.tour-active #panel, body.tour-active #panelReopen { display:none; }
   #panel .close { position:absolute; top:10px; right:12px; cursor:pointer; color:var(--muted); font-size:16px; }
   #panel .ptype { display:inline-block; font-size:10px; text-transform:uppercase; letter-spacing:.05em;
     padding:2px 7px; border-radius:99px; border:1px solid; }
@@ -85,7 +84,10 @@ _HTML = r"""<!doctype html>
   #mm { position:fixed; right:14px; bottom:14px; width:210px; height:140px; z-index:5; padding:0; cursor:crosshair;
     transition:opacity .16s ease, transform .16s ease; }
   body.tour-active #mm { opacity:0; visibility:hidden; pointer-events:none; transform:translateY(8px); }
-  #tour { position:fixed; right:14px; bottom:14px; width:340px; padding:14px 16px; z-index:6; }
+  #tour { position:fixed; left:calc(var(--tools-w) + 34px); right:388px; bottom:14px; width:auto; max-width:560px;
+    margin:0 auto; padding:14px 16px; z-index:7; }
+  body.tools-collapsed #tour { left:calc(var(--tools-rail-w) + 30px); }
+  body.inspector-collapsed #tour { right:58px; }
   #tour h4 { margin:0 0 4px; font-size:14px; } #tour .desc { font-size:13px; color:var(--text); line-height:1.5; margin:6px 0 12px; }
   .tourbtns { display:flex; gap:8px; align-items:center; }
   button { background:var(--elevated); color:var(--text); border:1px solid rgba(var(--accent-rgb),0.28); border-radius:8px; padding:6px 12px; font-size:12px; cursor:pointer; }
@@ -126,7 +128,6 @@ _HTML = r"""<!doctype html>
     font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
   body.tools-collapsed #toolsRail { display:flex; }
   body.tools-collapsed #moreMenu { display:none !important; }
-  body.tour-active #moreMenu { visibility:hidden; pointer-events:none; }
   #searchResults { position:fixed; z-index:9; width:330px; max-height:300px; overflow:auto; padding:6px; display:none; }
   #searchResults .sr { display:flex; align-items:center; gap:8px; padding:5px 7px; border-radius:6px; cursor:pointer; }
   #searchResults .sr:hover { background:var(--elevated); }
@@ -226,6 +227,7 @@ _HTML = r"""<!doctype html>
   .pa:hover { color:var(--text); } .pa.active { color:var(--accent); background:rgba(var(--accent-rgb),0.1); border-color:rgba(var(--accent-rgb),0.3); }
   #zoom { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); display:flex; gap:6px; z-index:6; }
   body.term-open #zoom { bottom:calc(min(42vh,320px) + 38px); }
+  body.tour-active #zoom { bottom:150px; }
   #zoom button { width:32px; height:32px; font-size:16px; padding:0; }
   #termFab { position:fixed; left:14px; bottom:24px; z-index:7; width:42px; height:42px; padding:0; border-radius:12px;
     font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px; font-weight:700; }
@@ -328,6 +330,7 @@ _HTML = r"""<!doctype html>
   @media (max-width:640px){
     #zoom { left:50%; right:auto; bottom:max(10px,env(safe-area-inset-bottom)); transform:translateX(-50%); display:flex; }
     body.term-open #zoom { bottom:calc(min(48dvh,340px) + max(18px,env(safe-area-inset-bottom))); }
+    body.tour-active #zoom { bottom:calc(44dvh + max(18px,env(safe-area-inset-bottom))); }
     #termFab { left:max(8px,env(safe-area-inset-left)); bottom:max(10px,env(safe-area-inset-bottom)); }
     #panelReopen { top:auto; right:max(8px,env(safe-area-inset-right)); bottom:max(10px,env(safe-area-inset-bottom));
       height:auto; border-radius:999px; padding:10px 12px; }
@@ -490,6 +493,7 @@ _HTML = r"""<!doctype html>
 <script>
 const DATA = __DATA_JSON__;
 const N=DATA.nodes, E=DATA.edges, L=DATA.layers, TY=DATA.types, TOUR=DATA.tour, CT=DATA.containers;
+const NID=new Map(N.map((n,i)=>[n.id,i]));
 const LC=DATA.layerCards||[], LE=DATA.layerEdges||[], lcW=DATA.layerCardW||300, lcH=DATA.layerCardH||172;
 const DM=DATA.domains||[], DE=DATA.domainEdges||[], dW=DATA.domainCardW||300, dH=DATA.domainCardH||150;
 const KN=(DATA.knowledge&&DATA.knowledge.nodes)||[], KE=(DATA.knowledge&&DATA.knowledge.edges)||[], kW=(DATA.knowledge&&DATA.knowledge.cardW)||280, kH=(DATA.knowledge&&DATA.knowledge.cardH)||150;
@@ -1125,13 +1129,15 @@ function center(idxs,zoom){ if(!idxs.length)return; let a=1e9,b=1e9,c=-1e9,d=-1e
   idxs.forEach(i=>{const n=N[i]; const ny=n.y+((cl&&cl[n.layer])?cl[n.layer].dy:0); a=Math.min(a,n.x);b=Math.min(b,ny);c=Math.max(c,n.x);d=Math.max(d,ny);});
   const ts=zoom?Math.max(0.5,Math.min(1.2,scale)):scale;
   flyTo(ts, innerWidth/2-(a+c)/2*ts, innerHeight/2-(b+d)/2*ts, 320); }
-function showStep(){ const s=TOUR[tIdx]; focusSet=new Set(s.nodeIds); s.nodeIds.forEach(i=>nbr[i].forEach(j=>focusSet.add(j)));
+function tourIdxs(s){ return (s.nodeIds||[]).map(x=>typeof x==='number'?x:NID.get(x)).filter(i=>Number.isInteger(i)&&N[i]); }
+function showStep(){ const s=TOUR[tIdx], idxs=tourIdxs(s); focusSet=idxs.length?new Set(idxs):null;
+  if(focusSet) idxs.forEach(i=>(nbr[i]||[]).forEach(j=>focusSet.add(j)));
   document.getElementById('ttitle').textContent=(tIdx+1)+'. '+s.title; document.getElementById('tdesc').textContent=s.description;
   document.getElementById('tcount').textContent=(tIdx+1)+' / '+TOUR.length;
   // drill into the layer the step's first node lives in, so it's actually visible
-  if(s.nodeIds.length){ const ly=N[s.nodeIds[0]].layer; if(ly>=0) view=ly; sel=s.nodeIds[0]; renderPanel(); }
-  center(s.nodeIds,true); startAnim(); draw(); }
-function startTour(){ if(!TOUR.length)return; tIdx=0; document.body.classList.add('tour-active'); document.getElementById('tour').classList.remove('hidden'); document.getElementById('tourstart').classList.add('hidden'); showStep(); }
+  if(idxs.length){ const ly=N[idxs[0]].layer; if(ly>=0) view=ly; sel=idxs[0]; renderPanel(); center(idxs,true); }
+  startAnim(); draw(); }
+function startTour(){ if(!TOUR.length)return; ensureSidebarsVisible(); tIdx=0; document.body.classList.add('tour-active'); document.getElementById('tour').classList.remove('hidden'); document.getElementById('tourstart').classList.add('hidden'); showStep(); }
 function endTour(){ tIdx=-1; focusSet=null; document.body.classList.remove('tour-active'); document.getElementById('tour').classList.add('hidden'); document.getElementById('tourstart').classList.remove('hidden'); draw(); }
 document.getElementById('tourstart').onclick=startTour;
 document.getElementById('tprev').onclick=()=>{if(tIdx>0){tIdx--;showStep();}};
