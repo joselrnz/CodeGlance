@@ -859,7 +859,19 @@ function setFolderFiles(layer,prefix,direct){ if(graphMode!=='structural'){ grap
 function openFolderCard(f){ if(!f)return;
   if(f.kind==='folder'&&f.hasChildren) setFolderView(folderLayer,f.prefix);
   else setFolderFiles(folderLayer,f.prefix,!!f.direct); }
-window.openLayer=openLayer; window.setFolderView=setFolderView; window.setFolderFiles=setFolderFiles;
+function parentFolderPrefix(prefix){ const clean=(prefix||'').replace(/\/+$/,''); const i=clean.lastIndexOf('/'); return i>=0?clean.slice(0,i+1):''; }
+function fileParentPrefix(path){ const clean=(path||'').replace(/\/+$/,''); const i=clean.lastIndexOf('/'); return i>=0?clean.slice(0,i+1):''; }
+function folderBreadcrumbHTML(layer,prefix){ const root=folderRoot(layer), clean=(prefix||root||'').replace(/\/+$/,'');
+  if(!clean)return ''; const parts=clean.split('/').filter(Boolean); let acc='', h='';
+  for(let i=0;i<parts.length;i++){ acc+=parts[i]+'/';
+    h+=' &nbsp;›&nbsp; <button onclick="setFolderView('+layer+','+JSON.stringify(acc)+')">'+esc(parts[i])+'</button>'; }
+  return h; }
+function goFolderParent(){ if(folderLayer<0)return; const parent=parentFolderPrefix(folderPrefix||folderRoot(folderLayer)||'');
+  if(parent) setFolderView(folderLayer,parent); else openLayer(folderLayer); }
+function enterNodeFolder(i){ const n=N[i]; if(!n||n.layer<0)return false; const parent=fileParentPrefix(n.path||'');
+  if(!parent||!hasLayerFolders(n.layer))return false;
+  view=n.layer; folderMode='files'; folderLayer=n.layer; folderPrefix=parent; folderDirect=true; _folderFileLayout=null; _folderFileKey=''; return true; }
+window.openLayer=openLayer; window.setFolderView=setFolderView; window.setFolderFiles=setFolderFiles; window.goFolderParent=goFolderParent;
 
 function setView(v){ if(graphMode!=='structural'){ graphMode='structural'; selDomain=-1; applyModeUI(); }
   clearFolderDrill(); view=v; resetDrillState();
@@ -873,9 +885,9 @@ function updateCrumb(){ const cr=document.getElementById('crumb'); if(!cr)return
   else if(view==='overview') cr.innerHTML='Project Overview';
   else if(folderMode){ const layerName=(L[folderLayer]&&L[folderLayer].name)||'Layer', prefix=folderPrefix||folderRoot(folderLayer)||'';
     let h='<button onclick="setView(\'overview\')">‹ Overview</button> &nbsp;›&nbsp; <button onclick="openLayer('+folderLayer+')">'+esc(layerName)+'</button>';
-    if(prefix) h+=' &nbsp;›&nbsp; '+esc(prefix.replace(/\/$/,''));
+    h+=folderBreadcrumbHTML(folderLayer,prefix);
     if(folderMode==='folders') h+=' &nbsp;·&nbsp; <span style="color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400">open a folder to see files</span>';
-    else h+=' &nbsp;·&nbsp; Files';
+    else h+=' &nbsp;·&nbsp; <button onclick="goFolderParent()">↑ Up</button> &nbsp;›&nbsp; Files';
     cr.innerHTML=h; }
   else cr.innerHTML='<button onclick="setView(\'clusters\')">‹ Clusters</button> &nbsp;›&nbsp; '+esc((L[view]&&L[view].name)||'Layer');
   if(typeof refreshChips==='function') refreshChips(); }
@@ -1083,7 +1095,7 @@ let _toastT=null; function toast(msg){ let el=document.getElementById('toast'); 
 function select(i){ sel=i; focusSet=null; focusCenter=-1; renderPanel(); if(i>=0){ togglePanel(true); center([i],false); startAnim(); } setHash(); draw(); }
 function goToNode(i){ if(i<0)return; if(graphMode!=='structural'){ graphMode='structural'; selDomain=-1; applyModeUI(); }
   if(view==='clusters'){ if(N[i]&&collapsed.has(N[i].layer)){ collapsed.delete(N[i].layer); _cl=null; } }
-  else if(N[i]&&N[i].layer>=0){ clearFolderDrill(); view=N[i].layer; }
+  else if(N[i]&&N[i].layer>=0){ clearFolderDrill(); if(!enterNodeFolder(i)) view=N[i].layer; }
   sidebarTab='info'; sel=i; focusSet=null; focusCenter=-1; renderPanel(); togglePanel(true); center([i],true); startAnim(); setHash(); draw(); }
 window.select=select; window.goToNode=goToNode;
 
