@@ -95,7 +95,7 @@ def test_overview_layer_cards_and_drilldown():
         assert marker in html, f"missing: {marker}"
     assert "click to explore" in html.lower()
     # header chrome moved in from the original: category filters, detail toggle, layer chips, tour list
-    for marker in ("catFilters", "layerChips", "detailSeg", "fnToggle", "Start Tour"):
+    for marker in ("catFilters", "layerChips", "detailSeg", "fnToggle", "Start Tour", 'data-p="drill"', 'data-persona="drill"'):
         assert marker in html, f"missing header chrome: {marker}"
     assert 'id="types"' not in html and 'id="legend"' not in html  # left panels removed
     # inspector dropdown + collapsible file tree + panel collapse
@@ -491,6 +491,9 @@ def test_interactive_toolbar_stays_compact():
         "graphViewport",
         "setToolsCollapsed",
         "ensureSidebarsVisible",
+        "p==='drill'",
+        "showFns=false",
+        "showFns=true",
         "refreshMoreControls",
     ):
         assert m in html, f"missing compact toolbar marker: {m}"
@@ -534,6 +537,7 @@ def test_offline_terminal_present():
         "right:388px",
         "#panelReopen { top:auto",
         "height:auto; border-radius:999px",
+        "#topbar .personas, #modeSeg { display:none !important; }",
     ):
         assert m in html, f"missing terminal feature: {m}"
     # it must stay self-contained — no network calls sneaking in

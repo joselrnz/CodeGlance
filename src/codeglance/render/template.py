@@ -328,6 +328,7 @@ _HTML = r"""<!doctype html>
   .ln-cmd { color:var(--text); } .ln-cmd .pr { color:var(--accent); } .ln-out { color:var(--text2); }
   .ln-err { color:#fb7185; } .ln-ok { color:#5fb389; } .ln-node { cursor:pointer; } .ln-node:hover { color:var(--accent); }
   @media (max-width:640px){
+    #topbar .personas, #modeSeg { display:none !important; }
     #zoom { left:50%; right:auto; bottom:max(10px,env(safe-area-inset-bottom)); transform:translateX(-50%); display:flex; }
     body.term-open #zoom { bottom:calc(min(48dvh,340px) + max(18px,env(safe-area-inset-bottom))); }
     body.tour-active #zoom { bottom:calc(44dvh + max(18px,env(safe-area-inset-bottom))); }
@@ -344,7 +345,8 @@ _HTML = r"""<!doctype html>
   <span class="brand"><span class="title">__PROJECT_NAME__</span><span class="meta">__SUBTITLE__</span></span>
   <span class="personas">
     <button class="pa active" data-p="overview" title="High-level architecture — one card per layer">Overview</button>
-    <button class="pa" data-p="all" title="Detailed view — clusters with files, classes &amp; functions">Explore</button>
+    <button class="pa" data-p="drill" title="Drill into files and classes without function noise">Drill</button>
+    <button class="pa" data-p="all" title="Full engineer view — files, classes, functions, variables, and constants">Explore</button>
     <button class="pa" data-p="learn" title="Guided step-by-step tour">Tour</button>
   </span>
   <span class="seg" id="modeSeg">
@@ -383,6 +385,7 @@ _HTML = r"""<!doctype html>
   <h5 class="mobile-only">View</h5>
   <div class="mrow mobile-only">
     <button data-persona="overview">Overview</button>
+    <button data-persona="drill">Drill</button>
     <button data-persona="all">Explore</button>
     <button data-persona="learn">Tour</button>
   </div>
@@ -1183,9 +1186,10 @@ $('btnFit').onclick=fitAll;
 function zoomBy(f){ ox=innerWidth/2-(innerWidth/2-ox)*f; oy=innerHeight/2-(innerHeight/2-oy)*f; scale*=f; fitMode=false; draw(); }
 $('zin').onclick=()=>zoomBy(1.25); $('zout').onclick=()=>zoomBy(0.8);
 
-// persona tabs: Deep Dive (functions on) / Overview (high-level) / Learn (tour)
+// persona tabs: Overview (layers) / Drill (files + classes) / Explore (full detail) / Tour
 function setPersona(p, btn){ document.querySelectorAll('.pa').forEach(x=>x.classList.remove('active')); if(btn)btn.classList.add('active');
   if(p==='overview'){ setView('overview'); }
+  else if(p==='drill'){ if(view!=='clusters')setView('clusters'); showFns=false; detail='class'; applyDetail(); }
   else if(p==='all'){ if(view!=='clusters')setView('clusters'); showFns=true; detail='class'; applyDetail(); }
   else if(p==='learn'){ startTour(); }
   if(p!=='learn')ensureSidebarsVisible();
