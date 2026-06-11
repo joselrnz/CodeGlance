@@ -7,7 +7,7 @@ import re
 import codeglance
 from codeglance.analyze import ts_core as ts
 from codeglance.graph import analyze
-from codeglance.render import render_interactive, render_static
+from codeglance.render import render_explain, render_impact, render_interactive, render_onboarding, render_static
 from codeglance.schema import Edge, KnowledgeGraph, Node, Project
 
 FIXTURES = Path(__file__).parent / "fixtures" / "multilang"
@@ -47,11 +47,41 @@ def test_schema_roundtrip():
     assert issues == []
 
 
+def test_cli_registers_workflow_commands():
+    from codeglance.cli.parser import SUBCOMMANDS, build_parser
+
+    assert {"explain", "impact", "onboard"} <= SUBCOMMANDS
+    help_text = build_parser().format_help()
+    assert "explain" in help_text
+    assert "impact" in help_text
+    assert "onboard" in help_text
+
+
 def test_render_interactive_is_self_contained():
     html = render_interactive(_sample_graph())
     assert "<canvas" in html
     assert "const DATA = " in html
     assert 'src="http' not in html and 'href="http' not in html  # no external refs
+
+
+def test_workflow_markdown_renderers():
+    graph = _sample_graph()
+    graph.layers = []
+    graph.changed = {"file:a.py"}
+    explain = render_explain(graph, target="a.py")
+    assert "# Explain: a.py" in explain
+    assert "## Relationships" in explain
+    assert "`a.py:f`" in explain
+
+    impact = render_impact(graph)
+    assert "# Impact Report: demo" in impact
+    assert "`a.py`" in impact
+    assert "Review Checklist" in impact
+
+    onboarding = render_onboarding(graph)
+    assert "# Onboarding Guide: demo" in onboarding
+    assert "Start Here" in onboarding
+    assert "Agent Workflow" in onboarding
 
 
 def test_render_interactive_escapes_embedded_json_for_script_parser():
@@ -658,6 +688,8 @@ def test_generate_outputs_writes_complete_bundle(tmp_path):
         "wiki.html",
         "context.md",
         "agent.md",
+        "onboarding.md",
+        "impact.md",
         "llm-context.schema.json",
         "knowledge-graph.toon",
         "knowledge-graph.json",
@@ -668,10 +700,14 @@ def test_generate_outputs_writes_complete_bundle(tmp_path):
     assert graph.nodes
     assert "<canvas" in (out / "glance.html").read_text(encoding="utf-8")
     assert "agent context" in (out / "agent.md").read_text(encoding="utf-8")
+    assert "Onboarding Guide" in (out / "onboarding.md").read_text(encoding="utf-8")
+    assert "Impact Report" in (out / "impact.md").read_text(encoding="utf-8")
     index = (out / "index.html").read_text(encoding="utf-8")
     assert "glance.html" in index and "llm-context.schema.json" in index
+    assert "onboarding.md" in index and "impact.md" in index
     llms = (out / "llms.txt").read_text(encoding="utf-8")
     assert "Read Order" in llms and "`agent.md`" in llms
+    assert "`onboarding.md`" in llms and "`impact.md`" in llms
     assert "`knowledge-graph.toon`" in llms
     toon = (out / "knowledge-graph.toon").read_text(encoding="utf-8")
     assert "nodes[" in toon and "{id,type,name,path,summary,complexity,tags}" in toon
@@ -681,6 +717,8 @@ def test_generate_outputs_writes_complete_bundle(tmp_path):
     assert schema["readOrder"][0] == "llms.txt"
     assert "knowledgeGraphSchema" in schema
     assert "knowledge-graph.toon" in schema["generatedArtifacts"]
+    assert "onboarding.md" in schema["generatedArtifacts"]
+    assert "impact.md" in schema["generatedArtifacts"]
     assert "file" in schema["nodeTypes"]
     assert "imports" in schema["edgeTypes"]
 

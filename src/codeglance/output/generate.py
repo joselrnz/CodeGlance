@@ -7,7 +7,14 @@ import shutil
 from pathlib import Path
 
 from ..graph import analyze
-from ..render import render_context, render_interactive, render_static, render_wiki
+from ..render import (
+    render_context,
+    render_impact,
+    render_interactive,
+    render_onboarding,
+    render_static,
+    render_wiki,
+)
 from ..schema import FILE_LEVEL_TYPES, KnowledgeGraph
 from .index import build_output_index
 from .llm import build_llm_context_schema, build_llms_txt
@@ -44,6 +51,8 @@ def generate_outputs(
         GeneratedOutput("Wiki", out / "wiki.html", "HTML"),
         GeneratedOutput("Full agent context", out / "context.md", "Markdown"),
         GeneratedOutput("Compact agent context", out / "agent.md", "Markdown"),
+        GeneratedOutput("Onboarding guide", out / "onboarding.md", "Markdown"),
+        GeneratedOutput("Impact report", out / "impact.md", "Markdown"),
         GeneratedOutput("LLM context schema", out / "llm-context.schema.json", "JSON"),
         GeneratedOutput("Knowledge graph TOON", out / "knowledge-graph.toon", "TOON"),
         GeneratedOutput("Knowledge graph JSON", out / "knowledge-graph.json", "JSON"),
@@ -65,6 +74,10 @@ def generate_outputs(
         (out / "context.md").write_text(render_context(graph, root, mode="full"), encoding="utf-8")
     if "agent.md" in selected:
         (out / "agent.md").write_text(render_context(graph, root, mode="agent"), encoding="utf-8")
+    if "onboarding.md" in selected:
+        (out / "onboarding.md").write_text(render_onboarding(graph, root), encoding="utf-8")
+    if "impact.md" in selected:
+        (out / "impact.md").write_text(render_impact(graph, root), encoding="utf-8")
     if "llm-context.schema.json" in selected:
         (out / "llm-context.schema.json").write_text(
             json.dumps(build_llm_context_schema(root, outputs), indent=2),

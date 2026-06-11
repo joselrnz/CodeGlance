@@ -9,13 +9,27 @@ from ..commands import (
     cmd_analyze,
     cmd_context,
     cmd_dashboard,
+    cmd_explain,
     cmd_generate,
+    cmd_impact,
+    cmd_onboard,
     cmd_render,
     cmd_serve,
     cmd_wiki,
 )
 
-SUBCOMMANDS = {"analyze", "render", "dashboard", "wiki", "context", "generate", "serve"}
+SUBCOMMANDS = {
+    "analyze",
+    "render",
+    "dashboard",
+    "wiki",
+    "context",
+    "generate",
+    "serve",
+    "explain",
+    "impact",
+    "onboard",
+}
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -32,6 +46,9 @@ def build_parser() -> argparse.ArgumentParser:
     _add_dashboard_parser(subcommands)
     _add_wiki_parser(subcommands)
     _add_context_parser(subcommands)
+    _add_explain_parser(subcommands)
+    _add_impact_parser(subcommands)
+    _add_onboard_parser(subcommands)
     _add_generate_parser(subcommands)
     _add_serve_parser(subcommands)
 
@@ -95,6 +112,37 @@ def _add_context_parser(subcommands: argparse._SubParsersAction) -> None:
     cmd.add_argument("-o", "--output", default=None, help="write to a file instead of stdout")
     cmd.add_argument("--full", action="store_true", help="force a full rebuild, ignoring fingerprints")
     cmd.set_defaults(func=cmd_context)
+
+
+def _add_explain_parser(subcommands: argparse._SubParsersAction) -> None:
+    cmd = subcommands.add_parser("explain", help="explain one file, symbol, or graph node")
+    cmd.add_argument("target", help="repo path, symbol name, or node id to explain")
+    cmd.add_argument("path", nargs="?", default=".", help="project directory (default: .)")
+    cmd.add_argument("--llm", action="store_true", help="enrich summaries via an LLM (needs ANTHROPIC_API_KEY)")
+    cmd.add_argument("--model", default=None, help="LLM model id")
+    cmd.add_argument("--full", action="store_true", help="force a full rebuild, ignoring fingerprints")
+    cmd.add_argument("-o", "--output", default=None, help="write Markdown to a file instead of stdout")
+    cmd.set_defaults(func=cmd_explain)
+
+
+def _add_impact_parser(subcommands: argparse._SubParsersAction) -> None:
+    cmd = subcommands.add_parser("impact", help="generate a changed-file dependency impact report")
+    cmd.add_argument("path", nargs="?", default=".", help="project directory (default: .)")
+    cmd.add_argument("--llm", action="store_true", help="enrich summaries via an LLM (needs ANTHROPIC_API_KEY)")
+    cmd.add_argument("--model", default=None, help="LLM model id")
+    cmd.add_argument("--full", action="store_true", help="force a full rebuild, ignoring fingerprints")
+    cmd.add_argument("-o", "--output", default=None, help="write Markdown to a file instead of stdout")
+    cmd.set_defaults(func=cmd_impact)
+
+
+def _add_onboard_parser(subcommands: argparse._SubParsersAction) -> None:
+    cmd = subcommands.add_parser("onboard", help="generate a project onboarding guide")
+    cmd.add_argument("path", nargs="?", default=".", help="project directory (default: .)")
+    cmd.add_argument("--llm", action="store_true", help="enrich summaries via an LLM (needs ANTHROPIC_API_KEY)")
+    cmd.add_argument("--model", default=None, help="LLM model id")
+    cmd.add_argument("--full", action="store_true", help="force a full rebuild, ignoring fingerprints")
+    cmd.add_argument("-o", "--output", default=None, help="write Markdown to a file instead of stdout")
+    cmd.set_defaults(func=cmd_onboard)
 
 
 def _add_generate_parser(subcommands: argparse._SubParsersAction) -> None:

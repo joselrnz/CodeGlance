@@ -8,7 +8,7 @@ This folder holds project documentation that is useful for humans and agents.
 | --- | --- |
 | `STRUCTURE.md` | Current repo/package tree, module responsibilities, SDK imports, generated output layout. |
 | `AGENT_CONTEXT.md` | How CodeGlance builds low-token context for AI agents. |
-| `GLANCE_WALKTHROUGH.md` | Walkthrough for `glance.html`, generated outputs, mobile behavior, screenshots, and human-in-the-loop review. |
+| `GLANCE_WALKTHROUGH.md` | Walkthrough for `glance.html`, workflow outputs, mobile behavior, screenshots, and human-in-the-loop review. |
 | `README.md` | This documentation index. |
 
 ## Screenshot Assets

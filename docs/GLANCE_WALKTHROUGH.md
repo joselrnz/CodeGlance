@@ -49,6 +49,8 @@ http://<your-lan-ip>:8777/glance.html
 | `graph.static.html` | Human | Static graph view with no interactive canvas dependency. | Use for simple sharing or low-interaction review. |
 | `context.md` | Human/agent | Full Markdown context. | Use for deep codebase reading, reports, or handoff docs. |
 | `agent.md` | Agent | Compact low-token repo handoff. | First file an AI agent should read after `llms.txt`. |
+| `onboarding.md` | Human/agent | First-day guide with read-first files, layers, tour order, and workflow. | Use when joining a repo or handing it to another agent. |
+| `impact.md` | Human/agent | Changed-file impact report with dependency ripples and review checklist. | Use before commit or code review. |
 | `llms.txt` | Agent | Tiny entrypoint and artifact read order. | Tell an agent where to start and what to avoid reading too early. |
 | `llm-context.schema.json` | Agent/tool | Schema contract for generated artifacts. | Validate parsers and understand fields before consuming JSON/TOON. |
 | `knowledge-graph.toon` | Agent | Compact graph table format. | Use for prompt context when JSON is too expensive. |
@@ -136,7 +138,9 @@ When the terminal opens, the zoom controls lift above it.
 6. Use `Explore` when you need the full engineer-level graph.
 7. Click nodes and read the Inspector source snippets.
 8. Use the Terminal for local guidance and graph-oriented help.
-9. Change code, regenerate outputs, and compare the updated graph.
+9. Run `codeglance explain <path-or-symbol>` when a specific file or symbol needs a focused explanation.
+10. Run `codeglance impact` before committing.
+11. Change code, regenerate outputs, and compare the updated graph.
 
 ## Recommended Agent Workflow
 
@@ -144,10 +148,12 @@ Agents should read generated context in this order:
 
 1. `llms.txt`
 2. `agent.md`
-3. `llm-context.schema.json`
-4. `knowledge-graph.toon`
-5. `knowledge-graph.json` only when exact graph data is needed
-6. source files only after the generated map identifies the relevant area
+3. `onboarding.md` when the task needs first-day orientation
+4. `impact.md` when the task involves edits or review
+5. `llm-context.schema.json`
+6. `knowledge-graph.toon`
+7. `knowledge-graph.json` only when exact graph data is needed
+8. source files only after the generated map identifies the relevant area
 
 This keeps token usage low. The agent starts from a summary, follows the graph to the right files, then
 opens exact source only when a task requires it.

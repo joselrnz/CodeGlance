@@ -20,6 +20,8 @@ def build_llms_txt(root: Path, outputs: list[GeneratedOutput]) -> str:
     ]
     read_order = [
         ("agent.md", "compact repo map, read order, dependency hotspots, and agent rules"),
+        ("onboarding.md", "human-friendly architecture walkthrough and first-day reading order"),
+        ("impact.md", "changed-file impact report and dependency ripple checklist"),
         ("llm-context.schema.json", "machine-readable contract for this output bundle"),
         ("knowledge-graph.toon", "compact TOON graph for LLM prompt context"),
         ("context.md", "full markdown map when compact context is not enough"),
@@ -90,6 +92,22 @@ def build_llm_context_schema(root: Path, outputs: list[GeneratedOutput]) -> dict
                 "audience": "agent",
                 "contains": ["read-first files", "file dependency map", "per-file summaries", "symbols"],
                 "useWhen": "Use when agent.md is not enough to choose files.",
+            },
+            {
+                "path": "onboarding.md",
+                "format": "markdown",
+                "tier": 2,
+                "audience": "human-agent",
+                "contains": ["project snapshot", "start-here files", "architecture layers", "guided reading order"],
+                "useWhen": "Use when a human or agent needs a first-day walkthrough.",
+            },
+            {
+                "path": "impact.md",
+                "format": "markdown",
+                "tier": 2,
+                "audience": "human-agent",
+                "contains": ["changed files", "ripple areas", "dependency ripples", "review checklist"],
+                "useWhen": "Use before commit or review to understand likely affected areas.",
             },
             {
                 "path": "knowledge-graph.toon",

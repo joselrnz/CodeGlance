@@ -411,3 +411,21 @@ def render_context(
     """Render a compact, dependency-first Markdown 'codebase map' for AI agents (not a web page)."""
     from .context import render_context_md
     return render_context_md(build_view_model(graph, root, config), mode=mode)
+
+
+def render_explain(graph: KnowledgeGraph, root: Path | None = None, target: str = "") -> str:
+    """Render a focused Markdown explanation for a file, class, function, or node id."""
+    from .workflows import render_explain as _render_explain
+    return _render_explain(graph, root, target)
+
+
+def render_impact(graph: KnowledgeGraph, root: Path | None = None) -> str:
+    """Render a Markdown impact report for changed files and nearby dependencies."""
+    from .workflows import render_impact as _render_impact
+    return _render_impact(graph, root)
+
+
+def render_onboarding(graph: KnowledgeGraph, root: Path | None = None) -> str:
+    """Render a Markdown onboarding guide from the analyzed graph."""
+    from .workflows import render_onboarding as _render_onboarding
+    return _render_onboarding(graph, root)

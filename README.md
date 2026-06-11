@@ -53,6 +53,20 @@ codeglance context . --mode full -o .codeglance/context.md
 codeglance context . --mode agent -o AGENTS.md
 ```
 
+Explain one file or symbol:
+
+```bash
+codeglance explain src/app.py
+codeglance explain UserService -o .codeglance/explain.md
+```
+
+Generate review workflow docs:
+
+```bash
+codeglance onboard . -o .codeglance/onboarding.md
+codeglance impact . -o .codeglance/impact.md
+```
+
 Browse every generated output locally:
 
 ```bash
@@ -185,8 +199,8 @@ Use profiles when you want a different bundle:
 
 ```bash
 codeglance generate . --profile minimal  # LLM entrypoint + Glance visual + compact agent context + JSON metadata
-codeglance generate . --profile human    # LLM entrypoint + Glance visual + wiki + JSON metadata
-codeglance generate . --profile agent    # LLM entrypoint + compact agent context + JSON metadata
+codeglance generate . --profile human    # Glance visual + wiki + onboarding/impact docs + JSON metadata
+codeglance generate . --profile agent    # compact agent context + onboarding/impact docs + graph data
 codeglance generate . --profile all      # every generated artifact
 ```
 
@@ -195,10 +209,14 @@ The `all` profile adds:
 - `graph.static.html`
 - `wiki.html`
 - `context.md`
+- `onboarding.md`
+- `impact.md`
 
 LLM-specific generated files:
 
 - `llms.txt`: tiny entrypoint with read order and artifact pointers
+- `onboarding.md`: first-day walkthrough with read-first files, layers, tour order, and agent workflow
+- `impact.md`: changed-file impact report with likely ripple areas and review checklist
 - `llm-context.schema.json`: structured contract for agents and tools, including artifact tiers,
   graph fields, node types, edge types, and output profiles
 - `knowledge-graph.toon`: compact structured graph for LLM prompt context, with repeated JSON
