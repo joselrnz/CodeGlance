@@ -490,6 +490,7 @@ def test_interactive_toolbar_stays_compact():
         "data-tools-close",
         "graphViewport",
         "setToolsCollapsed",
+        "ensureSidebarsVisible",
         "refreshMoreControls",
     ):
         assert m in html, f"missing compact toolbar marker: {m}"
@@ -519,7 +520,9 @@ def test_offline_terminal_present():
         "toggleTerm",
         "termOut",
         "btnTerm",
+        'id="termFab"',
         "openTermHelp",
+        "$('termFab').onclick",
         "body.term-open #zoom",
         "body.inspector-collapsed #term",
         "right:388px",

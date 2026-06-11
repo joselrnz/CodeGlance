@@ -172,7 +172,9 @@ _HTML = r"""<!doctype html>
     #btnFit, #btnPath, #btnFilter, #btnExport, #btnAnim, #btnTheme, #btnTerm { display:none; }
     #topbar .bar { justify-content:flex-end; overflow:visible; }
     #topbar .grow { display:none; }
-    #crumb, #mm, #zoom { display:none; }
+    #crumb, #mm { display:none; }
+    #zoom { bottom:max(10px,env(safe-area-inset-bottom)); }
+    body.term-open #zoom { bottom:calc(min(48dvh,340px) + max(18px,env(safe-area-inset-bottom))); }
     #tourstart { display:block; top:calc(max(8px,env(safe-area-inset-top)) + var(--topbar-h,44px) + 8px);
       right:max(8px,env(safe-area-inset-right)); bottom:auto; }
     #panel { left:max(8px,env(safe-area-inset-left)); right:max(8px,env(safe-area-inset-right)); width:auto; top:auto;
@@ -222,10 +224,12 @@ _HTML = r"""<!doctype html>
   #topbar .personas { grid-column:2; display:flex; gap:2px; flex:none; }
   .pa { background:transparent; border:1px solid transparent; color:var(--text2); padding:4px 9px; font-size:11px; border-radius:7px; cursor:pointer; }
   .pa:hover { color:var(--text); } .pa.active { color:var(--accent); background:rgba(var(--accent-rgb),0.1); border-color:rgba(var(--accent-rgb),0.3); }
-  #zoom { position:fixed; left:calc(var(--tools-w) + 34px); bottom:24px; display:flex; flex-direction:column; gap:6px; z-index:6; }
-  body.tools-collapsed #zoom { left:calc(var(--tools-rail-w) + 30px); }
+  #zoom { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); display:flex; gap:6px; z-index:6; }
   body.term-open #zoom { bottom:calc(min(42vh,320px) + 38px); }
   #zoom button { width:32px; height:32px; font-size:16px; padding:0; }
+  #termFab { position:fixed; left:14px; bottom:24px; z-index:7; width:42px; height:42px; padding:0; border-radius:12px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px; font-weight:700; }
+  #termFab.on { color:var(--accent); border-color:rgba(var(--accent-rgb),0.62); background:rgba(var(--accent-rgb),0.18); }
   #topbar .grow { display:none; }
   #topbar #search { flex:none; width:100%; }
   #modeSeg { grid-column:3; }
@@ -321,6 +325,11 @@ _HTML = r"""<!doctype html>
   #term .tin .pr { color:var(--accent); } #term .tin input { flex:1; background:transparent; border:none; outline:none; color:var(--text); font:inherit; }
   .ln-cmd { color:var(--text); } .ln-cmd .pr { color:var(--accent); } .ln-out { color:var(--text2); }
   .ln-err { color:#fb7185; } .ln-ok { color:#5fb389; } .ln-node { cursor:pointer; } .ln-node:hover { color:var(--accent); }
+  @media (max-width:640px){
+    #zoom { left:50%; right:auto; bottom:max(10px,env(safe-area-inset-bottom)); transform:translateX(-50%); display:flex; }
+    body.term-open #zoom { bottom:calc(min(48dvh,340px) + max(18px,env(safe-area-inset-bottom))); }
+    #termFab { left:max(8px,env(safe-area-inset-left)); bottom:max(10px,env(safe-area-inset-bottom)); }
+  }
   .hidden { display:none !important; }
 </style>
 </head>
@@ -411,6 +420,7 @@ _HTML = r"""<!doctype html>
   <button id="zin" class="card" title="Zoom in">+</button>
   <button id="zout" class="card" title="Zoom out">−</button>
 </div>
+<button id="termFab" class="card" title="Open terminal">&gt;_</button>
 <div id="panel" class="card"></div>
 <button id="panelReopen" class="card hidden" title="Show inspector">‹ Inspector</button>
 <div id="tip" class="card"></div>
@@ -757,6 +767,7 @@ function setView(v){ if(graphMode!=='structural'){ graphMode='structural'; selDo
   if(typeof v==='number'){ detail='class'; showFns=false; applyDetail(false); }
   const s=document.getElementById('search'); if(s)s.value=''; renderPanel(); fit(); draw(); }
 window.setView=setView;
+function ensureSidebarsVisible(){ if(innerWidth>900){ setToolsCollapsed(false,false); togglePanel(true); } }
 function updateCrumb(){ const cr=document.getElementById('crumb'); if(!cr)return;
   if(graphMode!=='structural'){ const S=CD(); cr.innerHTML=(S?S.title:'')+(S&&selDomain>=0?' &nbsp;›&nbsp; '+esc(S.nodes[selDomain].name):''); return; }
   if(view==='clusters') cr.innerHTML='Clusters &nbsp;·&nbsp; <span style="color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400">click a ▾ header to collapse · a chip to focus one layer</span>';
@@ -769,7 +780,7 @@ function applyModeUI(){ const struct=graphMode==='structural';
   document.querySelectorAll('#modeSeg button').forEach(b=>b.classList.toggle('on', b.dataset.m===graphMode));
   ['detailSeg','fnToggle','catFilters','layerChips'].forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.toggle('hidden', !struct); }); }
 function setMode(m){ if(m===graphMode)return; graphMode=m; selDomain=-1; dhover=-1; sel=-1; matched=null;
-  applyModeUI(); renderPanel(); fit(); draw(); }
+  applyModeUI(); renderPanel(); ensureSidebarsVisible(); fit(); draw(); }
 window.setMode=setMode;
 function pickDomain(mx,my){ const S=CD(); if(!S)return -1; const wx=(mx-ox)/scale, wy=(my-oy)/scale;
   for(let i=S.nodes.length-1;i>=0;i--){ const d=S.nodes[i]; if(Math.abs(wx-d.x)<=S.cw/2 && Math.abs(wy-d.y)<=S.ch/2) return i; } return -1; }
@@ -1169,6 +1180,7 @@ function setPersona(p, btn){ document.querySelectorAll('.pa').forEach(x=>x.class
   if(p==='overview'){ setView('overview'); }
   else if(p==='all'){ if(view!=='clusters')setView('clusters'); showFns=true; detail='class'; applyDetail(); }
   else if(p==='learn'){ startTour(); }
+  if(p!=='learn')ensureSidebarsVisible();
   draw(); }
 document.querySelectorAll('.pa').forEach(b=>b.onclick=()=>setPersona(b.dataset.p, b));
 
@@ -1253,10 +1265,12 @@ termIn.addEventListener('keydown',e=>{ e.stopPropagation();
   else if(e.key==='ArrowDown'){ termHi=Math.min(termHi+1,termHist.length); termIn.value=termHist[termHi]||''; e.preventDefault(); } });
 function toggleTerm(on){ const t=$('term'); const show=(on===undefined)?t.classList.contains('hidden'):on;
   t.classList.toggle('hidden',!show); const b=$('btnTerm'); if(b)b.classList.toggle('on',show);
+  const fab=$('termFab'); if(fab)fab.classList.toggle('on',show);
   document.body.classList.toggle('term-open',show);
   if(show) closeToolsOverlay();
   if(show){ if(!termOut.childElementCount) TERM_CMDS.help(); termIn.focus(); } }
 window.toggleTerm=toggleTerm; $('btnTerm').onclick=()=>toggleTerm();
+$('termFab').onclick=()=>toggleTerm();
 
 // edge-flow animation (marching ants) + domain/structural mode toggle
 function _animWanted(){ return animOn || (sel>=0 && !REDUCED); }   // run the loop for edge-flow OR a selection pulse
