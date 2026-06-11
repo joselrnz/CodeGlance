@@ -620,7 +620,8 @@ def test_interactive_toolbar_stays_compact():
     html = render_interactive(_sample_graph())
     for m in (
         "display:grid",
-        "grid-template-columns:minmax(150px,max-content) auto auto minmax(300px,1fr) max-content",
+        "grid-template-columns:minmax(188px,240px) auto auto minmax(260px,1fr) max-content",
+        "#topbar .brand { grid-column:1; min-width:0; max-width:240px",
         "@media (max-width:1360px) and (min-width:641px)",
         "max-height:82px",
         "body.show-facets #topbar",

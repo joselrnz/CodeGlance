@@ -20,13 +20,13 @@ _HTML = r"""<!doctype html>
   .card { background:rgba(20,20,20,0.94); border:1px solid rgba(var(--accent-rgb),0.14); border-radius:12px;
     backdrop-filter: blur(6px); box-shadow:0 10px 34px rgba(0,0,0,0.45); }
   #topbar { position:fixed; top:14px; left:14px; right:14px; display:grid;
-    grid-template-columns:minmax(150px,max-content) auto auto minmax(300px,1fr) max-content;
+    grid-template-columns:minmax(188px,240px) auto auto minmax(260px,1fr) max-content;
     grid-auto-rows:minmax(32px,auto); align-items:center; gap:8px 14px; padding:11px 14px 10px;
     z-index:5; max-height:82px; overflow:hidden; }
   body.show-facets #topbar { max-height:120px; }
-  #topbar .brand { grid-column:1; min-width:150px; display:flex; flex-direction:column; gap:2px; line-height:1.05; }
-  #topbar .title { min-width:0; font-weight:700; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  #topbar .meta { color:var(--muted); font-size:10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:210px; }
+  #topbar .brand { grid-column:1; min-width:0; max-width:240px; display:flex; flex-direction:column; justify-content:center; gap:3px; line-height:1.15; overflow:hidden; }
+  #topbar .title { display:block; min-width:0; font-weight:700; font-size:16px; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #topbar .meta { display:block; color:var(--muted); font-size:10px; line-height:1.25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
   #topbar .sub { color:var(--text2); font-size:12px; white-space:nowrap; }
   #search { flex:1; min-width:0; background:transparent; border:none; color:var(--text);
     padding:7px 5px; border-radius:8px; font-size:13px; outline:none; }
@@ -164,9 +164,9 @@ _HTML = r"""<!doctype html>
     #topbar { display:grid; top:max(8px,env(safe-area-inset-top)); left:max(8px,env(safe-area-inset-left)); right:max(8px,env(safe-area-inset-right));
       grid-template-columns:minmax(0,1fr) auto; grid-auto-rows:auto; align-items:center; gap:7px; padding:8px 10px; max-height:104px; overflow:hidden; }
     body.show-facets #topbar { max-height:190px; overflow:auto; }
-    #topbar .brand { grid-column:1; min-width:0; }
-    #topbar .title { min-width:0; overflow:hidden; text-overflow:ellipsis; }
-    #topbar .meta { max-width:none; }
+    #topbar .brand { grid-column:1; min-width:0; max-width:none; }
+    #topbar .title { min-width:0; overflow:hidden; text-overflow:ellipsis; font-size:15px; }
+    #topbar .meta { max-width:none; font-size:9px; }
     #topbar .personas, #modeSeg { display:none; }
     #topbar .bar { grid-column:2; width:auto; min-width:0; margin-left:0; overflow:visible; scrollbar-width:none; padding-bottom:0; }
     #topbar .bar::-webkit-scrollbar { display:none; }
@@ -268,14 +268,16 @@ _HTML = r"""<!doctype html>
   #topbar .cats, #topbar .chips { display:none; }
   body.show-facets #topbar .cats, body.show-facets #topbar .chips { display:flex; }
   @media (max-width:1360px) and (min-width:641px){
-    #topbar { grid-template-columns:minmax(118px,max-content) auto auto minmax(220px,1fr) max-content; }
+    #topbar { grid-template-columns:minmax(176px,220px) auto auto minmax(220px,1fr) max-content; }
     #btnDiff, #detailSeg, #fnToggle, #searchMode,
     #btnFit, #btnPath, #btnFilter, #btnExport, #btnAnim, #btnTheme, #btnTerm { display:none; }
     #searchWrap { grid-column:4 !important; }
     #topbar .bar { grid-column:5 !important; max-width:100%; overflow:visible; justify-content:flex-end; }
   }
   @media (max-width:1100px) and (min-width:641px){
-    #topbar { grid-template-columns:minmax(118px,max-content) auto auto minmax(220px,1fr) max-content; }
+    #topbar { grid-template-columns:minmax(156px,190px) auto auto minmax(180px,1fr) max-content; }
+    #topbar .title { font-size:15px; }
+    #topbar .meta { font-size:9px; }
     #topbar .bar { overflow:visible; justify-content:flex-end; }
   }
   .bigbtn { width:100%; background:rgba(var(--accent-rgb),0.1); border:1px solid rgba(var(--accent-rgb),0.3); color:var(--accent);
