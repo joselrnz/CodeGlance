@@ -58,7 +58,7 @@ def test_cli_registers_workflow_commands():
     assert "init" in help_text
 
 
-def test_language_detection_covers_native_and_package_files():
+def test_language_detection_covers_native_and_package_files(tmp_path):
     from codeglance.scan import detect_language
 
     cases = {
@@ -68,12 +68,18 @@ def test_language_detection_covers_native_and_package_files():
         "CMakeLists.txt": "cmake",
         "cmake/GhosttyZigCompiler.cmake": "cmake",
         "macos/VibrantLayer.m": "objc",
-        "math/matrix.mat": "matlab",
         "src/lib.rs": "rust",
         "src/App.cs": "csharp",
     }
     for path, language in cases.items():
         assert detect_language(Path(path)) == language
+
+    objc = tmp_path / "ObjCExceptionCatcher.m"
+    objc.write_text("#import <Foundation/Foundation.h>\n@implementation ObjCExceptionCatcher\n@end\n", encoding="utf-8")
+    matlab = tmp_path / "matrix.m"
+    matlab.write_text("function y = matrix(x)\n  y = x + 1;\nend\n", encoding="utf-8")
+    assert detect_language(objc) == "objc"
+    assert detect_language(matlab) == "matlab"
 
 
 def test_temp_codeglance_folder_is_ignored(tmp_path):
@@ -91,7 +97,10 @@ def test_temp_codeglance_folder_is_ignored(tmp_path):
 def test_generic_parser_registry_covers_native_infra_languages():
     from codeglance.analyze.ts_core import supported_languages
 
-    assert {"zig", "nix", "cmake", "objc", "c", "cpp", "csharp", "rust"} <= supported_languages()
+    assert {
+        "zig", "nix", "cmake", "objc", "c", "cpp", "csharp", "rust",
+        "vue", "svelte", "sql", "graphql", "dockerfile", "makefile",
+    } <= supported_languages()
 
 
 def test_init_creates_project_bootstrap_files(tmp_path):

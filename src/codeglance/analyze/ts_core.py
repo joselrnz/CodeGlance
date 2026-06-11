@@ -117,8 +117,8 @@ def _generic_classify(kind: str) -> str | None:
 
 def supported_languages() -> set[str]:
     """Return scan language ids supported by tree-sitter or the generic classifier."""
-    # All languages we can parse — explicit specs plus generic-classifier coverage.
-    return set(_TS_NAME)
+    # All languages whose grammars are actually loadable in this environment.
+    return {lang for lang, grammar in _TS_NAME.items() if _grammar_available(grammar)}
 
 
 @lru_cache(maxsize=1)
@@ -135,6 +135,15 @@ def is_available() -> bool:
 def _parser(grammar: str):
     from tree_sitter_language_pack import get_parser
     return get_parser(grammar)
+
+
+@lru_cache(maxsize=64)
+def _grammar_available(grammar: str) -> bool:
+    try:
+        _parser(grammar)
+        return True
+    except Exception:
+        return False
 
 
 def _grammar_for(language: str, path: str) -> str | None:

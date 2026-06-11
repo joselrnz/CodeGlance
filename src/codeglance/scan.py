@@ -45,7 +45,7 @@ LANG_BY_EXT: dict[str, str] = {
     ".pl": "perl", ".pm": "perl",
     ".groovy": "groovy", ".gradle": "groovy",
     ".dart": "dart", ".zig": "zig", ".nim": "nim", ".cr": "crystal", ".d": "d",
-    ".sol": "solidity", ".mm": "objc", ".m": "objc", ".mat": "matlab",
+    ".sol": "solidity", ".mm": "objc", ".m": "matlab",
     ".tcl": "tcl", ".lisp": "commonlisp", ".scm": "scheme", ".rkt": "racket",
     ".gleam": "gleam", ".odin": "odin",
     ".glsl": "glsl", ".vert": "glsl", ".frag": "glsl", ".hlsl": "hlsl", ".wgsl": "wgsl",
@@ -108,7 +108,29 @@ def detect_language(path: Path) -> str:
     """Return the language id for a path by exact filename then extension, or "" if unknown."""
     if path.name in LANG_BY_NAME:
         return LANG_BY_NAME[path.name]
+    if path.suffix.lower() == ".m":
+        return _detect_m_language(path)
     return LANG_BY_EXT.get(path.suffix.lower(), "")
+
+
+def _detect_m_language(path: Path) -> str:
+    """Disambiguate .m files: Objective-C in Apple repos, MATLAB in scientific repos."""
+    try:
+        head = path.read_text(encoding="utf-8", errors="ignore")[:4096].lower()
+    except OSError:
+        head = ""
+    objc_markers = ("#import", "@interface", "@implementation", "@autoreleasepool", "nsobject", "objc_msgsend")
+    matlab_markers = ("function ", "classdef ", "%{", "end\n", "fprintf(", "disp(")
+    if any(marker in head for marker in objc_markers):
+        return "objc"
+    if any(marker in head for marker in matlab_markers):
+        return "matlab"
+    parts = {p.lower() for p in path.parts}
+    if parts & {"macos", "ios", "objc", "objective-c", "objectivec", "cocoa"}:
+        return "objc"
+    if parts & {"matlab", "octave"}:
+        return "matlab"
+    return "matlab"
 
 
 @dataclass

@@ -18,6 +18,8 @@ GENERIC_GRAMMARS = {
     "tcl": "tcl", "commonlisp": "commonlisp", "scheme": "scheme", "racket": "racket",
     "gleam": "gleam", "odin": "odin", "glsl": "glsl", "hlsl": "hlsl", "wgsl": "wgsl",
     "shell": "bash", "terraform": "terraform", "hcl": "hcl", "nix": "nix", "cmake": "cmake",
+    "vue": "vue", "svelte": "svelte", "sql": "sql", "graphql": "graphql",
+    "dockerfile": "dockerfile", "makefile": "make",
 }
 
 for _lang, _grammar in GENERIC_GRAMMARS.items():
