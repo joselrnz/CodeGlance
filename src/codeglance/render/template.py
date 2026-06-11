@@ -34,10 +34,19 @@ _HTML = r"""<!doctype html>
   #topbar .hint { color:var(--muted); font-size:11px; white-space:nowrap; }
   .leg { position:fixed; left:14px; max-width:230px; overflow:auto; padding:10px 12px; z-index:5; font-size:12px; }
   #types { top:104px; max-height:34vh; } #legend { bottom:14px; max-height:40vh; }
-  #crumb { position:fixed; top:calc(20px + var(--topbar-h,44px)); left:calc(var(--tools-w) + 34px); z-index:6; padding:6px 13px; font-size:11px; font-weight:600;
-    text-transform:uppercase; letter-spacing:.06em; color:var(--text2); }
+  #crumb { position:fixed; top:calc(20px + var(--topbar-h,44px)); left:calc(var(--tools-w) + 34px); right:388px; z-index:12;
+    display:flex; align-items:center; gap:6px; min-height:38px; max-width:calc(100vw - var(--tools-w) - 430px);
+    padding:5px 8px; font-size:11px; font-weight:600; color:var(--text2); overflow-x:auto; scrollbar-width:none; }
+  #crumb::-webkit-scrollbar { display:none; }
   body.tools-collapsed #crumb { left:calc(var(--tools-rail-w) + 30px); }
-  #crumb button { background:transparent; border:none; color:var(--accent); padding:0; font:inherit; cursor:pointer; text-transform:uppercase; }
+  body.inspector-collapsed #crumb { right:58px; max-width:calc(100vw - var(--tools-w) - 100px); }
+  #crumb button { flex:0 0 auto; min-height:28px; background:rgba(var(--accent-rgb),0.08); border:1px solid rgba(var(--accent-rgb),0.22);
+    color:var(--accent); padding:5px 9px; border-radius:8px; font:inherit; line-height:1; cursor:pointer; touch-action:manipulation; white-space:nowrap; }
+  #crumb button:hover { background:rgba(var(--accent-rgb),0.18); border-color:rgba(var(--accent-rgb),0.48); }
+  #crumb .crumb-sep { flex:0 0 auto; color:var(--muted); }
+  #crumb .crumb-note { flex:0 0 auto; color:var(--muted); font-weight:400; text-transform:none; letter-spacing:0; white-space:nowrap; }
+  #crumb .crumb-full { flex:0 0 auto; max-width:360px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    color:var(--text2); background:rgba(var(--accent-rgb),0.05); border:1px solid rgba(var(--accent-rgb),0.12); border-radius:8px; padding:6px 9px; font-weight:500; }
   .leg h4 { margin:0 0 8px; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--text2); }
   .lg { display:flex; align-items:center; gap:8px; padding:3px 4px; border-radius:6px; cursor:pointer; }
   .lg:hover { background:var(--elevated); } .lg.off { opacity:.4; }
@@ -864,7 +873,7 @@ function fileParentPrefix(path){ const clean=(path||'').replace(/\/+$/,''); cons
 function folderBreadcrumbHTML(layer,prefix){ const root=folderRoot(layer), clean=(prefix||root||'').replace(/\/+$/,'');
   if(!clean)return ''; const parts=clean.split('/').filter(Boolean); let acc='', h='';
   for(let i=0;i<parts.length;i++){ acc+=parts[i]+'/';
-    h+=' &nbsp;›&nbsp; <button onclick="setFolderView('+layer+','+JSON.stringify(acc)+')">'+esc(parts[i])+'</button>'; }
+    h+='<span class="crumb-sep">›</span><button onclick="setFolderView('+layer+','+JSON.stringify(acc)+')">'+esc(parts[i])+'</button>'; }
   return h; }
 function goFolderParent(){ if(folderLayer<0)return; const parent=parentFolderPrefix(folderPrefix||folderRoot(folderLayer)||'');
   if(parent) setFolderView(folderLayer,parent); else openLayer(folderLayer); }
@@ -881,15 +890,16 @@ window.setView=setView;
 function ensureSidebarsVisible(){ if(innerWidth>900){ setToolsCollapsed(false,false); togglePanel(true); } }
 function updateCrumb(){ const cr=document.getElementById('crumb'); if(!cr)return;
   if(graphMode!=='structural'){ const S=CD(); cr.innerHTML=(S?S.title:'')+(S&&selDomain>=0?' &nbsp;›&nbsp; '+esc(S.nodes[selDomain].name):''); return; }
-  if(view==='clusters') cr.innerHTML='Clusters &nbsp;·&nbsp; <span style="color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400">click a ▾ header to collapse · a chip to focus one layer</span>';
+  if(view==='clusters') cr.innerHTML='<span class="crumb-note">Clusters · click a header to collapse · a chip to focus one layer</span>';
   else if(view==='overview') cr.innerHTML='Project Overview';
   else if(folderMode){ const layerName=(L[folderLayer]&&L[folderLayer].name)||'Layer', prefix=folderPrefix||folderRoot(folderLayer)||'';
-    let h='<button onclick="setView(\'overview\')">‹ Overview</button> &nbsp;›&nbsp; <button onclick="openLayer('+folderLayer+')">'+esc(layerName)+'</button>';
+    let h='<button onclick="setView(\'overview\')">‹ Overview</button><span class="crumb-sep">›</span><button onclick="openLayer('+folderLayer+')">'+esc(layerName)+'</button>';
     h+=folderBreadcrumbHTML(folderLayer,prefix);
-    if(folderMode==='folders') h+=' &nbsp;·&nbsp; <span style="color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400">open a folder to see files</span>';
-    else h+=' &nbsp;·&nbsp; <button onclick="goFolderParent()">↑ Up</button> &nbsp;›&nbsp; Files';
+    if(prefix) h+='<span class="crumb-full">Path: '+esc(prefix.replace(/\/$/,''))+'</span>';
+    if(folderMode==='folders') h+='<span class="crumb-note">open a folder to see files</span>';
+    else h+='<button onclick="goFolderParent()">↑ Up</button><span class="crumb-sep">›</span><span class="crumb-note">Files</span>';
     cr.innerHTML=h; }
-  else cr.innerHTML='<button onclick="setView(\'clusters\')">‹ Clusters</button> &nbsp;›&nbsp; '+esc((L[view]&&L[view].name)||'Layer');
+  else cr.innerHTML='<button onclick="setView(\'clusters\')">‹ Clusters</button><span class="crumb-sep">›</span><span class="crumb-note">'+esc((L[view]&&L[view].name)||'Layer')+'</span>';
   if(typeof refreshChips==='function') refreshChips(); }
 
 // --- Domain map: business-domain cards + cross-domain flows (animated) ---
