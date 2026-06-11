@@ -505,6 +505,7 @@ const DATA = __DATA_JSON__;
 const N=DATA.nodes, E=DATA.edges, L=DATA.layers, TY=DATA.types, TOUR=DATA.tour, CT=DATA.containers;
 const NID=new Map(N.map((n,i)=>[n.id,i]));
 const LC=DATA.layerCards||[], LE=DATA.layerEdges||[], lcW=DATA.layerCardW||300, lcH=DATA.layerCardH||172;
+const LF=DATA.layerFolders||{}, folderW=DATA.folderCardW||292, folderH=DATA.folderCardH||132;
 const DM=DATA.domains||[], DE=DATA.domainEdges||[], dW=DATA.domainCardW||300, dH=DATA.domainCardH||150;
 const KN=(DATA.knowledge&&DATA.knowledge.nodes)||[], KE=(DATA.knowledge&&DATA.knowledge.edges)||[], kW=(DATA.knowledge&&DATA.knowledge.cardW)||280, kH=(DATA.knowledge&&DATA.knowledge.cardH)||150;
 const CARDSETS={
@@ -522,7 +523,8 @@ function iconForNode(n){ if(!n.path) return null; const low=(n.path.split('/').p
   let key=(DATA.iconName&&DATA.iconName[low]); const ext=(low.indexOf('.')>=0?low.split('.').pop():low);
   if(!key) key=(DATA.iconExt&&DATA.iconExt[ext]); const im=key&&ICONIMG[key];
   return (im&&im.complete&&im.naturalWidth>0)?im:null; }
-let view='overview', lhover=-1, sidebarTab='info';   // 'overview'=layer cards (default landing); 'clusters'=collapsible swimlanes (Explore); a number drills into one layer
+let view='overview', lhover=-1, fhover=-1, sidebarTab='info';   // 'overview'=layer cards; 'clusters'=swimlanes; a number drills into one layer
+let folderMode='', folderLayer=-1, folderPrefix='', folderDirect=false; // folder drilldown: 'folders' | 'files'
 const collapsed=new Set();                 // container layer-keys collapsed in the cluster view
 let chHover=null, _cl=null, _allCol=false; // hovered cluster header; cached cluster layout (cleared on collapse); all-collapsed toggle
 const CLUSTER_HEAD=44, CLUSTER_CONTENT_TOP=42, _LANE_GAP=48;       // header-safe swimlane spacing (mirrors layout.py)
@@ -574,7 +576,16 @@ function CLL(){ if(_cl)return _cl; const cs=CT.slice().sort((a,b)=>a.y-b.y); con
   for(const c of cs){ const col=collapsed.has(c.layer), h=col?CLUSTER_HEAD:c.h+CLUSTER_CONTENT_TOP, dy=yy-c.y+(col?0:CLUSTER_CONTENT_TOP);
     o[c.layer]={key:c.layer,x:c.x,y:yy,w:c.w,h:h,dy:dy,collapsed:col,name:c.name,color:c.color,count:c.count}; yy+=h+_LANE_GAP; }
   _cl=o; return o; }
+function folderData(layer){ return LF[String(layer)]||null; }
+function folderRoot(layer){ const d=folderData(layer); return d?(d.root||''):''; }
+function folderCards(){ const d=folderData(folderLayer); return d&&d.groups?((d.groups[folderPrefix]||[])):[]; }
+function hasLayerFolders(layer){ const d=folderData(layer); return !!(d&&d.groups&&d.groups[folderRoot(layer)]&&d.groups[folderRoot(layer)].length); }
+function nodeInFolder(n){ if(folderMode!=='files'||n.layer!==folderLayer)return false; const p=n.path||'';
+  if(folderPrefix && !p.startsWith(folderPrefix))return false;
+  if(folderDirect){ const rest=p.slice(folderPrefix.length); return !!rest && rest.indexOf('/')<0; }
+  return true; }
 function vis(i){ const n=N[i]; if(hiddenTypes.has(n.type)||hiddenComplex.has(n.complexity))return false;
+  if(folderMode==='files')return nodeInFolder(n);
   if(view==='clusters')return !collapsed.has(n.layer);
   return view!=='overview'&&n.layer===view; }
 function dim(i){ if(diffOn&&!DIFFC.has(i))return true; if(matched&&!matched.has(i))return true; if(focusSet&&!focusSet.has(i))return true;
@@ -597,6 +608,11 @@ function bounds(){
     return a>c?[0,0,800,600]:[a,b,c,d]; }
   if(view==='overview'){ if(!LC.length)return[0,0,800,600]; let a=1e9,b=1e9,c=-1e9,d=-1e9;
     for(const k of LC){a=Math.min(a,k.x-lcW/2);b=Math.min(b,k.y-lcH/2);c=Math.max(c,k.x+lcW/2);d=Math.max(d,k.y+lcH/2);} return [a,b,c,d]; }
+  if(folderMode==='folders'){ const cards=folderCards(); if(!cards.length)return[0,0,800,600]; let a=1e9,b=1e9,c=-1e9,d=-1e9;
+    for(const k of cards){a=Math.min(a,k.x-folderW/2);b=Math.min(b,k.y-folderH/2);c=Math.max(c,k.x+folderW/2);d=Math.max(d,k.y+folderH/2);} return [a,b,c,d]; }
+  if(folderMode==='files'){ let a=1e9,b=1e9,c=-1e9,d=-1e9;
+    for(let i=0;i<N.length;i++){ if(!vis(i))continue; const n=N[i]; a=Math.min(a,n.x-cardW/2);b=Math.min(b,n.y-cardH/2);c=Math.max(c,n.x+cardW/2);d=Math.max(d,n.y+cardH/2); }
+    return a>c?[0,0,800,600]:[a,b,c,d]; }
   const c0=CT.find(k=>k.layer===view); if(c0) return [c0.x,c0.y,c0.x+c0.w,c0.y+c0.h];
   let a=1e9,b=1e9,c=-1e9,d=-1e9; for(const n of N){a=Math.min(a,n.x);b=Math.min(b,n.y);c=Math.max(c,n.x);d=Math.max(d,n.y);} return [a,b,c,d]; }
 function graphViewport(){
@@ -648,6 +664,7 @@ function draw(){
   if(graphMode!=='structural'){ drawCards(); drawMinimap(); return; }
   if(view==='clusters'){ drawClusters(); drawMinimap(); return; }
   if(view==='overview'){ drawOverview(); drawMinimap(); return; }
+  if(folderMode==='folders'){ drawFolders(); drawMinimap(); return; }
   // layer containers (only the drilled-in layer)
   for(const c of CT){ if(c.layer!==view)continue;
     const x=SX(c.x),y=SY(c.y),w=c.w*scale,h=c.h*scale;
@@ -738,6 +755,31 @@ function drawOverview(){
       ctx.fillStyle=T.text2; ctx.font=Math.round(6*scale+4)+'px ui-sans-serif'; wrapText(l.description||'', x+pad, y+Math.round(54*scale)+4, w-pad*2, Math.round(7*scale+5), 3);
       ctx.fillStyle=T.muted; ctx.font=Math.round(6*scale+3)+'px ui-sans-serif'; ctx.fillText(l.count+' files   ·   click to explore →', x+pad, y+h-Math.round(13*scale)); } }
 }
+function pickFolder(mx,my){ const wx=(mx-ox)/scale, wy=(my-oy)/scale, cards=folderCards();
+  for(let i=cards.length-1;i>=0;i--){ const f=cards[i]; if(Math.abs(wx-f.x)<=folderW/2 && Math.abs(wy-f.y)<=folderH/2) return i; } return -1; }
+function drawFolders(){
+  const cards=folderCards(), layer=L[folderLayer]||{}, layerColor=layer.color||T.accent;
+  if(!cards.length){ return; }
+  for(const f of cards){ const w=folderW*scale,h=folderH*scale,x=SX(f.x)-w/2,y=SY(f.y)-h/2;
+    if(x>innerWidth||y>innerHeight||x+w<0||y+h<0)continue;
+    const on=cards[fhover]===f;
+    if(scale>0.3&&!on){ ctx.save(); ctx.shadowColor='rgba(0,0,0,0.48)'; ctx.shadowBlur=13*scale; ctx.shadowOffsetY=5*scale; rr(x,y,w,h,12); ctx.fillStyle=T.card; ctx.fill(); ctx.restore(); }
+    else { rr(x,y,w,h,12); ctx.fillStyle=T.card; ctx.fill(); }
+    accentBar(x,y,w,h,12,Math.max(4,5*scale),f.color||layerColor);
+    ctx.lineWidth=on?2:1; ctx.strokeStyle=on?T.accent:ac(0.22); rr(x,y,w,h,12); ctx.stroke();
+    if(scale>0.18){ const pad=14*scale+5, maxw=w-pad*2;
+      const key=f.kind==='files'?'_file':'_folder_open', im=ICONIMG[key]; let tx=x+pad;
+      if(im&&im.complete&&im.naturalWidth>0){ const isz=Math.round(14*scale+8); ctx.drawImage(im,tx,y+Math.round(14*scale),isz,isz); tx+=isz+7; }
+      ctx.fillStyle=f.color||layerColor; ctx.font='700 '+Math.round(7*scale+3)+'px ui-monospace,monospace';
+      ctx.fillText((f.kind==='files'?'FILES':'FOLDER')+' · '+(f.complexity||'simple'), tx, y+Math.round(20*scale)+5);
+      ctx.fillStyle=T.text; ctx.font=Math.round(9*scale+6)+'px '+(T.fontHeading||'Georgia,serif');
+      ctx.fillText(clipText(f.name,maxw), x+pad, y+Math.round(44*scale)+5);
+      ctx.fillStyle=T.text2; ctx.font=Math.round(6*scale+4)+'px ui-sans-serif';
+      wrapText(f.summary||'', x+pad, y+Math.round(61*scale)+5, maxw, Math.round(8*scale+5), 2);
+      ctx.fillStyle=T.muted; ctx.font=Math.round(6*scale+3)+'px ui-sans-serif';
+      const tail=(f.hasChildren?'open folders →':'show files →');
+      ctx.fillText((f.fileCount||0)+' files · '+(f.folderCount||0)+' folders · '+tail, x+pad, y+h-Math.round(13*scale)); } }
+}
 // --- Collapsible cluster view: all layer swimlanes at once, each collapsible (matches the original) ---
 function clampRect(fx,fy,cx,cy,hw,hh){ const dx=fx-cx,dy=fy-cy; if(!dx&&!dy)return[cx,cy];
   const sx=dx?hw/Math.abs(dx):1e9, sy=dy?hh/Math.abs(dy):1e9, s=Math.min(sx,sy); return [cx+dx*s,cy+dy*s]; }
@@ -778,8 +820,23 @@ function toggleCluster(key){ if(collapsed.has(key))collapsed.delete(key); else c
 function collapseAllClusters(on){ collapsed.clear(); if(on) for(const c of CT) collapsed.add(c.layer); _cl=null; _allCol=on; fit(); draw(); }
 window.collapseAllClusters=collapseAllClusters;
 
+function clearFolderDrill(){ folderMode=''; folderLayer=-1; folderPrefix=''; folderDirect=false; fhover=-1; }
+function resetDrillState(){ sel=-1; matched=null; pathNodes=null; pathEdges=null; focusSet=null; focusCenter=-1; lhover=-1; chHover=null; hover=-1; }
+function openLayer(layer){ if(hasLayerFolders(layer)) setFolderView(layer, folderRoot(layer)); else setView(layer); }
+function setFolderView(layer,prefix){ if(graphMode!=='structural'){ graphMode='structural'; selDomain=-1; applyModeUI(); }
+  view=layer; folderMode='folders'; folderLayer=layer; folderPrefix=prefix||folderRoot(layer)||''; folderDirect=false;
+  resetDrillState(); const s=document.getElementById('search'); if(s)s.value=''; renderPanel(); fit(); draw(); }
+function setFolderFiles(layer,prefix,direct){ if(graphMode!=='structural'){ graphMode='structural'; selDomain=-1; applyModeUI(); }
+  view=layer; folderMode='files'; folderLayer=layer; folderPrefix=prefix||folderRoot(layer)||''; folderDirect=!!direct;
+  resetDrillState(); detail='class'; showFns=false; applyDetail(false);
+  const s=document.getElementById('search'); if(s)s.value=''; renderPanel(); fit(); draw(); }
+function openFolderCard(f){ if(!f)return;
+  if(f.kind==='folder'&&f.hasChildren) setFolderView(folderLayer,f.prefix);
+  else setFolderFiles(folderLayer,f.prefix,!!f.direct); }
+window.openLayer=openLayer; window.setFolderView=setFolderView; window.setFolderFiles=setFolderFiles;
+
 function setView(v){ if(graphMode!=='structural'){ graphMode='structural'; selDomain=-1; applyModeUI(); }
-  view=v; sel=-1; matched=null; pathNodes=null; pathEdges=null; focusSet=null; lhover=-1; chHover=null;
+  clearFolderDrill(); view=v; resetDrillState();
   if(typeof v==='number'){ detail='class'; showFns=false; applyDetail(false); }
   const s=document.getElementById('search'); if(s)s.value=''; renderPanel(); fit(); draw(); }
 window.setView=setView;
@@ -788,6 +845,12 @@ function updateCrumb(){ const cr=document.getElementById('crumb'); if(!cr)return
   if(graphMode!=='structural'){ const S=CD(); cr.innerHTML=(S?S.title:'')+(S&&selDomain>=0?' &nbsp;›&nbsp; '+esc(S.nodes[selDomain].name):''); return; }
   if(view==='clusters') cr.innerHTML='Clusters &nbsp;·&nbsp; <span style="color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400">click a ▾ header to collapse · a chip to focus one layer</span>';
   else if(view==='overview') cr.innerHTML='Project Overview';
+  else if(folderMode){ const layerName=(L[folderLayer]&&L[folderLayer].name)||'Layer', prefix=folderPrefix||folderRoot(folderLayer)||'';
+    let h='<button onclick="setView(\'overview\')">‹ Overview</button> &nbsp;›&nbsp; <button onclick="openLayer('+folderLayer+')">'+esc(layerName)+'</button>';
+    if(prefix) h+=' &nbsp;›&nbsp; '+esc(prefix.replace(/\/$/,''));
+    if(folderMode==='folders') h+=" &nbsp;·&nbsp; <button onclick='setFolderFiles("+folderLayer+","+JSON.stringify(folderPrefix)+",false)'>Show files</button>";
+    else h+=' &nbsp;·&nbsp; Files';
+    cr.innerHTML=h; }
   else cr.innerHTML='<button onclick="setView(\'clusters\')">‹ Clusters</button> &nbsp;›&nbsp; '+esc((L[view]&&L[view].name)||'Layer');
   if(typeof refreshChips==='function') refreshChips(); }
 
@@ -994,7 +1057,7 @@ let _toastT=null; function toast(msg){ let el=document.getElementById('toast'); 
 function select(i){ sel=i; focusSet=null; focusCenter=-1; renderPanel(); if(i>=0){ togglePanel(true); center([i],false); startAnim(); } setHash(); draw(); }
 function goToNode(i){ if(i<0)return; if(graphMode!=='structural'){ graphMode='structural'; selDomain=-1; applyModeUI(); }
   if(view==='clusters'){ if(N[i]&&collapsed.has(N[i].layer)){ collapsed.delete(N[i].layer); _cl=null; } }
-  else if(N[i]&&N[i].layer>=0) view=N[i].layer;
+  else if(N[i]&&N[i].layer>=0){ clearFolderDrill(); view=N[i].layer; }
   sidebarTab='info'; sel=i; focusSet=null; focusCenter=-1; renderPanel(); togglePanel(true); center([i],true); startAnim(); setHash(); draw(); }
 window.select=select; window.goToNode=goToNode;
 
@@ -1047,7 +1110,7 @@ const CATS=[
     b.classList.toggle('off', !off); draw(); }); })();
 (function(){ const el=document.getElementById('layerChips');
   el.innerHTML=L.map((l,i)=>'<span class="chip" data-i="'+i+'"><span class="d" style="background:'+l.color+'"></span>'+esc(l.name)+'<span class="muted">('+l.count+')</span></span>').join('');
-  el.querySelectorAll('.chip').forEach(x=>x.onclick=()=>setView(+x.dataset.i)); })();
+  el.querySelectorAll('.chip').forEach(x=>x.onclick=()=>openLayer(+x.dataset.i)); })();
 function refreshChips(){ document.querySelectorAll('#layerChips .chip').forEach((x,i)=>{
   x.classList.toggle('active', view===i); x.classList.toggle('dim', view!=='overview'&&view!==i); }); }
 
@@ -1087,7 +1150,8 @@ let drag=false,lx,ly,moved=false;
 function tapCanvas(x,y){
   if(graphMode!=='structural'){ const h=pickDomain(x,y); selectDomain(h); }
   else if(view==='clusters'){ const ckey=pickCluster(x,y); if(ckey!==null) toggleCluster(ckey); else select(pick(x,y)); }
-  else if(view==='overview'){ const h=pickLayer(x,y); if(h>=0) setView(h); }
+  else if(view==='overview'){ const h=pickLayer(x,y); if(h>=0) openLayer(h); }
+  else if(folderMode==='folders'){ const h=pickFolder(x,y); if(h>=0) openFolderCard(folderCards()[h]); }
   else { const h=pick(x,y); select(h); }
 }
 cv.addEventListener('mousedown',e=>{drag=true;moved=false;lx=e.clientX;ly=e.clientY;});
@@ -1097,6 +1161,7 @@ window.addEventListener('mousemove',e=>{ if(drag){ox+=e.clientX-lx;oy+=e.clientY
     let rd=false; if(ckey!==chHover){chHover=ckey;rd=true;} if(h!==hover){hover=h;rd=true;}
     cv.style.cursor=(h>=0||ckey!==null)?'pointer':'grab'; if(rd)draw(); tooltip(h,e); return; }
   if(view==='overview'){ const h=pickLayer(e.clientX,e.clientY); if(h!==lhover){lhover=h;cv.style.cursor=h>=0?'pointer':'grab';draw();} tooltip(-1,e); return; }
+  if(folderMode==='folders'){ const h=pickFolder(e.clientX,e.clientY); if(h!==fhover){fhover=h;cv.style.cursor=h>=0?'pointer':'grab';draw();} tooltip(-1,e); return; }
   const h=pick(e.clientX,e.clientY); if(h!==hover){hover=h;cv.style.cursor=h>=0?'pointer':'grab';draw();} tooltip(h,e); });
 window.addEventListener('mouseup',e=>{ if(drag&&!moved) tapCanvas(e.clientX,e.clientY); drag=false; });
 cv.addEventListener('wheel',e=>{e.preventDefault();const f=Math.exp(-e.deltaY*0.0016);
@@ -1138,6 +1203,7 @@ function drawMinimap(){ if(!mm.width)return; mmx.setTransform(DPR,0,0,DPR,0,0); 
     for(const k in cl){ const c=cl[k]; const q=mmPt(c.x,c.y); mmx.globalAlpha=0.5; mmx.strokeStyle=c.color; mmx.strokeRect(q[0],q[1],c.w*MM.s,c.h*MM.s); } mmx.globalAlpha=1;
     for(let i=0;i<N.length;i++){ if(!vis(i))continue; const n=N[i],c=cl[n.layer],q=mmPt(n.x,n.y+(c?c.dy:0)); mmx.globalAlpha=dim(i)?0.25:0.9; mmx.fillStyle=n.color; mmx.fillRect(q[0]-1,q[1]-0.6,Math.max(2,cardW*MM.s),Math.max(1.4,cardH*MM.s)); } mmx.globalAlpha=1; }
   else if(view==='overview'){ for(const l of LC){ const q=mmPt(l.x-lcW/2,l.y-lcH/2); mmx.fillStyle=l.color; mmx.globalAlpha=0.9; mmx.fillRect(q[0],q[1],Math.max(3,lcW*MM.s),Math.max(2,lcH*MM.s)); } mmx.globalAlpha=1; }
+  else if(folderMode==='folders'){ for(const f of folderCards()){ const q=mmPt(f.x-folderW/2,f.y-folderH/2); mmx.fillStyle=f.color||T.accent; mmx.globalAlpha=0.9; mmx.fillRect(q[0],q[1],Math.max(3,folderW*MM.s),Math.max(2,folderH*MM.s)); } mmx.globalAlpha=1; }
   else { for(let i=0;i<N.length;i++){ if(!vis(i))continue; const n=N[i],q=mmPt(n.x,n.y); mmx.globalAlpha=dim(i)?0.25:0.95; mmx.fillStyle=n.color; mmx.fillRect(q[0]-1,q[1]-0.6,Math.max(2,cardW*MM.s),Math.max(1.4,cardH*MM.s)); } mmx.globalAlpha=1; }
   const p0=mmPt((0-ox)/scale,(0-oy)/scale),p1=mmPt((innerWidth-ox)/scale,(innerHeight-oy)/scale);
   mmx.strokeStyle=T.accent; mmx.lineWidth=1; mmx.strokeRect(p0[0],p0[1],p1[0]-p0[0],p1[1]-p0[1]); }
@@ -1161,7 +1227,7 @@ function showStep(){ const s=TOUR[tIdx], idxs=tourIdxs(s); focusSet=idxs.length?
   document.getElementById('ttitle').textContent=(tIdx+1)+'. '+s.title; document.getElementById('tdesc').textContent=s.description;
   document.getElementById('tcount').textContent=(tIdx+1)+' / '+TOUR.length;
   // drill into the layer the step's first node lives in, so it's actually visible
-  if(idxs.length){ const ly=N[idxs[0]].layer; if(ly>=0) view=ly; sel=idxs[0]; renderPanel(); center(idxs,true); }
+  if(idxs.length){ const ly=N[idxs[0]].layer; if(ly>=0){ clearFolderDrill(); view=ly; } sel=idxs[0]; renderPanel(); center(idxs,true); }
   startAnim(); draw(); }
 function startTour(){ if(!TOUR.length)return; ensureSidebarsVisible(); tIdx=0; document.body.classList.add('tour-active'); document.getElementById('tour').classList.remove('hidden'); document.getElementById('tourstart').classList.add('hidden'); showStep(); }
 function endTour(){ tIdx=-1; focusSet=null; document.body.classList.remove('tour-active'); document.getElementById('tour').classList.add('hidden'); document.getElementById('tourstart').classList.remove('hidden'); draw(); }
@@ -1182,7 +1248,7 @@ function focusOn(i){ if(i<0)return;
   if(focusCenter===i){ focusSet=null; focusCenter=-1; renderPanel(); draw(); return; }   // toggle off
   focusCenter=i; focusSet=new Set([i]); nbr[i].forEach(j=>focusSet.add(j));
   if(view==='clusters'){ if(N[i]&&collapsed.has(N[i].layer)){ collapsed.delete(N[i].layer); _cl=null; } }
-  else if(graphMode==='structural'&&N[i]&&N[i].layer>=0) view=N[i].layer;
+  else if(graphMode==='structural'&&N[i]&&N[i].layer>=0){ clearFolderDrill(); view=N[i].layer; }
   sel=i; sidebarTab='info'; renderPanel(); togglePanel(true); center([i],true); startAnim(); draw(); }
 window.focusOn=focusOn;
 // filter popup: node-type + complexity checkboxes (+ reset), syncing the category chips

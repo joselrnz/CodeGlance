@@ -8,7 +8,7 @@ import codeglance
 from codeglance.analyze import ts_core as ts
 from codeglance.graph import analyze
 from codeglance.render import render_explain, render_impact, render_interactive, render_onboarding, render_static
-from codeglance.schema import Edge, KnowledgeGraph, Node, Project
+from codeglance.schema import Edge, KnowledgeGraph, Layer, Node, Project
 
 FIXTURES = Path(__file__).parent / "fixtures" / "multilang"
 FIXTURES_IMPORTS = Path(__file__).parent / "fixtures" / "imports"
@@ -205,7 +205,7 @@ def test_overview_layer_cards_and_drilldown():
     from codeglance.render import build_view_model
     # the template always carries the overview/drill-down machinery
     html = render_interactive(_sample_graph())
-    for marker in ("drawOverview", "setView", "pickLayer", "updateCrumb"):
+    for marker in ("drawOverview", "drawFolders", "setView", "openLayer", "pickLayer", "updateCrumb"):
         assert marker in html, f"missing: {marker}"
     assert "click to explore" in html.lower()
     # header chrome moved in from the original: category filters, detail toggle, layer chips, tour list
@@ -222,6 +222,35 @@ def test_overview_layer_cards_and_drilldown():
         assert len(vm["layerCards"]) == len(vm["layers"]) >= 1
         assert all("complexity" in c and "x" in c and "description" in c for c in vm["layerCards"])
         assert "layerEdges" in vm
+
+
+def test_large_layers_get_nested_folder_drilldown():
+    nodes = []
+    for folder, count in (("build/framegen", 8), ("build/gen", 4), ("terminal", 5), ("font", 3)):
+        for i in range(count):
+            path = f"src/{folder}/file_{i}.zig"
+            nodes.append(Node(id=f"file:{path}", type="file", name=Path(path).name, filePath=path))
+            nodes.append(Node(id=f"class:{path}:T{i}", type="class", name=f"T{i}", filePath=path))
+    for i in range(2):
+        path = f"src/root_{i}.zig"
+        nodes.append(Node(id=f"file:{path}", type="file", name=Path(path).name, filePath=path))
+
+    g = KnowledgeGraph(
+        project=Project(name="nested", languages=["zig"]),
+        nodes=nodes,
+        layers=[Layer(id="layer:src", name="Src", nodeIds=[n.id for n in nodes if n.type == "file"])],
+    )
+
+    from codeglance.render import build_view_model
+
+    vm = build_view_model(g)
+    src_folders = vm["layerFolders"]["0"]
+    assert src_folders["root"] == "src/"
+    root_names = {entry["name"] for entry in src_folders["groups"]["src/"]}
+    assert {"build", "terminal", "font", "Files here"} <= root_names
+    build = next(entry for entry in src_folders["groups"]["src/"] if entry["name"] == "build")
+    assert build["hasChildren"] and build["fileCount"] == 12
+    assert {entry["name"] for entry in src_folders["groups"]["src/build/"]} >= {"framegen", "gen"}
 
 
 def test_sparse_large_repos_fall_back_to_directory_layers():

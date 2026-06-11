@@ -154,6 +154,126 @@ def _build_knowledge(graph: KnowledgeGraph, sources: dict, index_of: dict, confi
     return {"nodes": nodes_vm, "edges": edges, "cardW": KW, "cardH": KH}
 
 
+def _build_layer_folders(
+    graph: KnowledgeGraph,
+    node_layer: dict[str, int],
+    index_of: dict[str, int],
+    config: VizConfig = DEFAULT_CONFIG,
+) -> dict[str, dict]:
+    """Build a nested folder drill-down model for large layer views."""
+    import math as _math
+
+    def norm(path: str) -> str:
+        return path.replace("\\", "/").strip("/")
+
+    def dominant_root(paths: list[str]) -> str:
+        if not paths:
+            return ""
+        first = Counter(p.split("/", 1)[0] for p in paths if "/" in p)
+        if not first:
+            return ""
+        name, count = first.most_common(1)[0]
+        return f"{name}/" if count >= max(6, int(len(paths) * 0.6)) else ""
+
+    def direct_child(prefix: str, path: str) -> str | None:
+        if prefix and not path.startswith(prefix):
+            return None
+        rest = path[len(prefix):] if prefix else path
+        if "/" not in rest:
+            return None
+        return rest.split("/", 1)[0]
+
+    def has_child_folder(prefix: str, paths: list[str]) -> bool:
+        return any(direct_child(prefix, p) for p in paths)
+
+    by_layer: dict[int, list[str]] = {}
+    nodes_by_path: dict[str, list[int]] = {}
+    complexity_by_path: dict[str, str] = {}
+    for n in graph.nodes:
+        if not n.filePath:
+            continue
+        path = norm(n.filePath)
+        if not path:
+            continue
+        nodes_by_path.setdefault(path, []).append(index_of[n.id])
+        if n.type in FILE_LEVEL_TYPES:
+            li = node_layer.get(n.id, -1)
+            if li >= 0:
+                by_layer.setdefault(li, []).append(path)
+                complexity_by_path[path] = n.complexity
+
+    folder_w, folder_h, gap_x, gap_y = 292, 132, 70, 58
+    out: dict[str, dict] = {}
+    for li, raw_paths in by_layer.items():
+        paths = sorted(set(raw_paths))
+        if len(paths) < 12:
+            continue
+        root = dominant_root(paths)
+        groups: dict[str, list[dict]] = {}
+        queue: list[tuple[str, int]] = [(root, 0)]
+        seen: set[str] = set()
+        while queue:
+            prefix, depth = queue.pop(0)
+            if prefix in seen or depth > 5:
+                continue
+            seen.add(prefix)
+            scoped = [p for p in paths if p.startswith(prefix)]
+            child_names = sorted({c for p in scoped if (c := direct_child(prefix, p))})
+            entries: list[dict] = []
+            for child in child_names:
+                child_prefix = f"{prefix}{child}/"
+                child_paths = [p for p in scoped if p.startswith(child_prefix)]
+                file_count = len(child_paths)
+                node_count = sum(len(nodes_by_path.get(p, [])) for p in child_paths)
+                complexity = Counter(complexity_by_path.get(p, "moderate") for p in child_paths).most_common(1)[0][0]
+                child_folder_count = len({c for p in child_paths if (c := direct_child(child_prefix, p))})
+                entries.append({
+                    "kind": "folder",
+                    "name": child,
+                    "prefix": child_prefix,
+                    "parentPrefix": prefix,
+                    "fileCount": file_count,
+                    "nodeCount": node_count,
+                    "folderCount": child_folder_count,
+                    "hasChildren": child_folder_count > 0,
+                    "complexity": complexity,
+                    "summary": f"{file_count} files under {child_prefix.rstrip('/')}.",
+                    "color": config.layer_color(li),
+                })
+                if child_folder_count:
+                    queue.append((child_prefix, depth + 1))
+
+            direct_paths = [p for p in scoped if "/" not in p[len(prefix):]]
+            if direct_paths and (entries or len(direct_paths) > 1):
+                entries.append({
+                    "kind": "files",
+                    "name": "Files here",
+                    "prefix": prefix,
+                    "parentPrefix": prefix,
+                    "direct": True,
+                    "fileCount": len(direct_paths),
+                    "nodeCount": sum(len(nodes_by_path.get(p, [])) for p in direct_paths),
+                    "folderCount": 0,
+                    "hasChildren": False,
+                    "complexity": Counter(complexity_by_path.get(p, "moderate") for p in direct_paths).most_common(1)[0][0],
+                    "summary": f"{len(direct_paths)} file(s) directly in {prefix.rstrip('/') or 'project root'}.",
+                    "color": config.layer_color(li),
+                })
+
+            if entries:
+                entries.sort(key=lambda e: (e["kind"] != "folder", -e["fileCount"], e["name"].lower()))
+                cols = max(1, int(_math.ceil(_math.sqrt(len(entries)))))
+                for i, entry in enumerate(entries):
+                    r, c = divmod(i, cols)
+                    entry["x"] = round(60 + c * (folder_w + gap_x) + folder_w / 2, 1)
+                    entry["y"] = round(60 + r * (folder_h + gap_y) + folder_h / 2, 1)
+                groups[prefix] = entries
+
+        if groups:
+            out[str(li)] = {"root": root, "groups": groups}
+    return out
+
+
 def build_view_model(graph: KnowledgeGraph, root: Path | None = None, config: VizConfig = DEFAULT_CONFIG) -> dict:
     """Convert a KnowledgeGraph into the renderer-neutral view model used by all outputs."""
     node_ids = [n.id for n in graph.nodes]
@@ -235,6 +355,7 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None, config: Vi
         if ls >= 0 and lt >= 0 and ls != lt:
             pair[(min(ls, lt), max(ls, lt))] += 1
     layer_edges = [{"a": a, "b": b, "count": n} for (a, b), n in pair.items()]
+    layer_folders = _build_layer_folders(graph, node_layer, index_of, config)
 
     # Vendored devicon language icons — inline only the ones the project actually uses.
     from .icons import ICON_SVG, EXT_TO_KEY, NAME_TO_KEY
@@ -368,6 +489,9 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None, config: Vi
         "cardH": card_h,
         "layerCards": layer_cards,
         "layerEdges": layer_edges,
+        "layerFolders": layer_folders,
+        "folderCardW": 292,
+        "folderCardH": 132,
         "layerCardW": LW,
         "layerCardH": LH,
         "iconSvg": icon_svg,
