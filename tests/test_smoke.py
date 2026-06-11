@@ -557,6 +557,8 @@ def test_interactive_toolbar_stays_compact():
         "editor-open",
         "vscode-mark",
         "cursor-mark",
+        "width:min(420px",
+        "overflow-wrap:anywhere",
         "overflow-x:auto",
         "width:100%; max-width:100%",
         "#topbar .bar::-webkit-scrollbar",
@@ -643,7 +645,7 @@ def test_vizconfig_overrides_flow_into_output():
     file_node = next(n for n in vm["nodes"] if n["type"] == "file")
     assert file_node["color"] == "#ff0000"          # colour override flows to the node
     assert vm["cardW"] == 999.0                      # dimension override flows through layout
-    assert DEFAULT_CONFIG.card_w == 216.0            # default config left intact
+    assert DEFAULT_CONFIG.card_w == 244.0            # default config left intact
     assert "#ff0000" in render_interactive(g, config=VizConfig(type_colors={"file": "#ff0000"}))
 
 

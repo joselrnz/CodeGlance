@@ -40,8 +40,8 @@ class VizConfig:
     """All visual + layout tunables for the renderers. Immutable; override by constructing a new one."""
 
     # --- node cards (structural graph) ---
-    card_w: float = 216.0
-    card_h: float = 82.0
+    card_w: float = 244.0
+    card_h: float = 92.0
 
     # --- swimlane layout (compute_layered_layout): gridded cards inside per-layer containers ---
     lane_gap_x: float = 26.0      # horizontal gap between cards in a lane

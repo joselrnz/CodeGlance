@@ -79,8 +79,8 @@ _HTML = r"""<!doctype html>
     border-right:1px solid rgba(var(--accent-rgb),0.14); }
   .code td.lc { padding:0 10px; white-space:pre; color:var(--text); }
   .code tr.hl { background:rgba(var(--accent-rgb),0.14); } .code tr.hl td.ln { color:var(--accent); }
-  #tip { position:fixed; pointer-events:none; z-index:9; max-width:320px; padding:8px 10px; font-size:12px; display:none; }
-  #tip .tn{font-weight:600} #tip .tt{color:var(--text2);font-size:11px} #tip .ts{color:var(--text);margin-top:3px}
+  #tip { position:fixed; pointer-events:none; z-index:9; width:min(420px, calc(100vw - 28px)); max-width:420px; padding:10px 12px; font-size:12px; display:none; overflow-wrap:anywhere; }
+  #tip .tn{font-weight:700;line-height:1.25} #tip .tt{color:var(--text2);font-size:11px;line-height:1.35;margin-top:2px} #tip .ts{color:var(--text);margin-top:6px;line-height:1.45}
   #mm { position:fixed; right:14px; bottom:14px; width:210px; height:140px; z-index:5; padding:0; cursor:crosshair;
     transition:opacity .16s ease, transform .16s ease; }
   body.tour-active #mm { opacity:0; visibility:hidden; pointer-events:none; transform:translateY(8px); }
@@ -701,8 +701,8 @@ function drawCard(i){ const n=N[i]; const _d=(view==='clusters'&&CLL()[n.layer])
       ctx.fillStyle=CXC[n.complexity]||T.muted; ctx.fillText(n.complexity, x+w-pad, topY); ctx.textAlign='left'; }
     ctx.font='600 '+Math.round(7*scale+5)+'px '+(T.fontHeading||'Georgia,serif'); ctx.fillStyle=T.text; // name heading
     ctx.fillText(clipText(n.name,iw), lx, y+Math.round(32*scale)+5);
-    if(h>54&&n.summary){ ctx.font=Math.round(5*scale+4)+'px ui-sans-serif'; ctx.fillStyle=T.text2;       // description (2 lines)
-      wrapText(n.summary, lx, y+Math.round(46*scale)+5, iw, Math.round(6*scale+5), 2); } }
+    if(h>58&&n.summary){ ctx.font=Math.round(5*scale+4)+'px ui-sans-serif'; ctx.fillStyle=T.text2;       // description (2 lines)
+      wrapText(n.summary, lx, y+Math.round(48*scale)+5, iw, Math.max(12,Math.round(7*scale+5)), 2); } }
   ctx.globalAlpha=1;
 }
 function pick(mx,my){ const wx=(mx-ox)/scale, wy=(my-oy)/scale; const cl=(view==='clusters')?CLL():null;
@@ -862,7 +862,9 @@ function cardInfoHTML(i){ const S=CD(); if(!S)return ''; const d=S.nodes[i];
 const tip=document.getElementById('tip');
 function tooltip(i,e){ if(i<0){tip.style.display='none';return;} const n=N[i];
   tip.innerHTML='<div class="tn">'+esc(n.name)+'</div><div class="tt">'+esc(n.type)+(n.path?' · '+esc(n.path):'')+'</div>'+(n.summary?'<div class="ts">'+esc(n.summary)+'</div>':'');
-  tip.style.display='block'; tip.style.left=Math.min(e.clientX+14,innerWidth-330)+'px'; tip.style.top=(e.clientY+14)+'px'; }
+  tip.style.display='block';
+  const r=tip.getBoundingClientRect(), left=Math.min(e.clientX+14, innerWidth-r.width-14), top=Math.min(e.clientY+14, innerHeight-r.height-14);
+  tip.style.left=Math.max(14,left)+'px'; tip.style.top=Math.max(14,top)+'px'; }
 
 const panel=document.getElementById('panel');
 function stat(k,v){ return '<div class="stat"><div class="v">'+v+'</div><div class="k">'+k+'</div></div>'; }
