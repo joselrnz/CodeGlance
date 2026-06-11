@@ -228,6 +228,7 @@ _HTML = r"""<!doctype html>
   #zoom { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); display:flex; gap:6px; z-index:6; }
   body.term-open #zoom { bottom:calc(min(42vh,320px) + 38px); }
   body.tour-active #zoom { bottom:150px; }
+  body.term-open.tour-active #zoom { bottom:calc(min(42vh,320px) + 38px); }
   #zoom button { width:32px; height:32px; font-size:16px; padding:0; }
   #termFab { position:fixed; left:14px; bottom:24px; z-index:7; width:42px; height:42px; padding:0; border-radius:12px;
     font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px; font-weight:700; }
@@ -332,6 +333,7 @@ _HTML = r"""<!doctype html>
     #zoom { left:50%; right:auto; bottom:max(10px,env(safe-area-inset-bottom)); transform:translateX(-50%); display:flex; }
     body.term-open #zoom { bottom:calc(min(48dvh,340px) + max(18px,env(safe-area-inset-bottom))); }
     body.tour-active #zoom { bottom:calc(44dvh + max(18px,env(safe-area-inset-bottom))); }
+    body.term-open.tour-active #zoom { bottom:calc(max(min(48dvh,340px),44dvh) + max(18px,env(safe-area-inset-bottom))); }
     #termFab { left:max(8px,env(safe-area-inset-left)); bottom:max(10px,env(safe-area-inset-bottom)); }
     #panelReopen { top:auto; right:max(8px,env(safe-area-inset-right)); bottom:max(10px,env(safe-area-inset-bottom));
       height:auto; border-radius:999px; padding:10px 12px; }
@@ -1373,7 +1375,7 @@ function syncTopbarH(){ if(_topbarEl) document.documentElement.style.setProperty
 if(window.ResizeObserver){ try{ new ResizeObserver(syncTopbarH).observe(_topbarEl); }catch(e){} }
 window.addEventListener('resize',syncTopbarH); syncTopbarH();
 try{ const sv=JSON.parse(localStorage.getItem('sl-theme-v2')||'null'); if(sv&&THEMES[sv.name]) THEME_STATE=sv; }catch(e){}
-applyTheme(); applyDetail(); applyModeUI(); renderPanel(); togglePanel(false); setToolsCollapsed(innerWidth<=900,false); fit(); resize();
+applyTheme(); applyDetail(); applyModeUI(); renderPanel(); togglePanel(innerWidth>900); setToolsCollapsed(innerWidth<=900,false); fit(); resize();
 if(animOn) startAnim(); else { const _b=document.getElementById('btnAnim'); if(_b)_b.classList.remove('on'); }
 (function(){ try{ const m=/[#&]n=([^&]+)/.exec(location.hash||''); if(m){ const i=N.findIndex(n=>n.id===decodeURIComponent(m[1])); if(i>=0) goToNode(i); } }catch(e){} })();
 </script>

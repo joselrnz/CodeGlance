@@ -217,6 +217,9 @@ codeglance serve demo --host 0.0.0.0
 It lists HTML, Markdown, JSON, TXT, and SVG files. This is the easiest way to check all generated
 views from a phone without pushing or deploying anything.
 
+For a guided walkthrough of `glance.html`, the generated files, mobile behavior, screenshots, and the
+human-in-the-loop review flow, see [`docs/GLANCE_WALKTHROUGH.md`](docs/GLANCE_WALKTHROUGH.md).
+
 ## How It Stays Fast
 
 Codeglance stores fingerprints in `.codeglance/fingerprints.json`. Re-running analysis compares

@@ -491,6 +491,7 @@ def test_interactive_toolbar_stays_compact():
         "graphViewport",
         "setToolsCollapsed",
         "ensureSidebarsVisible",
+        "togglePanel(innerWidth>900)",
         "p==='drill'",
         "showFns=false",
         "showFns=true",
@@ -511,6 +512,7 @@ def test_interactive_tour_keeps_app_chrome():
         "#tour { position:fixed; left:calc(var(--tools-w) + 34px)",
         "body.inspector-collapsed #tour",
         "body.tour-active #zoom",
+        "body.term-open.tour-active #zoom",
         "const NID=new Map",
         "function tourIdxs",
     ):
