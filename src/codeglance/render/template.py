@@ -329,6 +329,8 @@ _HTML = r"""<!doctype html>
     #zoom { left:50%; right:auto; bottom:max(10px,env(safe-area-inset-bottom)); transform:translateX(-50%); display:flex; }
     body.term-open #zoom { bottom:calc(min(48dvh,340px) + max(18px,env(safe-area-inset-bottom))); }
     #termFab { left:max(8px,env(safe-area-inset-left)); bottom:max(10px,env(safe-area-inset-bottom)); }
+    #panelReopen { top:auto; right:max(8px,env(safe-area-inset-right)); bottom:max(10px,env(safe-area-inset-bottom));
+      height:auto; border-radius:999px; padding:10px 12px; }
   }
   .hidden { display:none !important; }
 </style>

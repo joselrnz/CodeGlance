@@ -526,6 +526,8 @@ def test_offline_terminal_present():
         "body.term-open #zoom",
         "body.inspector-collapsed #term",
         "right:388px",
+        "#panelReopen { top:auto",
+        "height:auto; border-radius:999px",
     ):
         assert m in html, f"missing terminal feature: {m}"
     # it must stay self-contained — no network calls sneaking in
