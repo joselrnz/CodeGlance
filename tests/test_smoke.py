@@ -512,7 +512,18 @@ def test_interactive_tour_hides_minimap():
 def test_offline_terminal_present():
     html = render_interactive(_sample_graph())
     # in-HTML terminal: graph-query commands + live JS eval, fully offline (no CDN/fetch)
-    for m in ('id="term"', "runTerm", "TERM_CMDS", "toggleTerm", "termOut", "btnTerm"):
+    for m in (
+        'id="term"',
+        "runTerm",
+        "TERM_CMDS",
+        "toggleTerm",
+        "termOut",
+        "btnTerm",
+        "openTermHelp",
+        "body.term-open #zoom",
+        "body.inspector-collapsed #term",
+        "right:388px",
+    ):
         assert m in html, f"missing terminal feature: {m}"
     # it must stay self-contained — no network calls sneaking in
     assert "pyodide" not in html.lower()

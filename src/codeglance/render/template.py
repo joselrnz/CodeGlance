@@ -224,6 +224,7 @@ _HTML = r"""<!doctype html>
   .pa:hover { color:var(--text); } .pa.active { color:var(--accent); background:rgba(var(--accent-rgb),0.1); border-color:rgba(var(--accent-rgb),0.3); }
   #zoom { position:fixed; left:calc(var(--tools-w) + 34px); bottom:24px; display:flex; flex-direction:column; gap:6px; z-index:6; }
   body.tools-collapsed #zoom { left:calc(var(--tools-rail-w) + 30px); }
+  body.term-open #zoom { bottom:calc(min(42vh,320px) + 38px); }
   #zoom button { width:32px; height:32px; font-size:16px; padding:0; }
   #topbar .grow { display:none; }
   #topbar #search { flex:none; width:100%; }
@@ -305,9 +306,11 @@ _HTML = r"""<!doctype html>
   .pclose { background:transparent; border:none; color:var(--text2); cursor:pointer; font-size:14px; padding:0 6px; margin-left:auto; }
   .pclose:hover { color:var(--text); }
   /* offline terminal: graph queries + live JS, all against the embedded data */
-  #term { position:fixed; left:14px; bottom:14px; width:min(720px,calc(100vw - 28px)); height:min(42vh,320px);
+  #term { position:fixed; left:calc(var(--tools-w) + 34px); right:388px; bottom:14px; width:auto; height:min(42vh,320px);
     z-index:8; display:flex; flex-direction:column; padding:0; overflow:hidden;
     font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+  body.tools-collapsed #term { left:calc(var(--tools-rail-w) + 30px); }
+  body.inspector-collapsed #term { right:58px; }
   #term .thead { display:flex; align-items:center; gap:8px; padding:7px 12px; font-size:11px; color:var(--text2);
     border-bottom:1px solid rgba(var(--accent-rgb),0.18); }
   #term .thead .tt { color:var(--accent); font-weight:700; text-transform:uppercase; letter-spacing:.05em; }
@@ -933,7 +936,9 @@ function renderPanel(){
   panel.querySelectorAll('.tstep').forEach(el=>el.onclick=()=>{ startTour(); tIdx=+el.dataset.t; showStep(); });
   const hl=panel.querySelector('.ct tr.hl'); if(hl) hl.scrollIntoView({block:'center'}); }
 function togglePanel(open){ panel.classList.toggle('collapsed', !open);
-  document.getElementById('panelReopen').classList.toggle('hidden', open); }
+  document.body.classList.toggle('inspector-collapsed', !open);
+  document.getElementById('panelReopen').classList.toggle('hidden', open);
+  if(fitMode)fit(); draw(); }
 window.togglePanel=togglePanel;
 document.getElementById('panelReopen').onclick=()=>togglePanel(true);
 function setHash(){ try{ history.replaceState(null,'',(sel>=0&&N[sel])?'#n='+encodeURIComponent(N[sel].id):'#'); }catch(e){} }
@@ -1202,7 +1207,8 @@ $('pathFind').onclick=()=>{ const a=+$('pathFrom').value, b=+$('pathTo').value;
   $('pathResult').querySelectorAll('.step').forEach(el=>el.onclick=()=>{ closePath(); select(+el.dataset.i); });
   closePath(); center(path,true); draw(); };
 
-$('btnHelp').onclick=()=>$('helpModal').classList.remove('hidden');
+function openTermHelp(){ toggleTerm(true); TERM_CMDS.clear(); TERM_CMDS.help(); }
+$('btnHelp').onclick=openTermHelp;
 // click the dimmed backdrop (outside the box) to dismiss any modal
 document.querySelectorAll('.modal').forEach(m=>m.addEventListener('mousedown',e=>{ if(e.target===m) m.classList.add('hidden'); }));
 
@@ -1247,6 +1253,7 @@ termIn.addEventListener('keydown',e=>{ e.stopPropagation();
   else if(e.key==='ArrowDown'){ termHi=Math.min(termHi+1,termHist.length); termIn.value=termHist[termHi]||''; e.preventDefault(); } });
 function toggleTerm(on){ const t=$('term'); const show=(on===undefined)?t.classList.contains('hidden'):on;
   t.classList.toggle('hidden',!show); const b=$('btnTerm'); if(b)b.classList.toggle('on',show);
+  document.body.classList.toggle('term-open',show);
   if(show) closeToolsOverlay();
   if(show){ if(!termOut.childElementCount) TERM_CMDS.help(); termIn.focus(); } }
 window.toggleTerm=toggleTerm; $('btnTerm').onclick=()=>toggleTerm();
@@ -1319,7 +1326,7 @@ window.addEventListener('keydown',e=>{
   else if(e.key==='x'){ if(sel>=0) focusOn(sel); }
   else if(e.key==='b'){ setDiff(!diffOn); }
   else if(e.key==='c'){ if(graphMode==='structural'){ if(view!=='clusters')setView('clusters'); collapseAllClusters(!_allCol); } }
-  else if(e.key==='?'){ $('helpModal').classList.remove('hidden'); }
+  else if(e.key==='?'){ openTermHelp(); }
   else if(e.key==='~'||e.key==='`'){ toggleTerm(); }
   else if(e.key==='ArrowRight'){ if(tIdx>=0)$('tnext').click(); else { ox-=60; draw(); } }
   else if(e.key==='ArrowLeft'){ if(tIdx>=0)$('tprev').click(); else { ox+=60; draw(); } }
