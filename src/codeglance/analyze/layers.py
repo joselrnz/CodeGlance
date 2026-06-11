@@ -35,6 +35,8 @@ def detect_layers(nodes: list[Node], edges: list[Edge]) -> list[Layer]:
         if e.source in file_ids and e.target in file_ids:
             w = g.get_edge_data(e.source, e.target, default={}).get("weight", 0)
             g.add_edge(e.source, e.target, weight=w + e.weight)
+    if _too_sparse_for_communities(file_nodes, g.number_of_edges()):
+        return _fallback_by_directory(file_nodes)
 
     try:
         communities = louvain_communities(g, weight="weight", seed=42)
@@ -43,6 +45,8 @@ def detect_layers(nodes: list[Node], edges: list[Edge]) -> list[Layer]:
 
     # Keep deterministic ordering: largest communities first.
     communities = sorted((sorted(c) for c in communities), key=len, reverse=True)
+    if _communities_are_too_fragmented(communities, file_nodes):
+        return _fallback_by_directory(file_nodes)
     layers: list[Layer] = []
     used_names: set[str] = set()
     for members in communities:
@@ -110,6 +114,32 @@ def _describe(name: str, members: list[str], node_by_id: dict[str, Node]) -> str
     kinds = Counter(node_by_id[m].type for m in members)
     summary = ", ".join(f"{c} {k}" for k, c in kinds.most_common(3))
     return f"{name} layer — {len(members)} files ({summary})."
+
+
+def _too_sparse_for_communities(file_nodes: list[Node], edge_count: int) -> bool:
+    """Prefer directory layers when imports do not create a meaningful file graph."""
+    if len(file_nodes) < 80:
+        return False
+    if len(_directory_groups(file_nodes)) < 4:
+        return False
+    return edge_count < max(8, len(file_nodes) // 20)
+
+
+def _communities_are_too_fragmented(communities: list[list[str]], file_nodes: list[Node]) -> bool:
+    """Detect Louvain output made mostly of singleton/tiny groups."""
+    if len(file_nodes) < 80 or len(_directory_groups(file_nodes)) < 4:
+        return False
+    largest = len(communities[0]) if communities else 0
+    return largest <= max(8, len(file_nodes) // 30)
+
+
+def _directory_groups(file_nodes: list[Node]) -> dict[str, int]:
+    groups: dict[str, int] = {}
+    for n in file_nodes:
+        path = n.filePath or n.id.split(":", 1)[-1]
+        top = path.split("/")[0] if "/" in path else "(root)"
+        groups[top] = groups.get(top, 0) + 1
+    return {key: count for key, count in groups.items() if count >= 2}
 
 
 def _fallback_by_directory(file_nodes: list[Node]) -> list[Layer]:

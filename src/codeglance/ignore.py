@@ -16,7 +16,7 @@ DEFAULT_IGNORE_DIRS = {
     "__pycache__", ".mypy_cache", ".pytest_cache", ".ruff_cache", "dist", "build",
     "out", "coverage", ".next", ".nuxt", ".cache", ".turbo", "target", "obj", "bin",
     ".idea", ".vscode", ".gradle", ".terraform", ".codeglance", "site-packages",
-    ".tox", ".eggs", "__snapshots__",
+    ".tox", ".eggs", "__snapshots__", "tmp-codeglance",
 }
 
 # Filename glob patterns excluded wherever they appear.

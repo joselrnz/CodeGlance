@@ -26,6 +26,7 @@ LANG_BY_EXT: dict[str, str] = {
     ".json": "json", ".yaml": "yaml", ".yml": "yaml", ".toml": "toml", ".ini": "ini",
     ".xml": "xml", ".csv": "csv", ".env": "env",
     ".tf": "terraform", ".tfvars": "terraform", ".hcl": "hcl",
+    ".nix": "nix", ".cmake": "cmake", ".zon": "zig",
     # --- Hardware description / legacy / scientific ---
     ".vhd": "vhdl", ".vhdl": "vhdl",
     ".v": "verilog", ".sv": "verilog", ".svh": "verilog", ".vh": "verilog",
@@ -44,7 +45,7 @@ LANG_BY_EXT: dict[str, str] = {
     ".pl": "perl", ".pm": "perl",
     ".groovy": "groovy", ".gradle": "groovy",
     ".dart": "dart", ".zig": "zig", ".nim": "nim", ".cr": "crystal", ".d": "d",
-    ".sol": "solidity", ".mm": "objc", ".m": "matlab",
+    ".sol": "solidity", ".mm": "objc", ".m": "objc", ".mat": "matlab",
     ".tcl": "tcl", ".lisp": "commonlisp", ".scm": "scheme", ".rkt": "racket",
     ".gleam": "gleam", ".odin": "odin",
     ".glsl": "glsl", ".vert": "glsl", ".frag": "glsl", ".hlsl": "hlsl", ".wgsl": "wgsl",
@@ -54,6 +55,7 @@ LANG_BY_EXT: dict[str, str] = {
 LANG_BY_NAME: dict[str, str] = {
     "Dockerfile": "dockerfile", "dockerfile": "dockerfile",
     "docker-compose.yml": "yaml", "docker-compose.yaml": "yaml",
+    "CMakeLists.txt": "cmake",
     "Makefile": "makefile", "makefile": "makefile", "GNUmakefile": "makefile",
     "Jenkinsfile": "groovy", "Vagrantfile": "ruby", "Gemfile": "ruby", "Rakefile": "ruby",
     ".gitignore": "plaintext", ".dockerignore": "plaintext",
@@ -70,11 +72,11 @@ CODE_LANGS = {
     "crystal", "d", "solidity", "objc", "matlab", "tcl", "commonlisp", "scheme", "racket",
     "gleam", "odin", "glsl", "hlsl", "wgsl",
 }
-STATS_LANGS = CODE_LANGS | {"terraform", "hcl"}
+STATS_LANGS = CODE_LANGS | {"terraform", "hcl", "nix", "cmake"}
 # Language buckets used to assign a high-level file category in categorize().
 CONFIG_LANGS = {"json", "yaml", "toml", "ini", "env", "xml"}
 DOC_LANGS = {"markdown", "restructuredtext", "plaintext"}
-INFRA_LANGS = {"dockerfile", "terraform", "hcl", "kubernetes"}
+INFRA_LANGS = {"dockerfile", "terraform", "hcl", "kubernetes", "nix", "cmake"}
 SCRIPT_LANGS = {"shell", "powershell", "makefile", "groovy"}
 DATA_LANGS = {"csv", "sql"}
 MARKUP_LANGS = {"html", "css", "graphql", "protobuf"}

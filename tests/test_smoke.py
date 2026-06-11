@@ -58,6 +58,42 @@ def test_cli_registers_workflow_commands():
     assert "init" in help_text
 
 
+def test_language_detection_covers_native_and_package_files():
+    from codeglance.scan import detect_language
+
+    cases = {
+        "build.zig": "zig",
+        "build.zig.zon": "zig",
+        "flake.nix": "nix",
+        "CMakeLists.txt": "cmake",
+        "cmake/GhosttyZigCompiler.cmake": "cmake",
+        "macos/VibrantLayer.m": "objc",
+        "math/matrix.mat": "matlab",
+        "src/lib.rs": "rust",
+        "src/App.cs": "csharp",
+    }
+    for path, language in cases.items():
+        assert detect_language(Path(path)) == language
+
+
+def test_temp_codeglance_folder_is_ignored(tmp_path):
+    from codeglance.scan import scan
+
+    (tmp_path / "app.py").write_text("def ok():\n    return 1\n", encoding="utf-8")
+    scratch = tmp_path / "tmp-codeglance"
+    scratch.mkdir()
+    (scratch / "ghost.py").write_text("def should_not_scan():\n    return 2\n", encoding="utf-8")
+
+    result = scan(tmp_path)
+    assert [f.path for f in result.files] == ["app.py"]
+
+
+def test_generic_parser_registry_covers_native_infra_languages():
+    from codeglance.analyze.ts_core import supported_languages
+
+    assert {"zig", "nix", "cmake", "objc", "c", "cpp", "csharp", "rust"} <= supported_languages()
+
+
 def test_init_creates_project_bootstrap_files(tmp_path):
     from codeglance.cli.main import main
 
@@ -177,6 +213,21 @@ def test_overview_layer_cards_and_drilldown():
         assert len(vm["layerCards"]) == len(vm["layers"]) >= 1
         assert all("complexity" in c and "x" in c and "description" in c for c in vm["layerCards"])
         assert "layerEdges" in vm
+
+
+def test_sparse_large_repos_fall_back_to_directory_layers():
+    from codeglance.analyze.layers import detect_layers
+
+    nodes = []
+    for folder, count in (("src", 90), ("macos", 35), ("pkg", 35), ("example", 20), ("include", 12)):
+        for i in range(count):
+            path = f"{folder}/file_{i}.zig" if folder != "macos" else f"{folder}/File{i}.swift"
+            nodes.append(Node(id=f"file:{path}", type="file", name=Path(path).name, filePath=path))
+
+    layers = detect_layers(nodes, [])
+    names = {layer.name for layer in layers}
+    assert {"Src", "Macos", "Pkg", "Example", "Include"} <= names
+    assert "Shared / Misc" not in names
 
 
 def test_terraform_blocks_extracted():

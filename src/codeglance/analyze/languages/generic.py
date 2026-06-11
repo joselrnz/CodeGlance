@@ -17,7 +17,7 @@ GENERIC_GRAMMARS = {
     "clojure": "clojure", "elm": "elm", "r": "r", "matlab": "matlab", "powershell": "powershell",
     "tcl": "tcl", "commonlisp": "commonlisp", "scheme": "scheme", "racket": "racket",
     "gleam": "gleam", "odin": "odin", "glsl": "glsl", "hlsl": "hlsl", "wgsl": "wgsl",
-    "shell": "bash", "terraform": "terraform", "hcl": "hcl",
+    "shell": "bash", "terraform": "terraform", "hcl": "hcl", "nix": "nix", "cmake": "cmake",
 }
 
 for _lang, _grammar in GENERIC_GRAMMARS.items():
