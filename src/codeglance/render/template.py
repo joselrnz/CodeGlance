@@ -891,7 +891,7 @@ function editorHref(scheme,n){ if(!n||!n.path||!DATA.projectRoot)return '';
   const line=(n.lineRange&&n.lineRange[0])||1;
   return scheme+'://file/'+encodeURI(root+'/'+rel)+':'+line+':1'; }
 function editorButtons(n){ const vs=editorHref('vscode',n), cur=editorHref('cursor',n); if(!vs&&!cur)return '';
-  return '<a class="pact editor-open" href="'+esc(vs)+'" title="Open in VS Code at this file and line">Code</a>'
+  return '<a class="pact editor-open" href="'+esc(vs)+'" title="Open in VS Code at this file and line">VS Code</a>'
     +'<a class="pact editor-open" href="'+esc(cur)+'" title="Open in Cursor at this file and line">Cursor</a>'; }
 function infoHTML(i){ const n=N[i];
   let h='<div class="pacts">'
