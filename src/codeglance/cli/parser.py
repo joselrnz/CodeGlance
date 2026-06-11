@@ -12,6 +12,7 @@ from ..commands import (
     cmd_explain,
     cmd_generate,
     cmd_impact,
+    cmd_init,
     cmd_onboard,
     cmd_render,
     cmd_serve,
@@ -29,6 +30,7 @@ SUBCOMMANDS = {
     "explain",
     "impact",
     "onboard",
+    "init",
 }
 
 
@@ -42,6 +44,7 @@ def build_parser() -> argparse.ArgumentParser:
     subcommands = parser.add_subparsers(dest="command")
 
     _add_analyze_parser(subcommands)
+    _add_init_parser(subcommands)
     _add_render_parser(subcommands)
     _add_dashboard_parser(subcommands)
     _add_wiki_parser(subcommands)
@@ -66,6 +69,22 @@ def _add_analyze_parser(subcommands: argparse._SubParsersAction) -> None:
     cmd.add_argument("--graph-only", action="store_true", help="only write knowledge-graph.json, no HTML")
     cmd.add_argument("--full", action="store_true", help="force a full rebuild, ignoring fingerprints")
     cmd.set_defaults(func=cmd_analyze)
+
+
+def _add_init_parser(subcommands: argparse._SubParsersAction) -> None:
+    cmd = subcommands.add_parser("init", help="bootstrap CodeGlance config and local agent instructions")
+    cmd.add_argument("path", nargs="?", default=".", help="project directory (default: .)")
+    cmd.add_argument("-o", "--output", "--out", default=".codeglance/outputs", help="generated output folder")
+    cmd.add_argument(
+        "--profile",
+        choices=("minimal", "human", "agent", "all"),
+        default="all",
+        help="default output profile to write into .codeglance/config.json",
+    )
+    cmd.add_argument("--no-agents", action="store_true", help="only create .codeglance config/ignore files")
+    cmd.add_argument("--force", action="store_true", help="overwrite files that already exist")
+    cmd.add_argument("--generate", action="store_true", help="generate the configured output bundle after init")
+    cmd.set_defaults(func=cmd_init)
 
 
 def _add_render_parser(subcommands: argparse._SubParsersAction) -> None:

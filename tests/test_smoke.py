@@ -50,11 +50,50 @@ def test_schema_roundtrip():
 def test_cli_registers_workflow_commands():
     from codeglance.cli.parser import SUBCOMMANDS, build_parser
 
-    assert {"explain", "impact", "onboard"} <= SUBCOMMANDS
+    assert {"explain", "impact", "onboard", "init"} <= SUBCOMMANDS
     help_text = build_parser().format_help()
     assert "explain" in help_text
     assert "impact" in help_text
     assert "onboard" in help_text
+    assert "init" in help_text
+
+
+def test_init_creates_project_bootstrap_files(tmp_path):
+    from codeglance.cli.main import main
+
+    project = tmp_path / "project"
+    project.mkdir()
+    rc = main(["init", str(project)])
+    assert rc == 0
+
+    config = json.loads((project / ".codeglance" / "config.json").read_text(encoding="utf-8"))
+    assert config["schema"] == "codeglance.config"
+    assert config["profile"] == "all"
+    assert "codeglance generate" in config["commands"]["generate"]
+    assert (project / ".codeglance" / ".codeglanceignore").is_file()
+    assert "CodeGlance" in (project / "AGENTS.md").read_text(encoding="utf-8")
+    assert (project / ".agents" / "skills" / "codeglance" / "SKILL.md").is_file()
+    assert (project / ".claude" / "commands" / "codeglance.md").is_file()
+
+    (project / "AGENTS.md").write_text("keep me\n", encoding="utf-8")
+    rc = main(["init", str(project)])
+    assert rc == 0
+    assert (project / "AGENTS.md").read_text(encoding="utf-8") == "keep me\n"
+
+
+def test_init_can_generate_bundle(tmp_path):
+    from codeglance.cli.main import main
+
+    project = tmp_path / "project"
+    project.mkdir()
+    (project / "app.py").write_text("def main():\n    return 'ok'\n", encoding="utf-8")
+
+    rc = main(["init", str(project), "--no-agents", "--profile", "agent", "--generate"])
+    assert rc == 0
+    assert (project / ".codeglance" / "config.json").is_file()
+    assert (project / ".codeglance" / "outputs" / "llms.txt").is_file()
+    assert (project / ".codeglance" / "outputs" / "agent.md").is_file()
+    assert not (project / "AGENTS.md").exists()
 
 
 def test_render_interactive_is_self_contained():

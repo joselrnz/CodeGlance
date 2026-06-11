@@ -29,6 +29,7 @@ codeglance /path/to/project
 Generate the main graph:
 
 ```bash
+codeglance init
 codeglance .
 ```
 
@@ -70,12 +71,25 @@ codeglance impact . -o .codeglance/impact.md
 Browse every generated output locally:
 
 ```bash
+codeglance init
 codeglance generate . --out .codeglance/outputs
 codeglance generate . --out .codeglance/outputs --profile all
 codeglance serve . --host 0.0.0.0
 ```
 
 Then open the printed URL on your desktop or phone on the same Wi-Fi.
+
+`codeglance init` creates:
+
+- `.codeglance/config.json`: default output/profile commands
+- `.codeglance/.codeglanceignore`: extra scan ignores
+- `AGENTS.md`: low-token agent reading protocol
+- `.agents/skills/codeglance/SKILL.md`: local agent skill
+- `.claude/skills/codeglance/SKILL.md`: Claude-compatible skill
+- `.claude/commands/codeglance.md`: local `/codeglance` command prompt
+
+Use `--no-agents` for config only, or `--force` to overwrite existing files.
+Use `codeglance init --generate` when you want setup and the first output bundle in one command.
 
 ## Project Structure
 

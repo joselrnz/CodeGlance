@@ -9,6 +9,12 @@ audiences from the same analysis pass:
 
 ## Quick Run
 
+Initialize CodeGlance in a repo:
+
+```bash
+python -m codeglance init
+```
+
 Generate every artifact:
 
 ```bash
@@ -38,6 +44,15 @@ Open it from another device on the same Wi-Fi by using the machine LAN IP:
 ```text
 http://<your-lan-ip>:8777/glance.html
 ```
+
+`init` creates project-local config and agent instructions:
+
+- `.codeglance/config.json`
+- `.codeglance/.codeglanceignore`
+- `AGENTS.md`
+- `.agents/skills/codeglance/SKILL.md`
+- `.claude/skills/codeglance/SKILL.md`
+- `.claude/commands/codeglance.md`
 
 ## Generated Files
 
@@ -131,16 +146,17 @@ When the terminal opens, the zoom controls lift above it.
 ## Recommended Human Workflow
 
 1. Generate all outputs with `--profile all`.
-2. Open `index.html` or the served local URL.
-3. Start in `Overview` to understand the main layers.
-4. Open `Tour` for the guided path.
-5. Use `Drill` when you want files/classes without function noise.
-6. Use `Explore` when you need the full engineer-level graph.
-7. Click nodes and read the Inspector source snippets.
-8. Use the Terminal for local guidance and graph-oriented help.
-9. Run `codeglance explain <path-or-symbol>` when a specific file or symbol needs a focused explanation.
-10. Run `codeglance impact` before committing.
-11. Change code, regenerate outputs, and compare the updated graph.
+2. Run `codeglance init` once if the repo does not already have CodeGlance agent instructions.
+3. Open `index.html` or the served local URL.
+4. Start in `Overview` to understand the main layers.
+5. Open `Tour` for the guided path.
+6. Use `Drill` when you want files/classes without function noise.
+7. Use `Explore` when you need the full engineer-level graph.
+8. Click nodes and read the Inspector source snippets.
+9. Use the Terminal for local guidance and graph-oriented help.
+10. Run `codeglance explain <path-or-symbol>` when a specific file or symbol needs a focused explanation.
+11. Run `codeglance impact` before committing.
+12. Change code, regenerate outputs, and compare the updated graph.
 
 ## Recommended Agent Workflow
 
