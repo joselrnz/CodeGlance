@@ -21,12 +21,12 @@ _HTML = r"""<!doctype html>
     backdrop-filter: blur(6px); box-shadow:0 10px 34px rgba(0,0,0,0.45); }
   #topbar { position:fixed; top:14px; left:14px; right:14px; display:grid;
     grid-template-columns:minmax(188px,240px) auto auto minmax(260px,1fr) max-content;
-    grid-auto-rows:minmax(32px,auto); align-items:center; gap:8px 14px; padding:11px 14px 10px;
-    z-index:5; max-height:82px; overflow:hidden; }
-  body.show-facets #topbar { max-height:120px; }
-  #topbar .brand { grid-column:1; min-width:0; max-width:240px; display:flex; flex-direction:column; justify-content:center; gap:3px; line-height:1.15; overflow:hidden; }
-  #topbar .title { display:block; min-width:0; font-weight:700; font-size:16px; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  #topbar .meta { display:block; color:var(--muted); font-size:10px; line-height:1.25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+    grid-auto-rows:minmax(38px,auto); align-items:center; gap:8px 14px; padding:13px 14px 12px;
+    z-index:5; max-height:92px; overflow:hidden; }
+  body.show-facets #topbar { max-height:132px; }
+  #topbar .brand { grid-column:1; min-width:0; max-width:240px; display:flex; flex-direction:column; justify-content:center; gap:4px; line-height:1.22; overflow:hidden; }
+  #topbar .title { display:block; min-width:0; font-weight:700; font-size:16px; line-height:1.28; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding-bottom:1px; }
+  #topbar .meta { display:block; color:var(--muted); font-size:10px; line-height:1.35; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
   #topbar .sub { color:var(--text2); font-size:12px; white-space:nowrap; }
   #search { flex:1; min-width:0; background:transparent; border:none; color:var(--text);
     padding:7px 5px; border-radius:8px; font-size:13px; outline:none; }
@@ -162,11 +162,11 @@ _HTML = r"""<!doctype html>
   }
   @media (max-width:640px){
     #topbar { display:grid; top:max(8px,env(safe-area-inset-top)); left:max(8px,env(safe-area-inset-left)); right:max(8px,env(safe-area-inset-right));
-      grid-template-columns:minmax(0,1fr) auto; grid-auto-rows:auto; align-items:center; gap:7px; padding:8px 10px; max-height:104px; overflow:hidden; }
-    body.show-facets #topbar { max-height:190px; overflow:auto; }
+      grid-template-columns:minmax(0,1fr) auto; grid-auto-rows:auto; align-items:center; gap:7px; padding:10px 10px; max-height:116px; overflow:hidden; }
+    body.show-facets #topbar { max-height:202px; overflow:auto; }
     #topbar .brand { grid-column:1; min-width:0; max-width:none; }
-    #topbar .title { min-width:0; overflow:hidden; text-overflow:ellipsis; font-size:15px; }
-    #topbar .meta { max-width:none; font-size:9px; }
+    #topbar .title { min-width:0; overflow:hidden; text-overflow:ellipsis; font-size:15px; line-height:1.28; }
+    #topbar .meta { max-width:none; font-size:9px; line-height:1.35; }
     #topbar .personas, #modeSeg { display:none; }
     #topbar .bar { grid-column:2; width:auto; min-width:0; margin-left:0; overflow:visible; scrollbar-width:none; padding-bottom:0; }
     #topbar .bar::-webkit-scrollbar { display:none; }
