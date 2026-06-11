@@ -47,6 +47,13 @@ _HTML = r"""<!doctype html>
   #crumb .crumb-note { flex:0 0 auto; color:var(--muted); font-weight:400; text-transform:none; letter-spacing:0; white-space:nowrap; }
   #crumb .crumb-full { flex:0 0 auto; max-width:360px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
     color:var(--text2); background:rgba(var(--accent-rgb),0.05); border:1px solid rgba(var(--accent-rgb),0.12); border-radius:8px; padding:6px 9px; font-weight:500; }
+  #folderNav { position:fixed; top:calc(66px + var(--topbar-h,44px)); left:calc(var(--tools-w) + 34px); right:388px; z-index:13;
+    display:flex; align-items:center; gap:8px; min-height:42px; padding:7px 9px; overflow:hidden; }
+  body.tools-collapsed #folderNav { left:calc(var(--tools-rail-w) + 30px); }
+  body.inspector-collapsed #folderNav { right:58px; }
+  #folderNav button { flex:0 0 auto; min-height:30px; padding:6px 10px; border-radius:8px; font-weight:700; touch-action:manipulation; }
+  #folderNav .folder-path { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text2);
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11px; }
   .leg h4 { margin:0 0 8px; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--text2); }
   .lg { display:flex; align-items:center; gap:8px; padding:3px 4px; border-radius:6px; cursor:pointer; }
   .lg:hover { background:var(--elevated); } .lg.off { opacity:.4; }
@@ -188,6 +195,8 @@ _HTML = r"""<!doctype html>
     #topbar .bar { justify-content:flex-end; overflow:visible; }
     #topbar .grow { display:none; }
     #crumb, #mm { display:none; }
+    #folderNav { left:max(8px,env(safe-area-inset-left)); right:max(8px,env(safe-area-inset-right));
+      top:calc(max(8px,env(safe-area-inset-top)) + var(--topbar-h,44px) + 8px); }
     #zoom { bottom:max(10px,env(safe-area-inset-bottom)); }
     body.term-open #zoom { bottom:calc(min(48dvh,340px) + max(18px,env(safe-area-inset-bottom))); }
     #tourstart { display:block; top:calc(max(8px,env(safe-area-inset-top)) + var(--topbar-h,44px) + 8px);
@@ -442,6 +451,7 @@ _HTML = r"""<!doctype html>
   </div>
 </div>
 <div id="crumb" class="card"></div>
+<div id="folderNav" class="card hidden"></div>
 <div id="zoom" class="">
   <button id="zin" class="card" title="Zoom in">+</button>
   <button id="zout" class="card" title="Zoom out">−</button>
@@ -644,9 +654,10 @@ function bounds(){
 function graphViewport(){
   const tb=document.getElementById('topbar'), p=document.getElementById('panel');
   const toolsCollapsed=document.body.classList.contains('tools-collapsed');
+  const folderNavOn=document.body.classList.contains('folder-nav-on');
   const left=innerWidth<=640?14:(toolsCollapsed?84:334);
   const right=innerWidth<=640?14:(p&&!p.classList.contains('collapsed')?388:58);
-  const top=innerWidth<=640?128:((tb?tb.offsetHeight:44)+88);
+  const top=innerWidth<=640?(folderNavOn?178:128):((tb?tb.offsetHeight:44)+(folderNavOn?136:88));
   const bottom=innerWidth<=640?28:54;
   return {left,right,top,bottom,w:Math.max(220,innerWidth-left-right),h:Math.max(220,innerHeight-top-bottom)};
 }
@@ -725,9 +736,7 @@ const CXC={simple:'#5a9e6f',moderate:'#fbbf24',complex:'#fb7185'};  // complexit
 function drawFolderFileFrame(){ const l=FLL(), layer=L[folderLayer]||{}, bb=l?l.bounds:[0,0,800,600], pad=18;
   const x=SX(bb[0]-pad), y=SY(bb[1]-pad), w=(bb[2]-bb[0]+pad*2)*scale, h=(bb[3]-bb[1]+pad*2)*scale;
   rr(x,y,w,h,12); ctx.fillStyle=T.tint; ctx.fill(); ctx.lineWidth=1.2; ctx.strokeStyle=(layer.color||T.accent)+'66'; ctx.stroke();
-  if(scale>0.28){ ctx.fillStyle=layer.color||T.accent; ctx.font='600 13px ui-sans-serif';
-    const label=(folderPrefix||((layer.name||'Layer')+'/')).replace(/\/$/,'')+'  ('+((l&&l.idxs)||[]).length+')';
-    ctx.fillText(label,x+12,y+21); } }
+}
 function drawCard(i){ const n=N[i], p=nodeWorldPos(i);
   const w=cardW*scale,h=cardH*scale,x=SX(p.x)-w/2,y=SY(p.y)-h/2;
   if(x>innerWidth||y>innerHeight||x+w<0||y+h<0)return;
@@ -888,8 +897,18 @@ function setView(v){ if(graphMode!=='structural'){ graphMode='structural'; selDo
   const s=document.getElementById('search'); if(s)s.value=''; renderPanel(); fit(); draw(); }
 window.setView=setView;
 function ensureSidebarsVisible(){ if(innerWidth>900){ setToolsCollapsed(false,false); togglePanel(true); } }
+function updateFolderNav(){ const nav=document.getElementById('folderNav'); if(!nav)return;
+  const on=graphMode==='structural'&&!!folderMode&&folderLayer>=0; document.body.classList.toggle('folder-nav-on', on);
+  if(!on){ nav.classList.add('hidden'); nav.innerHTML=''; return; }
+  const prefix=folderPrefix||folderRoot(folderLayer)||'', parent=parentFolderPrefix(prefix), path=prefix.replace(/\/$/,'')||((L[folderLayer]&&L[folderLayer].name)||'Layer');
+  nav.classList.remove('hidden');
+  nav.innerHTML='<button data-nav="overview">Overview</button><button data-nav="root">Layer root</button><button data-nav="up">↑ Up one</button><span class="folder-path">'+esc(path)+'</span>';
+  nav.querySelector('[data-nav="overview"]').onclick=()=>setView('overview');
+  nav.querySelector('[data-nav="root"]').onclick=()=>openLayer(folderLayer);
+  nav.querySelector('[data-nav="up"]').onclick=()=>{ if(parent) setFolderView(folderLayer,parent); else openLayer(folderLayer); };
+}
 function updateCrumb(){ const cr=document.getElementById('crumb'); if(!cr)return;
-  if(graphMode!=='structural'){ const S=CD(); cr.innerHTML=(S?S.title:'')+(S&&selDomain>=0?' &nbsp;›&nbsp; '+esc(S.nodes[selDomain].name):''); return; }
+  if(graphMode!=='structural'){ const S=CD(); cr.innerHTML=(S?S.title:'')+(S&&selDomain>=0?' &nbsp;›&nbsp; '+esc(S.nodes[selDomain].name):''); updateFolderNav(); return; }
   if(view==='clusters') cr.innerHTML='<span class="crumb-note">Clusters · click a header to collapse · a chip to focus one layer</span>';
   else if(view==='overview') cr.innerHTML='Project Overview';
   else if(folderMode){ const layerName=(L[folderLayer]&&L[folderLayer].name)||'Layer', prefix=folderPrefix||folderRoot(folderLayer)||'';
@@ -900,6 +919,7 @@ function updateCrumb(){ const cr=document.getElementById('crumb'); if(!cr)return
     else h+='<button onclick="goFolderParent()">↑ Up</button><span class="crumb-sep">›</span><span class="crumb-note">Files</span>';
     cr.innerHTML=h; }
   else cr.innerHTML='<button onclick="setView(\'clusters\')">‹ Clusters</button><span class="crumb-sep">›</span><span class="crumb-note">'+esc((L[view]&&L[view].name)||'Layer')+'</span>';
+  updateFolderNav();
   if(typeof refreshChips==='function') refreshChips(); }
 
 // --- Domain map: business-domain cards + cross-domain flows (animated) ---
