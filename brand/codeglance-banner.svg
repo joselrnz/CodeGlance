@@ -40,11 +40,11 @@
     <line x1="192" y1="192" x2="222" y2="222" stroke="#2DD4BF" stroke-width="14" stroke-linecap="round" opacity="0.0"/>
     <line x1="194" y1="194" x2="260" y2="260" stroke="url(#oceanb)" stroke-width="17" stroke-linecap="round"/>
   </g>
-  <text x="772" y="168" text-anchor="middle" font-family="'JetBrains Mono','Fira Code','Cascadia Code',Consolas,monospace"
+  <text x="708" y="168" text-anchor="middle" font-family="'JetBrains Mono','Fira Code','Cascadia Code',Consolas,monospace"
         font-size="88" font-weight="700" letter-spacing="2" fill="url(#wmb)">codeglance</text>
-  <text x="772" y="216" text-anchor="middle" font-family="'JetBrains Mono','Fira Code',Consolas,monospace"
+  <text x="708" y="216" text-anchor="middle" font-family="'JetBrains Mono','Fira Code',Consolas,monospace"
         font-size="24" letter-spacing="2" fill="#7E8C9A">see any codebase &#183; graph &#183; wiki &#183; ai context</text>
-  <g transform="translate(495,244)" font-family="'JetBrains Mono',Consolas,monospace" font-size="21">
+  <g transform="translate(431,244)" font-family="'JetBrains Mono',Consolas,monospace" font-size="21">
     <rect x="0" y="0" width="362" height="40" rx="20" fill="#101C28" stroke="#1E3240" stroke-width="1.5"/>
     <text x="22" y="27"><tspan fill="#2DD4BF">$</tspan><tspan fill="#C7D6DF" dx="12">pip install codeglance</tspan></text>
     <rect x="382" y="0" width="172" height="40" rx="20" fill="none" stroke="#0E7490" stroke-width="2"/>
