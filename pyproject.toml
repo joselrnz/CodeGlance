@@ -48,5 +48,14 @@ Homepage = "https://github.com/joselrnz/codeglance"
 Repository = "https://github.com/joselrnz/codeglance"
 Issues = "https://github.com/joselrnz/codeglance/issues"
 
+[tool.hatch.build]
+exclude = [
+    "/.codeglance",
+    "/.pytest_cache",
+    "/.ruff_cache",
+    "/dist",
+    "/tmp-codeglance",
+]
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/codeglance"]
