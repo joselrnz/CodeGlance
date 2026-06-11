@@ -354,6 +354,7 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None, config: Vi
 
     return {
         "project": graph.project.to_dict(),
+        "projectRoot": str(root.resolve()).replace("\\", "/") if root is not None else "",
         "stats": graph.stats(),
         "nodes": nodes_vm,
         "edges": edges_vm,

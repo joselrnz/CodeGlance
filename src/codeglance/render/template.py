@@ -142,6 +142,8 @@ _HTML = r"""<!doctype html>
   .source-head { display:flex; align-items:center; gap:8px; }
   .source-head span { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .source-head .pact { margin:0; text-transform:none; letter-spacing:0; }
+  .source-head a.pact { text-decoration:none; display:inline-flex; align-items:center; gap:4px; }
+  .editor-open { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; min-width:32px; justify-content:center; }
   .pact { font-size:10px; padding:4px 9px; border:1px solid rgba(var(--accent-rgb),0.28); background:var(--card); color:var(--text2); border-radius:7px; cursor:pointer; }
   .pact:hover { color:var(--text); border-color:rgba(var(--accent-rgb),0.5); }
   .pact.on { color:var(--accent); border-color:var(--accent); background:rgba(var(--accent-rgb),0.16); }
@@ -883,6 +885,14 @@ function openCodeModal(i){ const n=N[i], src=n&&DATA.sources[n.path]; if(!src)re
   $('codeModal').classList.remove('hidden'); const hl=$('codeBody').querySelector('.ct tr.hl'); if(hl)hl.scrollIntoView({block:'center'}); }
 function closeCodeModal(){ $('codeModal').classList.add('hidden'); $('codeBody').innerHTML=''; }
 window.openCodeModal=openCodeModal; window.closeCodeModal=closeCodeModal;
+function editorHref(scheme,n){ if(!n||!n.path||!DATA.projectRoot)return '';
+  const root=String(DATA.projectRoot).replace(/\\/g,'/').replace(/\/+$/,'');
+  const rel=String(n.path).replace(/^\/+/,'');
+  const line=(n.lineRange&&n.lineRange[0])||1;
+  return scheme+'://file/'+encodeURI(root+'/'+rel)+':'+line+':1'; }
+function editorButtons(n){ const vs=editorHref('vscode',n), cur=editorHref('cursor',n); if(!vs&&!cur)return '';
+  return '<a class="pact editor-open" href="'+esc(vs)+'" title="Open in VS Code at this file and line">Code</a>'
+    +'<a class="pact editor-open" href="'+esc(cur)+'" title="Open in Cursor at this file and line">Cursor</a>'; }
 function infoHTML(i){ const n=N[i];
   let h='<div class="pacts">'
     +'<button class="pact'+(focusCenter===i?' on':'')+'" onclick="focusOn('+i+')" title="Isolate this node + its neighbors (x)">⊙ '+(focusCenter===i?'Unfocus':'Focus')+'</button>'
@@ -901,7 +911,7 @@ function infoHTML(i){ const n=N[i];
   if(conns.length){ h+='<div class="ov-h">Connections ('+conns.length+')</div>';
     for(const j of conns.slice(0,60)) h+='<div class="nb" data-i="'+j+'"><span class="et">'+esc(edgeBetween(i,j))+'</span> '+esc(N[j].name)+'</div>'; }
   const src=DATA.sources[n.path];
-  if(src){ h+='<div class="ov-h source-head"><span>Source · '+esc(n.path)+'</span><button class="pact source-expand" data-code-i="'+i+'" title="Open source in a larger viewer">Expand</button></div>'+codeHTML(src, n.lineRange); }
+  if(src){ h+='<div class="ov-h source-head"><span>Source · '+esc(n.path)+'</span>'+editorButtons(n)+'<button class="pact source-expand" data-code-i="'+i+'" title="Open source in a larger viewer">Expand</button></div>'+codeHTML(src, n.lineRange); }
   return h; }
 // --- collapsible file-tree (IDE-style) ---
 const openDirs=new Set(); let FTREE=null;
