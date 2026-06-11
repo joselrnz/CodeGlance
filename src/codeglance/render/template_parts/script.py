@@ -28,6 +28,7 @@ function iconForNode(n){ if(!n.path) return null; const low=(n.path.split('/').p
 let view='overview', lhover=-1, fhover=-1, sidebarTab='info';   // 'overview'=layer cards; 'clusters'=swimlanes; a number drills into one layer
 let folderMode='', folderLayer=-1, folderPrefix='', folderDirect=false; // folder drilldown: 'folders' | 'files'
 let _folderFileLayout=null, _folderFileKey=''; // compact local grid for "Show files" folder drilldowns
+let _crumbHTML='';
 const collapsed=new Set();                 // container layer-keys collapsed in the cluster view
 let chHover=null, _cl=null, _allCol=false; // hovered cluster header; cached cluster layout (cleared on collapse); all-collapsed toggle
 const CLUSTER_HEAD=44, CLUSTER_CONTENT_TOP=42, _LANE_GAP=48;       // header-safe swimlane spacing (mirrors layout.py)
@@ -72,6 +73,7 @@ let hover=-1, sel=-1, matched=null, focusSet=null, tIdx=-1, pathNodes=null, path
 let searchMode='fuzzy', searchResults=[], focusCenter=-1;
 const DIFFC=new Set(DATA.diffChanged||[]); const hasDiff=!!DATA.hasDiff; let diffOn=false;
 const esc=s=>(s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const attrJs=s=>JSON.stringify(s).replace(/"/g,'&quot;');
 const SX=x=>x*scale+ox, SY=y=>y*scale+oy;
 // cluster layout: reflow swimlanes top-to-bottom, shrinking collapsed ones to a header band.
 // Returns {layerKey:{key,x,y,w,h,dy,collapsed,name,color,count}} in world coordinates.
@@ -359,10 +361,13 @@ function openFolderCard(f){ if(!f)return;
   else setFolderFiles(folderLayer,f.prefix,!!f.direct); }
 function parentFolderPrefix(prefix){ const clean=(prefix||'').replace(/\/+$/,''); const i=clean.lastIndexOf('/'); return i>=0?clean.slice(0,i+1):''; }
 function fileParentPrefix(path){ const clean=(path||'').replace(/\/+$/,''); const i=clean.lastIndexOf('/'); return i>=0?clean.slice(0,i+1):''; }
-function folderBreadcrumbHTML(layer,prefix){ const root=folderRoot(layer), clean=(prefix||root||'').replace(/\/+$/,'');
-  if(!clean)return ''; const parts=clean.split('/').filter(Boolean); let acc='', h='';
+function folderBreadcrumbHTML(layer,prefix){ const root=(folderRoot(layer)||'').replace(/\/+$/,''), clean=(prefix||root||'').replace(/\/+$/,'');
+  if(!clean)return ''; const allParts=clean.split('/').filter(Boolean), rootParts=root?root.split('/').filter(Boolean):[];
+  const skip=rootParts.length&&clean===root||clean.startsWith(root+'/')?rootParts.length:0;
+  const parts=allParts.slice(skip); let acc=rootParts.slice(0,skip).join('/'); acc=acc?acc+'/':'';
+  let h='';
   for(let i=0;i<parts.length;i++){ acc+=parts[i]+'/';
-    h+='<span class="crumb-sep">›</span><button onclick="setFolderView('+layer+','+JSON.stringify(acc)+')">'+esc(parts[i])+'</button>'; }
+    h+='<span class="crumb-sep">›</span><button onclick="setFolderView('+layer+','+attrJs(acc)+')">'+esc(parts[i])+'</button>'; }
   return h; }
 function goFolderParent(){ if(folderLayer<0)return; const parent=parentFolderPrefix(folderPrefix||folderRoot(folderLayer)||'');
   if(parent) setFolderView(folderLayer,parent); else openLayer(folderLayer); }
@@ -377,18 +382,21 @@ function setView(v){ if(graphMode!=='structural'){ graphMode='structural'; selDo
   const s=document.getElementById('search'); if(s)s.value=''; renderPanel(); fit(); draw(); }
 window.setView=setView;
 function ensureSidebarsVisible(){ if(innerWidth>900){ setToolsCollapsed(false,false); togglePanel(true); } }
+function setCrumbHTML(html){ const cr=document.getElementById('crumb'); if(!cr)return false;
+  if(_crumbHTML!==html){ cr.innerHTML=html; _crumbHTML=html; } return true; }
 function updateCrumb(){ const cr=document.getElementById('crumb'); if(!cr)return;
-  if(graphMode!=='structural'){ const S=CD(); cr.innerHTML=(S?S.title:'')+(S&&selDomain>=0?' &nbsp;›&nbsp; '+esc(S.nodes[selDomain].name):''); return; }
-  if(view==='clusters') cr.innerHTML='<span class="crumb-note">Clusters · click a header to collapse · a chip to focus one layer</span>';
-  else if(view==='overview') cr.innerHTML='Project Overview';
-  else if(folderMode){ const layerName=(L[folderLayer]&&L[folderLayer].name)||'Layer', prefix=folderPrefix||folderRoot(folderLayer)||'';
+  if(graphMode!=='structural'){ const S=CD(); setCrumbHTML((S?S.title:'')+(S&&selDomain>=0?' &nbsp;›&nbsp; '+esc(S.nodes[selDomain].name):'')); return; }
+  if(view==='clusters') setCrumbHTML('<span class="crumb-note">Clusters · click a header to collapse · a chip to focus one layer</span>');
+  else if(view==='overview') setCrumbHTML('Project Overview');
+  else if(folderMode){ const layerName=(L[folderLayer]&&L[folderLayer].name)||'Layer', prefix=folderPrefix||folderRoot(folderLayer)||'', parent=parentFolderPrefix(prefix);
     let h='<button onclick="setView(\'overview\')">‹ Overview</button><span class="crumb-sep">›</span><button onclick="openLayer('+folderLayer+')">'+esc(layerName)+'</button>';
     h+=folderBreadcrumbHTML(folderLayer,prefix);
-    if(prefix) h+='<span class="crumb-full">Path: '+esc(prefix.replace(/\/$/,''))+'</span>';
-    if(folderMode==='folders') h+='<span class="crumb-note">open a folder to see files</span>';
-    else h+='<button onclick="goFolderParent()">↑ Up</button><span class="crumb-sep">›</span><span class="crumb-note">Files</span>';
-    cr.innerHTML=h; }
-  else cr.innerHTML='<button onclick="setView(\'clusters\')">‹ Clusters</button><span class="crumb-sep">›</span><span class="crumb-note">'+esc((L[view]&&L[view].name)||'Layer')+'</span>';
+    if(prefix) h+='<span class="crumb-full">Current: '+esc(prefix.replace(/\/$/,''))+'</span>';
+    if(parent) h+='<button onclick="goFolderParent()">↑ Up</button>';
+    if(folderMode==='folders') h+='<span class="crumb-sep">›</span><span class="crumb-note">open a folder to see files</span>';
+    else h+='<span class="crumb-sep">›</span><span class="crumb-note">Files</span>';
+    setCrumbHTML(h); }
+  else setCrumbHTML('<button onclick="setView(\'clusters\')">‹ Clusters</button><span class="crumb-sep">›</span><span class="crumb-note">'+esc((L[view]&&L[view].name)||'Layer')+'</span>');
   if(typeof refreshChips==='function') refreshChips(); }
 
 // --- Domain map: business-domain cards + cross-domain flows (animated) ---

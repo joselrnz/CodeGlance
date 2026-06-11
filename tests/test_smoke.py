@@ -215,7 +215,7 @@ def test_overview_layer_cards_and_drilldown():
     from codeglance.render import build_view_model
     # the template always carries the overview/drill-down machinery
     html = render_interactive(_sample_graph())
-    for marker in ("drawOverview", "drawFolders", "FLL", "nodeWorldPos", "drawFolderFileFrame", "folderHasChildren", "folderBreadcrumbHTML", "goFolderParent", "enterNodeFolder", "fileParentPrefix", "crumb-full", "Path: ", "↑ Up", "Open a smaller folder first", "open a folder to see files", "setView", "openLayer", "pickLayer", "updateCrumb"):
+    for marker in ("drawOverview", "drawFolders", "FLL", "nodeWorldPos", "drawFolderFileFrame", "folderHasChildren", "folderBreadcrumbHTML", "goFolderParent", "enterNodeFolder", "fileParentPrefix", "attrJs", "crumb-full", "Current: ", "↑ Up", "Open a smaller folder first", "open a folder to see files", "setView", "openLayer", "pickLayer", "setCrumbHTML", "updateCrumb"):
         assert marker in html, f"missing: {marker}"
     assert "click to explore" in html.lower()
     # header chrome moved in from the original: category filters, detail toggle, layer chips, tour list
