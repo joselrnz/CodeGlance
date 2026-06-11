@@ -38,13 +38,6 @@ STYLE = r'''
   #crumb .crumb-note { flex:0 0 auto; color:var(--muted); font-weight:400; text-transform:none; letter-spacing:0; white-space:nowrap; }
   #crumb .crumb-full { flex:0 0 auto; max-width:360px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
     color:var(--text2); background:rgba(var(--accent-rgb),0.05); border:1px solid rgba(var(--accent-rgb),0.12); border-radius:8px; padding:6px 9px; font-weight:500; }
-  #folderNav { position:fixed; top:calc(66px + var(--topbar-h,44px)); left:calc(var(--tools-w) + 34px); right:388px; z-index:13;
-    display:flex; align-items:center; gap:8px; min-height:42px; padding:7px 9px; overflow:hidden; }
-  body.tools-collapsed #folderNav { left:calc(var(--tools-rail-w) + 30px); }
-  body.inspector-collapsed #folderNav { right:58px; }
-  #folderNav button { flex:0 0 auto; min-height:30px; padding:6px 10px; border-radius:8px; font-weight:700; touch-action:manipulation; }
-  #folderNav .folder-path { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text2);
-    font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11px; }
   .leg h4 { margin:0 0 8px; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--text2); }
   .lg { display:flex; align-items:center; gap:8px; padding:3px 4px; border-radius:6px; cursor:pointer; }
   .lg:hover { background:var(--elevated); } .lg.off { opacity:.4; }
@@ -186,8 +179,6 @@ STYLE = r'''
     #topbar .bar { justify-content:flex-end; overflow:visible; }
     #topbar .grow { display:none; }
     #crumb, #mm { display:none; }
-    #folderNav { left:max(8px,env(safe-area-inset-left)); right:max(8px,env(safe-area-inset-right));
-      top:calc(max(8px,env(safe-area-inset-top)) + var(--topbar-h,44px) + 8px); }
     #zoom { bottom:max(10px,env(safe-area-inset-bottom)); }
     body.term-open #zoom { bottom:calc(min(48dvh,340px) + max(18px,env(safe-area-inset-bottom))); }
     #tourstart { display:block; top:calc(max(8px,env(safe-area-inset-top)) + var(--topbar-h,44px) + 8px);

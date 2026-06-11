@@ -97,7 +97,6 @@ HTML_BODY = r'''</style>
   </div>
 </div>
 <div id="crumb" class="card"></div>
-<div id="folderNav" class="card hidden"></div>
 <div id="zoom" class="">
   <button id="zin" class="card" title="Zoom in">+</button>
   <button id="zout" class="card" title="Zoom out">−</button>
