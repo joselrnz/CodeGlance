@@ -194,6 +194,16 @@ def test_render_uses_cards_containers_and_type_colors():
     assert "<script" not in html_s and "marker-end" in html_s  # zero-JS + directional edges
 
 
+def test_interactive_template_is_modularized():
+    from codeglance.render.template_parts import HTML_BODY, HTML_CLOSE, HTML_OPEN, SCRIPT, STYLE
+
+    template_py = Path(__file__).resolve().parent.parent / "src" / "codeglance" / "render" / "template.py"
+    assert len(template_py.read_text(encoding="utf-8").splitlines()) < 80
+    assert "<style>" in HTML_OPEN and "</style>" in HTML_BODY
+    assert "<script>" in HTML_BODY and "</script>" in HTML_CLOSE
+    assert "#topbar" in STYLE and "function draw" in SCRIPT
+
+
 def test_interactive_has_toolbar_features():
     html = render_interactive(_sample_graph())
     # export menu, path finder (BFS), syntax highlighter, help, edge labels
