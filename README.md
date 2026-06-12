@@ -340,6 +340,7 @@ codeglance render .codeglance/knowledge-graph.json --static -o graph.static.html
 
 - `docs/STRUCTURE.md`: package layout, module responsibilities, and SDK/CLI boundaries
 - `docs/AGENT_CONTEXT.md`: agent reading protocol and generated context strategy
+- `docs/UNDERSTAND_ANYTHING_GAP_PLAN.md`: roadmap for missing Understand Anything-style capabilities while preserving static HTML and Python serving
 - `docs/README.md`: documentation index and screenshot guidance
 - `REFACTOR_PLAN.md`: longer-term cleanup and enhancement plan
 
@@ -361,6 +362,10 @@ renderers, and analysis. The next useful pieces are:
 
 - `codeglance serve --watch` to regenerate outputs when files change
 - browser auto-refresh when `.codeglance` artifacts update
+- `codeglance review` to validate graph/output quality before sharing or pushing
+- `codeglance ask` to answer repo questions from `llms.txt`, `agent.md`, TOON, and selected context
+- persona modes in Glance for Overview, Developer, Reviewer, PM, and Agent audiences
+- business-flow extraction for domain/process views
 - richer output-folder landing pages with screenshots and project stats
 - optional strict Pydantic models behind a `pydantic` extra
 - JSON context mode for tools that prefer smaller structured ingestion
