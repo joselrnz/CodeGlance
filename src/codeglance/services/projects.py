@@ -105,6 +105,7 @@ def generate_bundle(
     model: str | None = None,
     full: bool = False,
     profile: str = "minimal",
+    ui_language: str = "en",
     progress=None,
     mirror: bool = True,
 ) -> tuple[KnowledgeGraph, list[GeneratedOutput]]:
@@ -117,6 +118,7 @@ def generate_bundle(
         model=model,
         full=full,
         profile=profile,
+        ui_language=ui_language,
         progress=progress,
     )
     if mirror:

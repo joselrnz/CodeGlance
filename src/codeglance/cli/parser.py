@@ -248,6 +248,8 @@ def _add_generate_parser(subcommands: argparse._SubParsersAction) -> None:
     cmd.add_argument("--llm", action="store_true", help="enrich summaries via an LLM (needs ANTHROPIC_API_KEY)")
     cmd.add_argument("--model", default=None, help="LLM model id")
     cmd.add_argument("--full", action="store_true", help="force a full rebuild, ignoring fingerprints")
+    cmd.add_argument("--language", default="en", help="UI language for generated HTML (default: en)")
+    cmd.add_argument("--ui-language", default=None, help="UI language override for generated HTML")
     cmd.add_argument(
         "--profile",
         choices=("minimal", "human", "agent", "all"),

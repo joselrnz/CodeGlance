@@ -27,12 +27,17 @@ Foundation shipped on 2026-06-12:
 - `src/codeglance/i18n.py`: offline locale normalization and UI/CLI string catalog foundation.
 - Generated bundles include `processes.md` and `processes.json` for `human`, `agent`, and `all` profiles.
 - Public SDK exports include `answer_question(...)` and `render_process_report(...)`.
+- `knowledge-graph.json` now persists domains, flows, process aliases, process evidence, and
+  confidence.
+- `knowledge-graph.toon` now includes compact domain, flow, and process-step tables.
+- `glance.html` supports static UI localization via `VizConfig(ui_language=...)` and
+  `codeglance generate --language/--ui-language`, including document `lang` and `dir`.
 
 Still to finish before claiming full competitive advantage:
 
 - richer `ask` intents such as reverse dependencies, changed-file risk, and read-first recommendations
-- first-class process data in `knowledge-graph.json` and `knowledge-graph.toon`
-- localized static HTML labels wired through the renderer
+- process cards in Domain mode, inspector flow evidence, and terminal `flows`/`flow <domain>` commands
+- config/init language defaults and broader localized labels for inspector, terminal, help, and menus
 - installer command polish, generated marketplace manifests, and platform-specific validation docs
 
 ## Capability 1: `codeglance ask`
@@ -111,6 +116,13 @@ Tests:
 - Evidence paths exist and snippets stay capped.
 
 ## Capability 2: Persisted Business Domains, Flows, And Process Steps
+
+**Status**
+
+Core persistence is shipped. The graph schema, TOON output, process sidecar commands, SDK facade,
+and generated LLM context schema now carry domains, flows, processes, and process steps. Remaining
+work is the human-facing Domain-mode product layer: process cards, inspector evidence, and terminal
+commands.
 
 **Capability**
 
@@ -196,6 +208,14 @@ Tests:
 - negative shared/utility fixture to avoid noisy fake domains.
 
 ## Capability 3: Localization
+
+**Status**
+
+Static HTML localization shell is started. `VizConfig(ui_language=...)` normalizes locale IDs,
+sets document `lang` and RTL/LTR direction, and localizes core toolbar/Tools chrome. `codeglance
+generate --language/--ui-language` now writes localized bundles. Remaining work is config/init
+language defaults and full label coverage for inspector, terminal, help, export menus, and generated
+prose policy.
 
 **Capability**
 
@@ -450,8 +470,10 @@ Do not implement all four at once. The dependency order should be:
 Do not push until all are true:
 
 - `codeglance ask` works offline and cites evidence.
-- `knowledge-graph.json` persists domains, flows, processes, and steps.
+- `knowledge-graph.json` persists domains, flows, processes, and steps. **Done.**
 - `glance.html` can render localized UI in at least English, Spanish, Japanese, and one RTL locale.
+  **Partial: core chrome supports English, Spanish, and RTL document direction through generate
+  flags.**
 - `codeglance init --agents all --dry-run` shows all Tier 1 platform outputs.
 - `codeglance review` validates the expanded bundle.
 - Full test suite passes.

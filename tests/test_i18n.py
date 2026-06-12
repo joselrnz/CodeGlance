@@ -3,6 +3,7 @@
 from codeglance.i18n import (
     list_languages,
     normalize_locale,
+    text_direction,
     translate,
     validate_catalog_coverage,
 )
@@ -65,6 +66,13 @@ def test_translate_returns_localized_messages_and_formats_values():
 def test_translate_falls_back_to_english_for_unknown_locale_or_missing_key():
     assert translate("nav.graph", "xx-YY") == "Graph"
     assert translate("missing.key", "es") == "missing.key"
+
+
+def test_text_direction_marks_rtl_locales_only():
+    assert text_direction("en") == "ltr"
+    assert text_direction("es-MX") == "ltr"
+    assert text_direction("ar") == "rtl"
+    assert text_direction("he-IL") == "rtl"
 
 
 def test_validate_catalog_coverage_reports_no_gaps():

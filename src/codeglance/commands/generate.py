@@ -24,12 +24,15 @@ def cmd_generate(args: argparse.Namespace) -> int:
         model=args.model,
         full=args.full,
         profile=args.profile,
+        ui_language=args.ui_language or args.language,
         progress=emit,
     )
     stats = graph.stats()
     emit("")
     emit(f"✓ generated {len(outputs)} {args.profile} outputs for {graph.project.name}")
     emit(f"  {stats['nodes']} nodes · {stats['edges']} edges · {stats['layers']} layers")
+    if args.ui_language or args.language:
+        emit(f"  UI language: {args.ui_language or args.language}")
     emit(f"  Output folder: {out}")
     if any(item.path.name == "index.html" for item in outputs):
         emit(f"  Index: {out / 'index.html'}")

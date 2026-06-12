@@ -79,6 +79,7 @@ class VizConfig:
 
     # --- theme + source embedding ---
     default_theme: ThemeName = ThemeName.OCEAN   # project default (Dark Ocean) — the one place to change it
+    ui_language: str = "en"                      # localizes static HTML chrome; graph data stays stable
     max_source_bytes: int = 16_000
 
     # --- encapsulated accessors ("getters") ---

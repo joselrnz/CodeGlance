@@ -47,7 +47,22 @@ _BASE: dict[str, str] = {
     "action.flow": "Flow",
     "action.theme": "Theme",
     "action.term": "Terminal",
+    "action.refresh": "Refresh",
+    "action.help": "Help",
+    "action.diff": "Diff",
+    "action.functions": "Functions",
+    "action.facets": "Facets",
+    "detail.files": "Files",
+    "detail.classes": "+Classes",
+    "search.fuzzy": "Fuzzy",
+    "search.semantic": "Semantic",
+    "label.tools": "Tools",
+    "label.analysis": "Analysis",
+    "label.detail": "Detail",
+    "label.search": "Search",
+    "label.actions": "Actions",
     "label.search_placeholder": "Search {scope}",
+    "label.search_nodes": "Search nodes...",
 }
 
 _OVERRIDES: dict[str, dict[str, str]] = {
@@ -56,7 +71,20 @@ _OVERRIDES: dict[str, dict[str, str]] = {
         "nav.drill": "Profundizar",
         "nav.explore": "Explorar",
         "nav.tour": "Tour",
+        "map.structural": "Estructura",
+        "map.domain": "Dominio",
+        "map.knowledge": "Conocimiento",
+        "action.filter": "Filtro",
+        "action.export": "Exportar",
+        "action.refresh": "Actualizar",
+        "action.help": "Ayuda",
+        "label.tools": "Herramientas",
+        "label.analysis": "Analisis",
+        "label.detail": "Detalle",
+        "label.search": "Buscar",
+        "label.actions": "Acciones",
         "label.search_placeholder": "Buscar {scope}",
+        "label.search_nodes": "Buscar nodos...",
     },
     "fr": {
         "nav.overview": "Apercu",
@@ -90,6 +118,8 @@ _OVERRIDES: dict[str, dict[str, str]] = {
     "ar": {"nav.overview": "Overview", "nav.explore": "Explore"},
     "he": {"nav.overview": "Overview", "nav.explore": "Explore"},
 }
+
+_RTL_LOCALES = {"ar", "he"}
 
 
 def list_languages() -> list[str]:
@@ -141,6 +171,12 @@ def translate(key: str, locale: str | None = "en", **values: object) -> str:
     return template
 
 
+def text_direction(locale: str | None = "en") -> str:
+    """Return the document direction for a locale."""
+
+    return "rtl" if normalize_locale(locale) in _RTL_LOCALES else "ltr"
+
+
 def validate_catalog_coverage(catalogs: Mapping[str, Mapping[str, str]] | None = None) -> list[str]:
     """Return missing-key coverage issues for every supported locale catalog."""
 
@@ -177,6 +213,7 @@ __all__ = [
     "SUPPORTED_LOCALES",
     "list_languages",
     "normalize_locale",
+    "text_direction",
     "translate",
     "validate_catalog_coverage",
 ]

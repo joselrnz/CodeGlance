@@ -75,11 +75,14 @@ Browse every generated output locally:
 codeglance init
 codeglance generate . --out .codeglance/outputs
 codeglance generate . --out .codeglance/outputs --profile all
+codeglance generate . --out .codeglance/outputs --language es
 codeglance serve . --host 0.0.0.0
 codeglance serve . --host 0.0.0.0 --watch
 ```
 
 Then open the printed URL on your desktop or phone on the same Wi-Fi.
+`--language` localizes the static `glance.html` chrome while keeping graph IDs, file paths, JSON
+keys, and agent artifacts stable.
 
 `codeglance init` creates:
 

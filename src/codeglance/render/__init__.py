@@ -519,6 +519,7 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None, config: Vi
         "knowledge": knowledge,
         "install": _detect_install(root),
         "defaultTheme": getattr(config.default_theme, "value", config.default_theme),
+        "uiLanguage": config.ui_language,
     }
 
 

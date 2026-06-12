@@ -61,6 +61,9 @@ def test_cli_registers_workflow_commands():
     args = build_parser().parse_args(["serve", ".", "--watch", "--profile", "all", "--interval", "0.5"])
     assert args.command == "serve" and args.watch is True
     assert args.profile == "all" and args.interval == 0.5
+    generate_args = build_parser().parse_args(["generate", ".", "--language", "es-MX", "--ui-language", "ja"])
+    assert generate_args.command == "generate"
+    assert generate_args.language == "es-MX" and generate_args.ui_language == "ja"
     help_text = build_parser().format_help()
     assert "explain" in help_text
     assert "impact" in help_text
@@ -776,6 +779,20 @@ def test_vizconfig_overrides_flow_into_output():
     assert "#ff0000" in render_interactive(g, config=VizConfig(type_colors={"file": "#ff0000"}))
 
 
+def test_interactive_html_localizes_static_chrome():
+    from codeglance.config import VizConfig
+
+    html_es = render_interactive(_sample_graph(), config=VizConfig(ui_language="es-MX"))
+    assert '<html lang="es" dir="ltr">' in html_es
+    assert ">Resumen<" in html_es
+    assert ">Profundizar<" in html_es
+    assert "Buscar nodos..." in html_es
+    assert ">Herramientas<" in html_es
+
+    html_ar = render_interactive(_sample_graph(), config=VizConfig(ui_language="ar"))
+    assert '<html lang="ar" dir="rtl">' in html_ar
+
+
 def test_wiki_docs_mode_is_self_contained():
     from codeglance.render import render_wiki, _detect_install
     g = analyze(FIXTURES, use_llm=False)
@@ -958,6 +975,20 @@ def test_generate_outputs_default_profile_is_minimal(tmp_path):
     assert not (out / "wiki.html").exists()
     assert not (out / "context.md").exists()
     assert not (out / "graph.static.html").exists()
+
+
+def test_generate_outputs_accepts_ui_language(tmp_path):
+    from codeglance.output import generate_outputs
+
+    project = tmp_path / "project"
+    project.mkdir()
+    (project / "app.py").write_text("def main():\n    return 'ok'\n", encoding="utf-8")
+    out = tmp_path / "site"
+
+    generate_outputs(project, out, full=True, ui_language="es-MX")
+    html = (out / "glance.html").read_text(encoding="utf-8")
+    assert '<html lang="es" dir="ltr">' in html
+    assert ">Resumen<" in html
 
 
 def test_generate_outputs_rejects_unknown_profile(tmp_path):

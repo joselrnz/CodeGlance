@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 HTML_OPEN = r'''<!doctype html>
-<html lang="en">
+<html lang="__HTML_LANG__" dir="__HTML_DIR__">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
@@ -17,15 +17,15 @@ HTML_BODY = r'''</style>
 <div id="topbar" class="card">
   <span class="brand"><span class="title">__PROJECT_NAME__</span><span class="meta">__SUBTITLE__</span></span>
   <span class="personas">
-    <button class="pa active" data-p="overview" title="High-level architecture — one card per layer">Overview</button>
-    <button class="pa" data-p="drill" title="Drill into files and classes without function noise">Drill</button>
-    <button class="pa" data-p="all" title="Full engineer view — files, classes, functions, variables, and constants">Explore</button>
-    <button class="pa" data-p="learn" title="Guided step-by-step tour">Tour</button>
+    <button class="pa active" data-p="overview" title="High-level architecture — one card per layer">__NAV_OVERVIEW__</button>
+    <button class="pa" data-p="drill" title="Drill into files and classes without function noise">__NAV_DRILL__</button>
+    <button class="pa" data-p="all" title="Full engineer view — files, classes, functions, variables, and constants">__NAV_EXPLORE__</button>
+    <button class="pa" data-p="learn" title="Guided step-by-step tour">__NAV_TOUR__</button>
   </span>
   <span class="seg" id="modeSeg">
-    <button data-m="structural" class="on" title="Code structure graph">Structural</button>
-    <button data-m="domain" title="Business domain map">Domain</button>
-    <button data-m="knowledge" title="Knowledge graph (docs / wiki)">Knowledge</button>
+    <button data-m="structural" class="on" title="Code structure graph">__MAP_STRUCTURAL__</button>
+    <button data-m="domain" title="Business domain map">__MAP_DOMAIN__</button>
+    <button data-m="knowledge" title="Knowledge graph (docs / wiki)">__MAP_KNOWLEDGE__</button>
   </span>
   <button id="btnDiff" class="fnbtn" title="Diff: highlight files changed since last analysis (b)">Diff OFF</button>
   <span class="seg" id="detailSeg">
@@ -34,68 +34,68 @@ HTML_BODY = r'''</style>
   </span>
   <button id="fnToggle" class="fnbtn" title="Toggle functions, variables & constants">fn</button>
   <span id="searchWrap">
-    <input id="search" placeholder="Search nodes…" autocomplete="off"/>
-    <span class="smode" id="searchMode"><button data-m="fuzzy" class="on" title="Fuzzy text match">Fuzzy</button><button data-m="semantic" title="Keyword-relevance ranking (offline, no embeddings)">Semantic</button></span>
+    <input id="search" placeholder="__SEARCH_NODES__" autocomplete="off"/>
+    <span class="smode" id="searchMode"><button data-m="fuzzy" class="on" title="Fuzzy text match">__SEARCH_FUZZY__</button><button data-m="semantic" title="Keyword-relevance ranking (offline, no embeddings)">__SEARCH_SEMANTIC__</button></span>
   </span>
   <span id="catFilters" class="cats"></span>
   <span id="layerChips" class="chips"></span>
   <span class="grow"></span>
   <span class="bar">
-    <button id="btnFit" title="Fit to view (f)">⤢ Fit</button>
-    <button id="btnPath" title="Path finder (p)">↦ Path</button>
-    <button id="btnFilter" title="Filter (i)">⛂ Filter</button>
-    <button id="btnExport" title="Export (e)">⬇ Export</button>
-    <button id="btnAnim" class="on" title="Toggle edge flow animation (a)">≈ Flow</button>
-    <button id="btnTheme" title="Theme (t)">◑ Theme</button>
+    <button id="btnFit" title="Fit to view (f)">⤢ __ACTION_FIT__</button>
+    <button id="btnPath" title="Path finder (p)">↦ __ACTION_PATH__</button>
+    <button id="btnFilter" title="Filter (i)">⛂ __ACTION_FILTER__</button>
+    <button id="btnExport" title="Export (e)">⬇ __ACTION_EXPORT__</button>
+    <button id="btnAnim" class="on" title="Toggle edge flow animation (a)">≈ __ACTION_FLOW__</button>
+    <button id="btnTheme" title="Theme (t)">◑ __ACTION_THEME__</button>
     <button id="btnTerm" title="Terminal — query the graph + run JS, offline (~)">&gt;_ Term</button>
-    <button id="btnReload" title="Reload this HTML while keeping the current selection">↻ Refresh</button>
+    <button id="btnReload" title="Reload this HTML while keeping the current selection">↻ __ACTION_REFRESH__</button>
     <button id="btnHelp" title="Shortcuts (?)">?</button>
   </span>
 </div>
 <div id="themeMenu" class="card hidden"></div>
-<button id="toolsRail" class="card" title="Show tools">Tools</button>
+<button id="toolsRail" class="card" title="Show tools">__LABEL_TOOLS__</button>
 <div id="moreMenu" class="card hidden">
-  <div class="tools-head"><span>Tools</span><button data-tools-close title="Hide tools">‹</button></div>
+  <div class="tools-head"><span>__LABEL_TOOLS__</span><button data-tools-close title="Hide tools">‹</button></div>
   <h5 class="mobile-only">View</h5>
   <div class="mrow mobile-only">
-    <button data-persona="overview">Overview</button>
-    <button data-persona="drill">Drill</button>
-    <button data-persona="all">Explore</button>
-    <button data-persona="learn">Tour</button>
+    <button data-persona="overview">__NAV_OVERVIEW__</button>
+    <button data-persona="drill">__NAV_DRILL__</button>
+    <button data-persona="all">__NAV_EXPLORE__</button>
+    <button data-persona="learn">__NAV_TOUR__</button>
   </div>
   <h5 class="mobile-only">Map</h5>
   <div class="mrow mobile-only">
-    <button data-mode="structural">Structural</button>
-    <button data-mode="domain">Domain</button>
-    <button data-mode="knowledge">Knowledge</button>
+    <button data-mode="structural">__MAP_STRUCTURAL__</button>
+    <button data-mode="domain">__MAP_DOMAIN__</button>
+    <button data-mode="knowledge">__MAP_KNOWLEDGE__</button>
   </div>
-  <h5>Analysis</h5>
+  <h5>__LABEL_ANALYSIS__</h5>
   <div class="mrow">
-    <button data-mirror="btnDiff">Diff</button>
-    <button data-mirror="fnToggle">Functions</button>
-    <button data-action="facets">Facets</button>
+    <button data-mirror="btnDiff">__ACTION_DIFF__</button>
+    <button data-mirror="fnToggle">__ACTION_FUNCTIONS__</button>
+    <button data-action="facets">__ACTION_FACETS__</button>
   </div>
-  <h5>Detail</h5>
+  <h5>__LABEL_DETAIL__</h5>
   <div class="mrow">
-    <button data-detail="file">Files</button>
-    <button data-detail="class">+Classes</button>
+    <button data-detail="file">__DETAIL_FILES__</button>
+    <button data-detail="class">__DETAIL_CLASSES__</button>
   </div>
-  <h5>Search</h5>
+  <h5>__LABEL_SEARCH__</h5>
   <div class="mrow">
-    <button data-search-mode="fuzzy">Fuzzy</button>
-    <button data-search-mode="semantic">Semantic</button>
+    <button data-search-mode="fuzzy">__SEARCH_FUZZY__</button>
+    <button data-search-mode="semantic">__SEARCH_SEMANTIC__</button>
   </div>
-  <h5>Actions</h5>
+  <h5>__LABEL_ACTIONS__</h5>
   <div class="mrow">
-    <button data-mirror="btnFit">Fit</button>
-    <button data-mirror="btnPath">Path</button>
-    <button data-mirror="btnFilter">Filter</button>
-    <button data-mirror="btnExport">Export</button>
-    <button data-mirror="btnAnim">Flow</button>
-    <button data-mirror="btnTheme">Theme</button>
+    <button data-mirror="btnFit">__ACTION_FIT__</button>
+    <button data-mirror="btnPath">__ACTION_PATH__</button>
+    <button data-mirror="btnFilter">__ACTION_FILTER__</button>
+    <button data-mirror="btnExport">__ACTION_EXPORT__</button>
+    <button data-mirror="btnAnim">__ACTION_FLOW__</button>
+    <button data-mirror="btnTheme">__ACTION_THEME__</button>
     <button data-mirror="btnTerm">Term</button>
-    <button data-mirror="btnReload">Refresh</button>
-    <button data-mirror="btnHelp">Help</button>
+    <button data-mirror="btnReload">__ACTION_REFRESH__</button>
+    <button data-mirror="btnHelp">__ACTION_HELP__</button>
   </div>
 </div>
 <div id="crumb" class="card"></div>

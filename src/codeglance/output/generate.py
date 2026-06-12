@@ -6,7 +6,9 @@ import json
 import shutil
 from pathlib import Path
 
+from ..config import VizConfig
 from ..graph import analyze
+from ..i18n import normalize_locale
 from ..processes import process_map_for_graph, render_process_map
 from ..render import (
     render_context,
@@ -31,6 +33,7 @@ def generate_outputs(
     model: str | None = None,
     full: bool = False,
     profile: str = "minimal",
+    ui_language: str = "en",
     progress=None,
 ) -> tuple[KnowledgeGraph, list[GeneratedOutput]]:
     """Analyze `root` once and write all human/agent outputs into `out_dir`."""
@@ -46,6 +49,7 @@ def generate_outputs(
     _clear_known_outputs(out)
 
     graph = analyze(root, use_llm=use_llm, model=model, progress=progress, full=full)
+    viz_config = VizConfig(ui_language=normalize_locale(ui_language))
     all_outputs = [
         GeneratedOutput("LLM entrypoint", out / "llms.txt", "Text"),
         GeneratedOutput("Glance interactive visual", out / "glance.html", "HTML"),
@@ -70,7 +74,7 @@ def generate_outputs(
     if "llms.txt" in selected:
         (out / "llms.txt").write_text(build_llms_txt(root, outputs), encoding="utf-8")
     if "glance.html" in selected:
-        (out / "glance.html").write_text(render_interactive(graph, root), encoding="utf-8")
+        (out / "glance.html").write_text(render_interactive(graph, root, config=viz_config), encoding="utf-8")
     if "graph.static.html" in selected:
         (out / "graph.static.html").write_text(render_static(graph, root), encoding="utf-8")
     if "wiki.html" in selected:

@@ -38,10 +38,16 @@ Already implemented:
 - `codeglance ask`: deterministic graph-backed Q&A with cited evidence and JSON/Markdown output.
 - `codeglance processes`: explicit business domain and process-flow sidecar output.
 - `codeglance agents`: safe agent/editor guidance install planning.
+- First-class `knowledge-graph.json` fields for `domains`, `flows`, `processes`, process evidence,
+  and process confidence.
+- `knowledge-graph.toon` domain, flow, and process-step tables for compact agent context.
 - `impact.md`, `onboarding.md`, `agent.md`, `llms.txt`, `knowledge-graph.toon`,
   `knowledge-graph.json`, `llm-context.schema.json`, and `meta.json`.
 - `codeglance init`: project config, agent instructions, and command assets.
 - Localization foundation: locale normalization, string catalog fallback, and coverage validation.
+- Static HTML localization shell: `VizConfig(ui_language=...)` and
+  `codeglance generate --language/--ui-language` set `<html lang dir>` and localize core
+  toolbar/Tools labels without changing graph IDs or schema keys.
 - Broad language extraction through Python AST and tree-sitter language pack.
 - Static package version policy: package version is `0.0.1` until intentionally changed.
 
@@ -59,11 +65,11 @@ Already implemented:
 | Graph review report | Shipped | Add `doctor` for release/readiness checks. |
 | Impact report | Shipped | Add changed-only context mode. |
 | Agent context | Shipped | Add richer `ask` intents and generated answer artifacts. |
-| Domain mode | Partial | Persist business process data into graph/TOON and HTML inspector. |
+| Domain mode | Advanced foundation | Add process cards/inspector details and terminal flow commands. |
 | Knowledge mode | Partial | Add concept/entity extraction from docs. |
 | Persona modes | Partial | Expand from current view presets into audience presets. |
 | Language concepts | Partial | Add concept cards and filters. |
-| Localization | Foundation | Wire catalog into static HTML and CLI help labels. |
+| Localization | Static HTML shell | Add config/init defaults and broaden all panel/terminal/help labels. |
 | Agent installers | Foundation | Add marketplace manifests and platform-specific validation. |
 | Team sharing | Partial docs | Add release/share checklist and commit policy. |
 
@@ -337,15 +343,14 @@ for those four gates lives in [`COMPETITIVE_SUPERSET_PLAN.md`](COMPETITIVE_SUPER
 
 Recommended next sequence:
 
-1. `codeglance ask` retrieval-only mode.
-2. Persisted business domains, flows, processes, and steps.
-3. Deterministic UI localization.
-4. Multi-agent/platform installers.
-5. Release hardening and `docs/RELEASE_CHECKLIST.md`.
-6. `codeglance doctor`.
-7. Persona preset cleanup.
-8. Language concept cards.
-9. Knowledge/docs graph improvements.
+1. Finish deterministic UI localization config/init defaults and full static-shell label coverage.
+2. Add process cards/inspector details and terminal `flows`/`flow <domain>` commands.
+3. Harden multi-agent/platform installer docs and validation.
+4. Release hardening and wheel install smoke.
+5. `codeglance doctor`.
+6. Persona preset cleanup.
+7. Language concept cards.
+8. Knowledge/docs graph improvements.
 
 The first four items are the competitive gate. The later items reduce push/publish risk and improve
 product depth without changing the static/Python-first architecture.
