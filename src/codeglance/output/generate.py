@@ -7,7 +7,7 @@ import shutil
 from pathlib import Path
 
 from ..graph import analyze
-from ..processes import extract_process_map, render_process_map
+from ..processes import process_map_for_graph, render_process_map
 from ..render import (
     render_context,
     render_impact,
@@ -76,7 +76,7 @@ def generate_outputs(
     if "wiki.html" in selected:
         (out / "wiki.html").write_text(render_wiki(graph, root), encoding="utf-8")
     if "processes.md" in selected or "processes.json" in selected:
-        process_map = extract_process_map(graph)
+        process_map = process_map_for_graph(graph)
         if "processes.md" in selected:
             (out / "processes.md").write_text(render_process_map(process_map, graph.project.name), encoding="utf-8")
         if "processes.json" in selected:

@@ -472,6 +472,13 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None, config: Vi
 
     sources = _read_sources(graph, root, config)
     knowledge = _build_knowledge(graph, sources, index_of, config)
+    process_domains = [domain.to_dict() for domain in graph.domains]
+    process_flows = [flow.to_dict() for flow in graph.flows]
+    process_steps = [
+        {**step.to_dict(), "flowId": flow.id, "flowName": flow.name}
+        for flow in graph.flows
+        for step in flow.steps
+    ]
 
     return {
         "project": graph.project.to_dict(),
@@ -499,6 +506,12 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None, config: Vi
         "iconName": NAME_TO_KEY,
         "domains": domains_vm,
         "domainEdges": domain_edges_vm,
+        "processDomains": process_domains,
+        "processFlows": process_flows,
+        "processes": process_flows,
+        "processSteps": process_steps,
+        "processEvidence": list(graph.processEvidence),
+        "processConfidence": graph.processConfidence,
         "domainCardW": DW,
         "domainCardH": DH,
         "diffChanged": diff_changed,

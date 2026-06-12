@@ -8,7 +8,7 @@ from ..ask import render_answer
 from ..graph import analyze
 from ..models import KnowledgeGraph
 from ..output import GeneratedOutput, generate_outputs, mirror_to_codeglance
-from ..processes import extract_process_map, render_process_map
+from ..processes import process_map_for_graph, render_process_map
 from ..render import (
     render_context,
     render_explain,
@@ -94,7 +94,7 @@ def answer_question(graph: KnowledgeGraph, question: str, *, max_results: int = 
 
 def render_process_report(graph: KnowledgeGraph) -> str:
     """Render inferred business domains and process flows."""
-    return render_process_map(extract_process_map(graph), graph.project.name)
+    return render_process_map(process_map_for_graph(graph), graph.project.name)
 
 
 def generate_bundle(

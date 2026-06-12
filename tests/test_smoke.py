@@ -694,6 +694,8 @@ def test_interactive_toolbar_stays_compact():
         "showFns=false",
         "showFns=true",
         "refreshMoreControls",
+        "#moreMenu button.active",
+        "inset 3px 0 0 var(--accent)",
         'id="btnReload"',
         "#btnReload.stale",
         "setRefreshAvailable",
@@ -909,6 +911,9 @@ def test_generate_outputs_writes_complete_bundle(tmp_path):
     toon = (out / "knowledge-graph.toon").read_text(encoding="utf-8")
     assert "nodes[" in toon and "{id,type,name,path,summary,complexity,tags}" in toon
     assert "edges[" in toon and "{source,target,type,weight}" in toon
+    assert "domains[" in toon and "flows[" in toon and "processSteps[" in toon
+    graph_json = json.loads((out / "knowledge-graph.json").read_text(encoding="utf-8"))
+    assert "domains" in graph_json and "flows" in graph_json and "processes" in graph_json
     schema = json.loads((out / "llm-context.schema.json").read_text(encoding="utf-8"))
     assert schema["schema"] == "codeglance.llm-context"
     assert schema["readOrder"][0] == "llms.txt"
@@ -921,6 +926,8 @@ def test_generate_outputs_writes_complete_bundle(tmp_path):
     assert "review.md" in schema["generatedArtifacts"]
     assert "file" in schema["nodeTypes"]
     assert "imports" in schema["edgeTypes"]
+    kg_schema = schema["knowledgeGraphSchema"]
+    assert "domains" in kg_schema and "flows" in kg_schema and "processSteps" in kg_schema
 
 
 def test_generate_outputs_default_profile_is_minimal(tmp_path):

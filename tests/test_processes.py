@@ -41,6 +41,44 @@ def test_process_models_are_importable():
     assert process_map.flows[0].steps[0].role == "controller"
 
 
+def test_process_models_roundtrip_inside_knowledge_graph():
+    domain = Domain(key="cart", name="Cart", node_ids=["file:cart.py"], evidence=["cart.py"], confidence=0.9)
+    step = ProcessStep(
+        order=1,
+        label="Cart service",
+        domain_key="cart",
+        node_id="file:cart.py",
+        file_path="cart.py",
+        role="service",
+        evidence=["cart service"],
+        confidence=0.8,
+    )
+    flow = BusinessFlow(
+        id="flow:cart",
+        name="Cart Flow",
+        domain_key="cart",
+        steps=[step],
+        node_ids=["file:cart.py"],
+        evidence=["cart domain"],
+        confidence=0.85,
+    )
+    graph = KnowledgeGraph(
+        project=Project(name="shop"),
+        nodes=[_node("cart.py", "Cart service")],
+        domains=[domain],
+        flows=[flow],
+        processEvidence=["cart.py"],
+        processConfidence=0.85,
+    )
+
+    restored = KnowledgeGraph.from_dict(graph.to_dict())
+
+    assert restored.domains[0].key == "cart"
+    assert restored.flows[0].steps[0].file_path == "cart.py"
+    assert restored.processes == restored.flows
+    assert restored.process_map.confidence == 0.85
+
+
 def test_extract_process_map_handles_empty_graph():
     process_map = extract_process_map(KnowledgeGraph(project=Project(name="empty")))
 

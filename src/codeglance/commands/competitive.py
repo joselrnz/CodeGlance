@@ -17,7 +17,7 @@ from ..integrations import (
     parse_platforms,
     validate_installation,
 )
-from ..processes import extract_process_map, render_process_map
+from ..processes import process_map_for_graph, render_process_map
 from .common import GRAPH_DIR, GRAPH_FILE, emit, write_meta
 from .workflows import _write_or_print
 
@@ -46,7 +46,7 @@ def cmd_processes(args: argparse.Namespace) -> int:
     graph = analyze_project(root, use_llm=args.llm, model=args.model, progress=emit, full=args.full)
     graph.save(root / GRAPH_DIR / GRAPH_FILE)
     write_meta(root, graph)
-    process_map = extract_process_map(graph)
+    process_map = process_map_for_graph(graph)
     if args.format == "json":
         rendered = json.dumps(process_map.to_dict(), indent=2, sort_keys=True)
     else:

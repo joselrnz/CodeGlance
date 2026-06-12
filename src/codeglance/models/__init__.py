@@ -11,10 +11,12 @@ from .constants import (
     NODE_TYPES,
     SCHEMA_VERSION,
 )
-from .graph import Edge, KnowledgeGraph, Layer, Node, Project, TourStep, edge_weight
+from .graph import BusinessFlow, Domain, Edge, KnowledgeGraph, Layer, Node, ProcessMap, ProcessStep, Project, TourStep, edge_weight
 
 __all__ = [
+    "BusinessFlow",
     "COMPLEXITY_VALUES",
+    "Domain",
     "DEFAULT_EDGE_WEIGHT",
     "EDGE_WEIGHTS",
     "FILE_LEVEL_TYPES",
@@ -24,6 +26,8 @@ __all__ = [
     "KnowledgeGraph",
     "Layer",
     "Node",
+    "ProcessMap",
+    "ProcessStep",
     "Project",
     "TourStep",
     "edge_weight",

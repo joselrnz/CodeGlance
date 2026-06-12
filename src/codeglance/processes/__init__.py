@@ -3,11 +3,9 @@
 from __future__ import annotations
 
 from collections import defaultdict, deque
-from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
 
-from ..schema import KnowledgeGraph, Node
+from ..schema import BusinessFlow, Domain, KnowledgeGraph, Node, ProcessMap, ProcessStep
 
 _DOMAIN_KEYWORDS: dict[str, tuple[str, ...]] = {
     "auth": ("auth", "login", "oauth", "token", "session", "identity"),
@@ -33,102 +31,6 @@ _ROLE_ORDER = {
     "notification": 90,
     "file": 70,
 }
-
-
-@dataclass(frozen=True)
-class Domain:
-    """A business capability inferred from file paths and summaries."""
-
-    key: str
-    name: str
-    node_ids: list[str] = field(default_factory=list)
-    evidence: list[str] = field(default_factory=list)
-    confidence: float = 0.0
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "key": self.key,
-            "name": self.name,
-            "nodeIds": list(self.node_ids),
-            "evidence": list(self.evidence),
-            "confidence": self.confidence,
-        }
-
-
-@dataclass(frozen=True)
-class ProcessStep:
-    """One evidence-backed step in an inferred business flow."""
-
-    order: int
-    label: str
-    domain_key: str
-    node_id: str
-    file_path: str
-    role: str
-    evidence: list[str] = field(default_factory=list)
-    confidence: float = 0.0
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "order": self.order,
-            "label": self.label,
-            "domainKey": self.domain_key,
-            "nodeId": self.node_id,
-            "filePath": self.file_path,
-            "role": self.role,
-            "evidence": list(self.evidence),
-            "confidence": self.confidence,
-        }
-
-
-@dataclass(frozen=True)
-class BusinessFlow:
-    """An ordered flow through business domains and implementation files."""
-
-    id: str
-    name: str
-    domain_key: str
-    steps: list[ProcessStep] = field(default_factory=list)
-    node_ids: list[str] = field(default_factory=list)
-    evidence: list[str] = field(default_factory=list)
-    confidence: float = 0.0
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "id": self.id,
-            "name": self.name,
-            "domainKey": self.domain_key,
-            "steps": [step.to_dict() for step in self.steps],
-            "nodeIds": list(self.node_ids),
-            "evidence": list(self.evidence),
-            "confidence": self.confidence,
-        }
-
-
-@dataclass(frozen=True)
-class ProcessMap:
-    """Extracted process map sidecar for humans and AI agents."""
-
-    domains: list[Domain] = field(default_factory=list)
-    flows: list[BusinessFlow] = field(default_factory=list)
-    evidence: list[str] = field(default_factory=list)
-    confidence: float = 0.0
-
-    @property
-    def processes(self) -> list[BusinessFlow]:
-        """Back-compatible alias for consumers that say process instead of flow."""
-
-        return self.flows
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "domains": [domain.to_dict() for domain in self.domains],
-            "flows": [flow.to_dict() for flow in self.flows],
-            "processes": [flow.to_dict() for flow in self.processes],
-            "evidence": list(self.evidence),
-            "confidence": self.confidence,
-        }
-
 
 def extract_process_map(graph: KnowledgeGraph) -> ProcessMap:
     """Infer domains and process flows from graph nodes and dependency edges."""
@@ -186,6 +88,14 @@ def extract_process_map(graph: KnowledgeGraph) -> ProcessMap:
     evidence = [item for domain in domains for item in domain.evidence[:2]]
     confidence = round(sum(flow.confidence for flow in flows) / len(flows), 3) if flows else 0.0
     return ProcessMap(domains=domains, flows=flows, evidence=evidence, confidence=confidence)
+
+
+def process_map_for_graph(graph: KnowledgeGraph) -> ProcessMap:
+    """Return persisted process data when present; otherwise infer it from the graph."""
+
+    if graph.domains or graph.flows:
+        return graph.process_map
+    return extract_process_map(graph)
 
 
 def render_process_map(process_map: ProcessMap, project_name: str = "project") -> str:
@@ -307,5 +217,6 @@ __all__ = [
     "ProcessMap",
     "ProcessStep",
     "extract_process_map",
+    "process_map_for_graph",
     "render_process_map",
 ]

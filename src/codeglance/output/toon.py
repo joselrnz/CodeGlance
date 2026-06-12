@@ -27,6 +27,9 @@ def build_knowledge_graph_toon(graph: KnowledgeGraph) -> str:
         f"  edges: {stats['edges']}",
         f"  layers: {stats['layers']}",
         f"  tourSteps: {stats['tourSteps']}",
+        f"  domains: {stats['domains']}",
+        f"  flows: {stats['flows']}",
+        f"  processSteps: {stats['processSteps']}",
         "",
         f"nodes[{len(graph.nodes)}]{{id,type,name,path,summary,complexity,tags}}:",
     ]
@@ -74,6 +77,47 @@ def build_knowledge_graph_toon(graph: KnowledgeGraph) -> str:
                 _toon_value(step.title),
                 _toon_value("|".join(step.nodeIds)),
                 _toon_value(step.description),
+            ])
+        )
+    lines.extend(["", f"domains[{len(graph.domains)}]{{key,name,nodes,confidence,evidence}}:"])
+    for domain in graph.domains:
+        lines.append(
+            "  "
+            + ",".join([
+                _toon_value(domain.key),
+                _toon_value(domain.name),
+                _toon_value("|".join(domain.node_ids)),
+                f"{domain.confidence:g}",
+                _toon_value("|".join(domain.evidence[:4])),
+            ])
+        )
+    lines.extend(["", f"flows[{len(graph.flows)}]{{id,name,domain,steps,nodes,confidence}}:"])
+    for flow in graph.flows:
+        lines.append(
+            "  "
+            + ",".join([
+                _toon_value(flow.id),
+                _toon_value(flow.name),
+                _toon_value(flow.domain_key),
+                str(len(flow.steps)),
+                _toon_value("|".join(flow.node_ids)),
+                f"{flow.confidence:g}",
+            ])
+        )
+    process_steps = [(flow.id, step) for flow in graph.flows for step in flow.steps]
+    lines.extend(["", f"processSteps[{len(process_steps)}]{{flow,order,label,domain,node,path,role,confidence}}:"])
+    for flow_id, step in process_steps:
+        lines.append(
+            "  "
+            + ",".join([
+                _toon_value(flow_id),
+                str(step.order),
+                _toon_value(step.label),
+                _toon_value(step.domain_key),
+                _toon_value(step.node_id),
+                _toon_value(step.file_path),
+                _toon_value(step.role),
+                f"{step.confidence:g}",
             ])
         )
     return "\n".join(lines).rstrip() + "\n"

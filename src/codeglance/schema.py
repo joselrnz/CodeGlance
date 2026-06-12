@@ -2,7 +2,7 @@
 
 A portable, self-describing `knowledge-graph.json` schema:
 
-    { version, project, nodes[], edges[], layers[], tour[] }
+    { version, project, nodes[], edges[], layers[], tour[], domains[], flows[] }
 """
 
 from __future__ import annotations
@@ -239,16 +239,184 @@ class Project:
         )
 
 
+@dataclass(frozen=True)
+class Domain:
+    """A business capability inferred from paths, names, summaries, and tags."""
+
+    key: str
+    name: str
+    node_ids: list[str] = field(default_factory=list)
+    evidence: list[str] = field(default_factory=list)
+    confidence: float = 0.0
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialise a domain to the graph schema."""
+        return {
+            "key": self.key,
+            "name": self.name,
+            "nodeIds": list(self.node_ids),
+            "evidence": list(self.evidence),
+            "confidence": self.confidence,
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> "Domain":
+        """Build a Domain from current or legacy dict shapes."""
+        return cls(
+            key=d.get("key", "unknown"),
+            name=d.get("name", d.get("key", "Unknown")),
+            node_ids=list(d.get("nodeIds") or d.get("node_ids") or []),
+            evidence=list(d.get("evidence") or []),
+            confidence=float(d.get("confidence", 0.0) or 0.0),
+        )
+
+
+@dataclass(frozen=True)
+class ProcessStep:
+    """One evidence-backed step in an inferred business or technical flow."""
+
+    order: int
+    label: str
+    domain_key: str
+    node_id: str
+    file_path: str
+    role: str
+    evidence: list[str] = field(default_factory=list)
+    confidence: float = 0.0
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialise a process step to the graph schema."""
+        return {
+            "order": self.order,
+            "label": self.label,
+            "domainKey": self.domain_key,
+            "nodeId": self.node_id,
+            "filePath": self.file_path,
+            "role": self.role,
+            "evidence": list(self.evidence),
+            "confidence": self.confidence,
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> "ProcessStep":
+        """Build a ProcessStep from current or legacy dict shapes."""
+        return cls(
+            order=int(d.get("order", 0) or 0),
+            label=d.get("label", "Step"),
+            domain_key=d.get("domainKey") or d.get("domain_key", "unknown"),
+            node_id=d.get("nodeId") or d.get("node_id", ""),
+            file_path=d.get("filePath") or d.get("file_path", ""),
+            role=d.get("role", "file"),
+            evidence=list(d.get("evidence") or []),
+            confidence=float(d.get("confidence", 0.0) or 0.0),
+        )
+
+
+@dataclass(frozen=True)
+class BusinessFlow:
+    """An ordered flow through business domains and implementation files."""
+
+    id: str
+    name: str
+    domain_key: str
+    steps: list[ProcessStep] = field(default_factory=list)
+    node_ids: list[str] = field(default_factory=list)
+    evidence: list[str] = field(default_factory=list)
+    confidence: float = 0.0
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialise a business flow to the graph schema."""
+        return {
+            "id": self.id,
+            "name": self.name,
+            "domainKey": self.domain_key,
+            "steps": [step.to_dict() for step in self.steps],
+            "nodeIds": list(self.node_ids),
+            "evidence": list(self.evidence),
+            "confidence": self.confidence,
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> "BusinessFlow":
+        """Build a BusinessFlow from current or legacy dict shapes."""
+        return cls(
+            id=d.get("id", "flow:unknown"),
+            name=d.get("name", "Flow"),
+            domain_key=d.get("domainKey") or d.get("domain_key", "unknown"),
+            steps=[ProcessStep.from_dict(step) for step in d.get("steps") or []],
+            node_ids=list(d.get("nodeIds") or d.get("node_ids") or []),
+            evidence=list(d.get("evidence") or []),
+            confidence=float(d.get("confidence", 0.0) or 0.0),
+        )
+
+
+@dataclass(frozen=True)
+class ProcessMap:
+    """Process-map bundle embedded in the graph and rendered as separate artifacts."""
+
+    domains: list[Domain] = field(default_factory=list)
+    flows: list[BusinessFlow] = field(default_factory=list)
+    evidence: list[str] = field(default_factory=list)
+    confidence: float = 0.0
+
+    @property
+    def processes(self) -> list[BusinessFlow]:
+        """Back-compatible alias for consumers that say process instead of flow."""
+        return self.flows
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialise this process map, including the process alias."""
+        return {
+            "domains": [domain.to_dict() for domain in self.domains],
+            "flows": [flow.to_dict() for flow in self.flows],
+            "processes": [flow.to_dict() for flow in self.processes],
+            "evidence": list(self.evidence),
+            "confidence": self.confidence,
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> "ProcessMap":
+        """Build a process map from current or legacy dict shapes."""
+        flows_raw = d.get("flows")
+        if flows_raw is None:
+            flows_raw = d.get("processes") or []
+        return cls(
+            domains=[Domain.from_dict(domain) for domain in d.get("domains") or []],
+            flows=[BusinessFlow.from_dict(flow) for flow in flows_raw],
+            evidence=list(d.get("evidence") or d.get("processEvidence") or []),
+            confidence=float(d.get("confidence", d.get("processConfidence", 0.0)) or 0.0),
+        )
+
+
 @dataclass
 class KnowledgeGraph:
-    """Complete analyzed codebase graph: metadata, nodes, edges, layers, and tour steps."""
+    """Complete analyzed codebase graph, including code shape and inferred process flow."""
 
     project: Project = field(default_factory=Project)
     nodes: list[Node] = field(default_factory=list)
     edges: list[Edge] = field(default_factory=list)
     layers: list[Layer] = field(default_factory=list)
     tour: list[TourStep] = field(default_factory=list)
+    domains: list[Domain] = field(default_factory=list)
+    flows: list[BusinessFlow] = field(default_factory=list)
+    processEvidence: list[str] = field(default_factory=list)
+    processConfidence: float = 0.0
     version: str = SCHEMA_VERSION
+
+    @property
+    def processes(self) -> list[BusinessFlow]:
+        """Back-compatible alias for business flows."""
+        return self.flows
+
+    @property
+    def process_map(self) -> ProcessMap:
+        """Return process data as a bundled map object."""
+        return ProcessMap(
+            domains=self.domains,
+            flows=self.flows,
+            evidence=self.processEvidence,
+            confidence=self.processConfidence,
+        )
 
     def to_dict(self) -> dict[str, Any]:
         """Serialise the full graph to the portable JSON schema."""
@@ -259,11 +427,17 @@ class KnowledgeGraph:
             "edges": [e.to_dict() for e in self.edges],
             "layers": [layer.to_dict() for layer in self.layers],
             "tour": [t.to_dict() for t in self.tour],
+            "domains": [domain.to_dict() for domain in self.domains],
+            "flows": [flow.to_dict() for flow in self.flows],
+            "processes": [flow.to_dict() for flow in self.processes],
+            "processEvidence": list(self.processEvidence),
+            "processConfidence": self.processConfidence,
         }
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> "KnowledgeGraph":
         """Build a KnowledgeGraph from a dict, including legacy-tolerant children."""
+        process_map = ProcessMap.from_dict(d.get("processMap") or d)
         return cls(
             version=d.get("version", SCHEMA_VERSION),
             project=Project.from_dict(d.get("project") or {}),
@@ -271,6 +445,10 @@ class KnowledgeGraph:
             edges=[Edge.from_dict(e) for e in d.get("edges") or []],
             layers=[Layer.from_dict(layer) for layer in d.get("layers") or []],
             tour=[TourStep.from_dict(t) for t in sorted(d.get("tour") or [], key=lambda s: s.get("order", 0))],
+            domains=process_map.domains,
+            flows=process_map.flows,
+            processEvidence=process_map.evidence,
+            processConfidence=process_map.confidence,
         )
 
     # --- I/O ---------------------------------------------------------------
@@ -323,6 +501,24 @@ class KnowledgeGraph:
             for nid in step.nodeIds:
                 if nid not in ids:
                     issues.append(f"Tour step {step.order} refs missing node '{nid}'")
+        for domain in self.domains:
+            if not domain.key:
+                issues.append("Domain missing key")
+            for nid in domain.node_ids:
+                if nid not in ids:
+                    issues.append(f"Domain '{domain.key}' refs missing node '{nid}'")
+        domain_keys = {domain.key for domain in self.domains}
+        for flow in self.flows:
+            if not flow.id:
+                issues.append("Flow missing id")
+            if flow.domain_key and domain_keys and flow.domain_key not in domain_keys:
+                warnings.append(f"Flow '{flow.id}' refs unknown domain '{flow.domain_key}'")
+            for nid in flow.node_ids:
+                if nid not in ids:
+                    issues.append(f"Flow '{flow.id}' refs missing node '{nid}'")
+            for step in flow.steps:
+                if step.node_id and step.node_id not in ids:
+                    issues.append(f"Flow '{flow.id}' step {step.order} refs missing node '{step.node_id}'")
         return issues, warnings
 
     def stats(self) -> dict[str, Any]:
@@ -338,6 +534,9 @@ class KnowledgeGraph:
             "edges": len(self.edges),
             "layers": len(self.layers),
             "tourSteps": len(self.tour),
+            "domains": len(self.domains),
+            "flows": len(self.flows),
+            "processSteps": sum(len(flow.steps) for flow in self.flows),
             "nodeTypes": node_types,
             "edgeTypes": edge_types,
         }

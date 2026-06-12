@@ -13,6 +13,7 @@ from .analyze import layers as layers_mod
 from .analyze import llm as llm_mod
 from .analyze import tour as tour_mod
 from .analyze.pipeline import build_structural
+from .processes import extract_process_map
 from .scan import ScanResult, scan
 from .schema import KnowledgeGraph, Layer, Project, FILE_LEVEL_TYPES
 
@@ -167,7 +168,18 @@ def analyze(root: str | Path, use_llm: bool = False, model: str | None = None,
         analyzedAt=datetime.now(timezone.utc).isoformat(),
         gitCommitHash=_git_commit(root),
     )
-    graph = KnowledgeGraph(project=project, nodes=nodes, edges=edges, layers=layers, tour=tour)
+    process_map = extract_process_map(KnowledgeGraph(project=project, nodes=nodes, edges=edges, layers=layers, tour=tour))
+    graph = KnowledgeGraph(
+        project=project,
+        nodes=nodes,
+        edges=edges,
+        layers=layers,
+        tour=tour,
+        domains=process_map.domains,
+        flows=process_map.flows,
+        processEvidence=process_map.evidence,
+        processConfidence=process_map.confidence,
+    )
     graph.changed = changed_ids   # transient (not serialized): drives the Diff overlay in the viewer
     fp.save(root, new_fp)
     return graph
