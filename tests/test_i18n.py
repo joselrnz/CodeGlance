@@ -5,6 +5,7 @@ from codeglance.i18n import (
     normalize_locale,
     text_direction,
     translate,
+    ui_catalog,
     validate_catalog_coverage,
 )
 
@@ -66,6 +67,18 @@ def test_translate_returns_localized_messages_and_formats_values():
 def test_translate_falls_back_to_english_for_unknown_locale_or_missing_key():
     assert translate("nav.graph", "xx-YY") == "Graph"
     assert translate("missing.key", "es") == "missing.key"
+
+
+def test_ui_catalog_embeds_runtime_labels_with_locale_fallbacks():
+    catalog = ui_catalog("es-MX")
+    assert catalog["help.title"] == "Atajos de teclado"
+    assert catalog["modal.path_title"] == "Buscador de rutas de dependencia"
+    assert catalog["panel.documentation"] == "Documentacion"
+    assert catalog["filter.reset"] == "Restablecer filtros"
+    assert catalog["theme.heading_font"] == "Fuente de titulos"
+    assert catalog["overview.nodes"] == "Nodos"
+
+    assert ui_catalog("xx-YY")["help.title"] == "Keyboard Shortcuts"
 
 
 def test_text_direction_marks_rtl_locales_only():

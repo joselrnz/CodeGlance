@@ -829,6 +829,14 @@ def test_interactive_html_localizes_static_chrome():
     assert ">Profundizar<" in html_es
     assert "Buscar nodos..." in html_es
     assert ">Herramientas<" in html_es
+    assert '"uiLabels": {' in html_es
+    assert '"help.title": "Atajos de teclado"' in html_es
+    assert '"terminal.help_intro": "Explora y prueba este codigo' in html_es
+    assert '"filter.node_types": "Tipos de nodo"' in html_es
+    assert '"theme.heading_font": "Fuente de titulos"' in html_es
+    assert "Buscador de rutas de dependencia" in html_es
+    assert "Documentacion" in html_es
+    assert "Restablecer filtros" in html_es
 
     html_ar = render_interactive(_sample_graph(), config=VizConfig(ui_language="ar"))
     assert '<html lang="ar" dir="rtl">' in html_ar

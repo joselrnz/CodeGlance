@@ -119,54 +119,54 @@ HTML_BODY = r'''</style>
 <div id="filterMenu" class="card hidden"></div>
 <div id="searchResults" class="card"></div>
 <div id="pathModal" class="modal hidden"><div class="mbox card">
-  <span class="close" onclick="closePath()">✕</span><h4>Dependency Path Finder</h4>
+  <span class="close" onclick="closePath()">✕</span><h4>__MODAL_PATH_TITLE__</h4>
   <select id="pathFrom"></select><select id="pathTo"></select>
-  <div class="tourbtns"><button id="pathFind">Find path</button><button id="pathClear">Clear</button></div>
+  <div class="tourbtns"><button id="pathFind">__MODAL_FIND_PATH__</button><button id="pathClear">__MODAL_CLEAR__</button></div>
   <div id="pathResult"></div>
 </div></div>
 <div id="codeModal" class="modal hidden"><div class="mbox card">
-  <span class="close" onclick="closeCodeModal()">✕</span><h4 id="codeTitle">Source</h4><div id="codeBody"></div>
+  <span class="close" onclick="closeCodeModal()">✕</span><h4 id="codeTitle">__PANEL_SOURCE__</h4><div id="codeBody"></div>
 </div></div>
 <div id="term" class="card hidden">
-  <div class="thead"><span class="tt">terminal</span><span>· graph queries + JS · 100% offline · type <b>help</b></span><span class="tclose" onclick="toggleTerm(false)">✕</span></div>
+  <div class="thead"><span class="tt">__TERMINAL_TITLE__</span><span>· __TERMINAL_SUBTITLE__</span><span class="tclose" onclick="toggleTerm(false)">✕</span></div>
   <div id="termOut"></div>
   <div class="tin"><span class="pr">›</span><input id="termIn" autocomplete="off" spellcheck="false" placeholder="help"/></div>
 </div>
 <div id="helpModal" class="modal hidden"><div class="mbox card" style="width:600px">
   <span class="close" onclick="document.getElementById('helpModal').classList.add('hidden')">✕</span>
-  <h4>Keyboard Shortcuts</h4>
-  <div class="kbsub">Drive the whole graph from the keyboard — no mouse required.</div>
+  <h4>__HELP_TITLE__</h4>
+  <div class="kbsub">__HELP_SUBTITLE__</div>
   <div class="kbcats">
-    <div class="kbcat"><h5>General</h5><div class="kb">
-      <kbd>/</kbd><span>Focus search</span>
-      <kbd>i</kbd><span>Filter panel</span>
-      <kbd>e</kbd><span>Export menu</span>
-      <kbd>t</kbd><span>Theme menu</span>
-      <kbd>~</kbd><span>Terminal (queries + JS)</span>
-      <kbd>?</kbd><span>Toggle this help</span>
-      <kbd>Esc</kbd><span>Close panel / menu</span>
+    <div class="kbcat"><h5>__HELP_GENERAL__</h5><div class="kb">
+      <kbd>/</kbd><span>__HELP_FOCUS_SEARCH__</span>
+      <kbd>i</kbd><span>__HELP_FILTER_PANEL__</span>
+      <kbd>e</kbd><span>__HELP_EXPORT_MENU__</span>
+      <kbd>t</kbd><span>__HELP_THEME_MENU__</span>
+      <kbd>~</kbd><span>__HELP_TERMINAL__</span>
+      <kbd>?</kbd><span>__HELP_TOGGLE_HELP__</span>
+      <kbd>Esc</kbd><span>__HELP_CLOSE_PANEL__</span>
     </div></div>
-    <div class="kbcat"><h5>Navigation</h5><div class="kb">
-      <kbd>f</kbd><span>Fit graph to view</span>
-      <kbd>0</kbd><span>Reset &amp; fit</span>
-      <kbd>+ −</kbd><span>Zoom in / out</span>
-      <kbd>← ↑ → ↓</kbd><span>Pan the canvas</span>
-      <kbd>p</kbd><span>Path finder</span>
-      <kbd>x</kbd><span>Focus node + neighbors</span>
+    <div class="kbcat"><h5>__HELP_NAVIGATION__</h5><div class="kb">
+      <kbd>f</kbd><span>__HELP_FIT_GRAPH__</span>
+      <kbd>0</kbd><span>__HELP_RESET_FIT__</span>
+      <kbd>+ −</kbd><span>__HELP_ZOOM__</span>
+      <kbd>← ↑ → ↓</kbd><span>__HELP_PAN__</span>
+      <kbd>p</kbd><span>__HELP_PATH_FINDER__</span>
+      <kbd>x</kbd><span>__HELP_FOCUS_NODE__</span>
     </div></div>
-    <div class="kbcat"><h5>View modes</h5><div class="kb">
-      <kbd>d</kbd><span>Domain ⇄ Structural</span>
-      <kbd>k</kbd><span>Knowledge ⇄ Structural</span>
-      <kbd>b</kbd><span>Diff overlay</span>
-      <kbd>a</kbd><span>Edge-flow animation</span>
-      <kbd>c</kbd><span>Collapse / expand all clusters</span>
+    <div class="kbcat"><h5>__HELP_VIEW_MODES__</h5><div class="kb">
+      <kbd>d</kbd><span>__HELP_DOMAIN_TOGGLE__</span>
+      <kbd>k</kbd><span>__HELP_KNOWLEDGE_TOGGLE__</span>
+      <kbd>b</kbd><span>__HELP_DIFF_OVERLAY__</span>
+      <kbd>a</kbd><span>__HELP_EDGE_FLOW__</span>
+      <kbd>c</kbd><span>__HELP_COLLAPSE_CLUSTERS__</span>
     </div></div>
-    <div class="kbcat"><h5>Guided tour</h5><div class="kb">
-      <kbd>← →</kbd><span>Previous / next step</span>
-      <kbd>Esc</kbd><span>Exit the tour</span>
+    <div class="kbcat"><h5>__HELP_GUIDED_TOUR__</h5><div class="kb">
+      <kbd>← →</kbd><span>__HELP_TOUR_PREV_NEXT__</span>
+      <kbd>Esc</kbd><span>__HELP_TOUR_EXIT__</span>
     </div></div>
   </div>
-  <div class="kbfoot">Press <kbd>Esc</kbd> or click outside to close</div>
+  <div class="kbfoot">__HELP_CLOSE_HINT__</div>
 </div></div>
 <script>'''
 

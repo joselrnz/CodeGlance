@@ -13,6 +13,7 @@ from pathlib import Path
 from ..layout import compute_layered_layout
 from ..schema import KnowledgeGraph, FILE_LEVEL_TYPES
 from ..config import DEFAULT_CONFIG, VizConfig
+from ..i18n import ui_catalog
 
 # Colour + sizing constants now live in VizConfig (codeglance/config.py). These module-level names
 # remain as back-compat aliases sourced from the default config.
@@ -520,6 +521,7 @@ def build_view_model(graph: KnowledgeGraph, root: Path | None = None, config: Vi
         "install": _detect_install(root),
         "defaultTheme": getattr(config.default_theme, "value", config.default_theme),
         "uiLanguage": config.ui_language,
+        "uiLabels": ui_catalog(config.ui_language),
     }
 
 

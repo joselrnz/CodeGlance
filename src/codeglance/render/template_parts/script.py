@@ -5,6 +5,7 @@ from __future__ import annotations
 SCRIPT = r'''
 const DATA = __DATA_JSON__;
 const N=DATA.nodes, E=DATA.edges, L=DATA.layers, TY=DATA.types, TOUR=DATA.tour, CT=DATA.containers;
+const UI=DATA.uiLabels||{}; function tr(k,d){return UI[k]||d||k;}
 const NID=new Map(N.map((n,i)=>[n.id,i]));
 const LC=DATA.layerCards||[], LE=DATA.layerEdges||[], lcW=DATA.layerCardW||300, lcH=DATA.layerCardH||172;
 const LF=DATA.layerFolders||{}, folderW=DATA.folderCardW||292, folderH=DATA.folderCardH||132;
@@ -13,8 +14,8 @@ const PF=DATA.processFlows||DATA.processes||[], PS=DATA.processSteps||[];
 const PF_BY_DOMAIN={}; for(const f of PF){ const k=f.domainKey||f.domain_key||''; (PF_BY_DOMAIN[k]=PF_BY_DOMAIN[k]||[]).push(f); }
 const KN=(DATA.knowledge&&DATA.knowledge.nodes)||[], KE=(DATA.knowledge&&DATA.knowledge.edges)||[], kW=(DATA.knowledge&&DATA.knowledge.cardW)||280, kH=(DATA.knowledge&&DATA.knowledge.cardH)||150;
 const CARDSETS={
- domain:{nodes:DM,edges:DE,cw:dW,ch:dH,label:'DOMAIN',title:'Domain Map',blurb:'Business domains inferred from the project structure, linked by cross-domain flows. Click a domain for details.',n2:'Domains',e2:'Flows',descKey:'description',entKey:'entities',entLabel:'ENTITIES',footL:'nFiles',footLw:'files',footR:'flowCount',footRw:'flows',ptype:'domain'},
- knowledge:{nodes:KN,edges:KE,cw:kW,ch:kH,label:'ARTICLE',title:'Knowledge Graph',blurb:'Markdown docs as articles, linked by wikilinks and citations. Click an article for details.',n2:'Articles',e2:'Links',descKey:'summary',entKey:'topics',entLabel:'TOPICS',footL:'nTopics',footLw:'topics',footR:'nLinks',footRw:'links',ptype:'article'}};
+ domain:{nodes:DM,edges:DE,cw:dW,ch:dH,label:'DOMAIN',title:tr('map.domain','Domain Map'),blurb:tr('domain.blurb','Business domains inferred from the project structure, linked by cross-domain flows. Click a domain for details.'),n2:tr('map.domain','Domains'),e2:tr('action.flow','Flows'),descKey:'description',entKey:'entities',entLabel:tr('domain.entities','ENTITIES'),footL:'nFiles',footLw:tr('detail.files','files'),footR:'flowCount',footRw:tr('action.flow','flows'),ptype:'domain'},
+ knowledge:{nodes:KN,edges:KE,cw:kW,ch:kH,label:'ARTICLE',title:tr('map.knowledge','Knowledge Graph'),blurb:tr('knowledge.blurb','Markdown docs as articles, linked by wikilinks and citations. Click an article for details.'),n2:'Articles',e2:'Links',descKey:'summary',entKey:'topics',entLabel:'TOPICS',footL:'nTopics',footLw:'topics',footR:'nLinks',footRw:'links',ptype:'article'}};
 function CD(){ return CARDSETS[graphMode]||null; }
 const cardW=DATA.cardW, cardH=DATA.cardH;
 const FILE_LEVEL=new Set(['file','config','document','service','pipeline','table','schema','resource','endpoint']);
@@ -456,7 +457,7 @@ function cardOverHTML(){ const S=CD(); if(!S)return ''; let h='<div class="ov-ti
   h+='<div class="ov-grid">'+stat(S.n2,S.nodes.length)+stat(S.e2,S.edges.length)+'</div>';
   if(S.nodes.length){ h+='<div class="ov-h">'+S.n2+'</div>';
     for(const d of S.nodes) h+='<div class="nb" data-dom="'+d.i+'"><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:'+d.color+'"></span> '+esc(d.name)+' <span class="muted">· '+(d[S.footL]||0)+' '+S.footLw+'</span></div>'; }
-  else h+='<div class="ov-desc" style="margin-top:10px">'+(graphMode==='knowledge'?'No linked docs found.':'No domains detected.')+'</div>';
+  else h+='<div class="ov-desc" style="margin-top:10px">'+(graphMode==='knowledge'?tr('empty.docs','No linked docs found.'):tr('empty.domains','No domains detected.'))+'</div>';
   return h; }
 function cardInfoHTML(i){ const S=CD(); if(!S)return ''; const d=S.nodes[i];
   let h='<div class="pacts"><button class="pact" style="margin-left:auto" onclick="selectDomain(-1)" title="Deselect">✕</button></div>';
@@ -470,15 +471,15 @@ function cardInfoHTML(i){ const S=CD(); if(!S)return ''; const d=S.nodes[i];
   if(outs.length){ h+='<div class="ov-h">'+S.e2+' out ('+outs.length+')</div>'; for(const e of outs) h+='<div class="nb" data-dom="'+e.b+'"><span class="et">'+esc(e.label||'link')+'</span> '+esc(S.nodes[e.b].name)+(e.count?' <span class="muted">· '+e.count+'</span>':'')+'</div>'; }
   if(ins.length){ h+='<div class="ov-h">'+S.e2+' in ('+ins.length+')</div>'; for(const e of ins) h+='<div class="nb" data-dom="'+e.a+'"><span class="et">'+esc(e.label||'link')+'</span> '+esc(S.nodes[e.a].name)+(e.count?' <span class="muted">· '+e.count+'</span>':'')+'</div>'; }
   if(graphMode==='domain'){ const flows=PF_BY_DOMAIN[d.key]||[];
-    if(flows.length){ h+='<div class="ov-h">Process flows ('+flows.length+')</div>';
+    if(flows.length){ h+='<div class="ov-h">'+tr('panel.process_flows','Process flows')+' ('+flows.length+')</div>';
       for(const f of flows.slice(0,4)){ h+='<div class="flowbox"><div class="flow-title">'+esc(f.name||f.id||'Flow')+(f.confidence!==undefined?' <span class="muted">· '+Math.round(f.confidence*100)+'%</span>':'')+'</div>';
         const steps=f.steps||[]; for(const st of steps.slice(0,6)) h+=processStepHTML(st);
         if(steps.length>6) h+='<div class="muted small">+'+(steps.length-6)+' more step(s)</div>';
         h+='</div>'; }
     }
   }
-  if(graphMode==='domain' && d.members&&d.members.length){ h+='<div class="ov-h">Files ('+d.nFiles+')</div>'; for(const idx of d.members.slice(0,40)){ const n=N[idx]; if(!n||!FILE_LEVEL.has(n.type))continue; h+='<div class="nb" data-i="'+idx+'">'+esc(n.name)+' <span class="muted">· '+esc(n.type)+'</span></div>'; } }
-  if(graphMode==='knowledge' && d.memberIdx>=0 && N[d.memberIdx]){ h+='<div class="ov-h">Source</div><div class="nb" data-i="'+d.memberIdx+'">'+esc(N[d.memberIdx].name)+' <span class="muted">· open in code graph</span></div>'; }
+  if(graphMode==='domain' && d.members&&d.members.length){ h+='<div class="ov-h">'+tr('detail.files','Files')+' ('+d.nFiles+')</div>'; for(const idx of d.members.slice(0,40)){ const n=N[idx]; if(!n||!FILE_LEVEL.has(n.type))continue; h+='<div class="nb" data-i="'+idx+'">'+esc(n.name)+' <span class="muted">· '+esc(n.type)+'</span></div>'; } }
+  if(graphMode==='knowledge' && d.memberIdx>=0 && N[d.memberIdx]){ h+='<div class="ov-h">'+tr('panel.source','Source')+'</div><div class="nb" data-i="'+d.memberIdx+'">'+esc(N[d.memberIdx].name)+' <span class="muted">· open in code graph</span></div>'; }
   return h; }
 function processStepHTML(st){ const idx=NID.has(st.nodeId)?NID.get(st.nodeId):-1, role=st.role||'step', label=st.label||st.filePath||st.nodeId||'step';
   const path=st.filePath||(idx>=0&&N[idx]?N[idx].path:'');
@@ -495,14 +496,14 @@ const panel=document.getElementById('panel');
 function stat(k,v){ return '<div class="stat"><div class="v">'+v+'</div><div class="k">'+k+'</div></div>'; }
 function overviewHTML(){ const p=DATA.project,s=DATA.stats; let h='<div class="ov-title">'+esc(p.name)+'</div>';
   if(p.description) h+='<div class="ov-desc">'+esc(p.description)+'</div>';
-  h+='<div class="ov-grid">'+stat('Nodes',s.nodes)+stat('Edges',s.edges)+stat('Layers',s.layers)+stat('Types',TY.length)+'</div>';
-  if(p.languages&&p.languages.length) h+='<div class="ov-h">Languages</div><div class="pills">'+p.languages.map(l=>'<span class="pill">'+esc(l)+'</span>').join('')+'</div>';
-  if(p.frameworks&&p.frameworks.length) h+='<div class="ov-h">Frameworks</div><div class="pills">'+p.frameworks.map(l=>'<span class="pill">'+esc(l)+'</span>').join('')+'</div>';
-  h+='<div class="ov-h">Node types</div>'; const mx=Math.max.apply(null,TY.map(t=>t.count).concat([1]));
+  h+='<div class="ov-grid">'+stat(tr('overview.nodes','Nodes'),s.nodes)+stat(tr('overview.edges','Edges'),s.edges)+stat(tr('overview.layers','Layers'),s.layers)+stat(tr('overview.types','Types'),TY.length)+'</div>';
+  if(p.languages&&p.languages.length) h+='<div class="ov-h">'+tr('overview.languages','Languages')+'</div><div class="pills">'+p.languages.map(l=>'<span class="pill">'+esc(l)+'</span>').join('')+'</div>';
+  if(p.frameworks&&p.frameworks.length) h+='<div class="ov-h">'+tr('overview.frameworks','Frameworks')+'</div><div class="pills">'+p.frameworks.map(l=>'<span class="pill">'+esc(l)+'</span>').join('')+'</div>';
+  h+='<div class="ov-h">'+tr('overview.node_types','Node types')+'</div>'; const mx=Math.max.apply(null,TY.map(t=>t.count).concat([1]));
   for(const t of TY) h+='<div class="bar"><span class="bk" style="background:'+t.color+'"></span><span class="bl">'+esc(t.type)+'</span><span class="bb"><span style="width:'+(t.count/mx*100)+'%;background:'+t.color+'"></span></span><span class="bc">'+t.count+'</span></div>';
-  h+='<div class="ov-h">Most connected</div>';
+  h+='<div class="ov-h">'+tr('overview.most_connected','Most connected')+'</div>';
   for(const n of DATA.topConnected) h+='<div class="nb" data-i="'+n.i+'">'+esc(n.name)+' <span class="muted">· '+esc(n.type)+' · '+n.deg+'</span></div>';
-  if(TOUR.length){ h+='<div class="ov-h">Project Tour · '+TOUR.length+' steps</div><button class="bigbtn" onclick="startTour()">▶ Start Tour</button>';
+  if(TOUR.length){ h+='<div class="ov-h">'+tr('overview.project_tour','Project Tour')+' · '+TOUR.length+' steps</div><button class="bigbtn" onclick="startTour()">▶ '+tr('overview.start_tour','Start Tour')+'</button>';
     TOUR.forEach((stp,i)=>{ h+='<div class="tstep" data-t="'+i+'"><span class="tn">'+(i+1)+'.</span> '+esc(stp.title)+'</div>'; }); }
   return h; }
 function codeHTML(src, range){ const lines=src.split('\n'); const s=(range&&range[0])||0, e=(range&&range[1])||0;
@@ -539,15 +540,15 @@ function infoHTML(i){ const n=N[i];
   if(n.path){ h+='<div class="path">'+esc(n.path)+(n.lineRange?' <span class="lr">L'+n.lineRange[0]+'–'+n.lineRange[1]+'</span>':'')+'</div>'; }
   if(n.signature) h+='<pre class="sig">'+esc(n.signature)+'</pre>';
   if(n.summary) h+='<div class="summary">'+esc(n.summary)+'</div>';
-  if(n.docstring && n.docstring!==n.summary) h+='<div class="ov-h">Documentation</div><div class="doc">'+esc(n.docstring)+'</div>';
-  if(n.languageNotes) h+='<div class="ov-h">Language notes</div><div class="doc">'+esc(n.languageNotes)+'</div>';
+  if(n.docstring && n.docstring!==n.summary) h+='<div class="ov-h">'+tr('panel.documentation','Documentation')+'</div><div class="doc">'+esc(n.docstring)+'</div>';
+  if(n.languageNotes) h+='<div class="ov-h">'+tr('panel.language_notes','Language notes')+'</div><div class="doc">'+esc(n.languageNotes)+'</div>';
   if(n.tags&&n.tags.length) h+='<div class="pills">'+n.tags.map(t=>'<span class="pill">'+esc(t)+'</span>').join('')+'</div>';
-  if(n.layer>=0) h+='<div class="ov-h">Layer</div><div class="nb" style="cursor:default"><span class="sw" style="background:'+L[n.layer].color+'"></span>&nbsp;'+esc(L[n.layer].name)+'</div>';
+  if(n.layer>=0) h+='<div class="ov-h">'+tr('panel.layer','Layer')+'</div><div class="nb" style="cursor:default"><span class="sw" style="background:'+L[n.layer].color+'"></span>&nbsp;'+esc(L[n.layer].name)+'</div>';
   const conns=[...nbr[i]].sort((a,b)=>N[b].deg-N[a].deg);
-  if(conns.length){ h+='<div class="ov-h">Connections ('+conns.length+')</div>';
+  if(conns.length){ h+='<div class="ov-h">'+tr('panel.connections','Connections')+' ('+conns.length+')</div>';
     for(const j of conns.slice(0,60)) h+='<div class="nb" data-i="'+j+'"><span class="et">'+esc(edgeBetween(i,j))+'</span> '+esc(N[j].name)+'</div>'; }
   const src=DATA.sources[n.path];
-  if(src){ h+='<div class="ov-h source-head"><span>Source · '+esc(n.path)+'</span>'+editorButtons(n)+'<button class="pact source-expand" data-code-i="'+i+'" title="Open source in a larger viewer">Expand</button></div>'+codeHTML(src, n.lineRange); }
+  if(src){ h+='<div class="ov-h source-head"><span>'+tr('panel.source','Source')+' · '+esc(n.path)+'</span>'+editorButtons(n)+'<button class="pact source-expand" data-code-i="'+i+'" title="Open source in a larger viewer">'+tr('panel.expand','Expand')+'</button></div>'+codeHTML(src, n.lineRange); }
   return h; }
 // --- collapsible file-tree (IDE-style) ---
 const openDirs=new Set(); let FTREE=null;
@@ -582,12 +583,12 @@ function treeHTML(node, prefix, depth){ let h=''; const dirNames=Object.keys(nod
   for(const f of node.files){ h+='<div class="frow fitem" data-i="'+f.i+'" style="padding-left:'+(depth*13+20)+'px">'+extBadge(f.name,f.color)+'<span class="fname">'+esc(f.name)+'</span></div>'; }
   return h; }
 function filesHTML(){ if(!FTREE){ FTREE=buildTree(); Object.keys(FTREE.dirs).forEach(d=>openDirs.add(d)); }
-  if(!Object.keys(FTREE.dirs).length && !FTREE.files.length) return '<div class="ov-desc">No files.</div>';
+  if(!Object.keys(FTREE.dirs).length && !FTREE.files.length) return '<div class="ov-desc">'+tr('empty.files','No files.')+'</div>';
   return '<div class="ftree2">'+treeHTML(FTREE,'',0)+'</div>'; }
 function renderPanel(){
   const tabs='<div class="ptabs"><select class="pselect" title="Inspector view">'
-    +'<option value="info"'+(sidebarTab==='info'?' selected':'')+'>Info</option>'
-    +'<option value="files"'+(sidebarTab==='files'?' selected':'')+'>Files</option></select>'
+    +'<option value="info"'+(sidebarTab==='info'?' selected':'')+'>'+tr('panel.info','Info')+'</option>'
+    +'<option value="files"'+(sidebarTab==='files'?' selected':'')+'>'+tr('panel.files','Files')+'</option></select>'
     +'<button class="pclose" title="Hide inspector">⟩</button></div>';
   const body = sidebarTab==='files' ? filesHTML()
     : graphMode!=='structural' ? (selDomain>=0 ? cardInfoHTML(selDomain) : cardOverHTML())
@@ -816,11 +817,11 @@ window.focusOn=focusOn;
 // filter popup: node-type + complexity checkboxes (+ reset), syncing the category chips
 const COMPLEX=['simple','moderate','complex'];
 function syncCatChips(){ document.querySelectorAll('#catFilters .cat').forEach(b=>{ const c=CATS[+b.dataset.i]; if(c) b.classList.toggle('off', c.t.some(t=>hiddenTypes.has(t))); }); }
-function buildFilterMenu(){ const fm=$('filterMenu'); let h='<h5>Node types</h5>';
+function buildFilterMenu(){ const fm=$('filterMenu'); let h='<h5>'+tr('filter.node_types','Node types')+'</h5>';
   for(const t of TY) h+='<label><input type="checkbox" data-ft="type" value="'+esc(t.type)+'"'+(hiddenTypes.has(t.type)?'':' checked')+'><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:'+t.color+'"></span>'+esc(t.type)+' <span class="muted">'+t.count+'</span></label>';
-  h+='<h5>Complexity</h5>';
+  h+='<h5>'+tr('filter.complexity','Complexity')+'</h5>';
   for(const c of COMPLEX) h+='<label><input type="checkbox" data-ft="complex" value="'+c+'"'+(hiddenComplex.has(c)?'':' checked')+'>'+c+'</label>';
-  h+='<button class="bigbtn fm-reset" style="margin-top:12px">Reset filters</button>'; fm.innerHTML=h;
+  h+='<button class="bigbtn fm-reset" style="margin-top:12px">'+tr('filter.reset','Reset filters')+'</button>'; fm.innerHTML=h;
   fm.querySelectorAll('input[data-ft]').forEach(inp=>inp.onchange=()=>{ const set=inp.dataset.ft==='type'?hiddenTypes:hiddenComplex;
     if(inp.checked) set.delete(inp.value); else set.add(inp.value); if(inp.dataset.ft==='type') syncCatChips(); draw(); });
   fm.querySelector('.fm-reset').onclick=()=>{ hiddenComplex.clear(); hiddenTypes.clear(); applyDetail(); buildFilterMenu(); syncCatChips(); draw(); };
@@ -891,7 +892,7 @@ document.querySelectorAll('.modal').forEach(m=>m.addEventListener('mousedown',e=
 const termOut=$('termOut'), termIn=$('termIn'); let termHist=[], termHi=0;
 function tPrint(html,cls){ const d=document.createElement('div'); if(cls)d.className=cls; d.innerHTML=html; termOut.appendChild(d); termOut.scrollTop=termOut.scrollHeight; return d; }
 function tNodeRow(i,extra){ const n=N[i]; const d=tPrint('  <span style="color:'+n.color+'">'+esc(n.type)+'</span>  '+esc(n.name)+(extra||(n.path?'  <span style="color:var(--muted)">'+esc(n.path)+'</span>':'')),'ln-node ln-out'); d.onclick=()=>goToNode(i); }
-function tNodes(list){ if(!list.length){ tPrint('  (none)','ln-out'); return; } list.slice(0,40).forEach(i=>tNodeRow(i)); if(list.length>40) tPrint('  …and '+(list.length-40)+' more','ln-out'); }
+function tNodes(list){ if(!list.length){ tPrint('  '+tr('terminal.none','(none)'),'ln-out'); return; } list.slice(0,40).forEach(i=>tNodeRow(i)); if(list.length>40) tPrint('  …and '+(list.length-40)+' more','ln-out'); }
 function findNodes(q){ q=(q||'').toLowerCase().trim(); if(!q)return []; const r=[]; for(let i=0;i<N.length;i++){ const n=N[i];
   if((n.name||'').toLowerCase().includes(q)||(n.path||'').toLowerCase().includes(q)) r.push(i); } return r; }
 function oneNode(q){ const m=findNodes(q); return m.length?m[0]:-1; }
@@ -899,7 +900,7 @@ function flowText(f){ return [f.id,f.name,f.domainKey].concat((f.steps||[]).flat
 function findFlows(q){ q=(q||'').toLowerCase().trim(); if(!q)return PF.slice(); return PF.filter(f=>flowText(f).includes(q)); }
 function tFlow(f,full){
   tPrint('  <span style="color:var(--accent)">'+esc(f.name||f.id||'Flow')+'</span>  <span style="color:var(--muted)">'+esc(f.domainKey||'domain')+(f.confidence!==undefined?' · '+Math.round(f.confidence*100)+'%':'')+'</span>','ln-ok');
-  const steps=f.steps||[]; if(!steps.length){ tPrint('    no steps','ln-out'); return; }
+  const steps=f.steps||[]; if(!steps.length){ tPrint('    '+tr('terminal.no_steps','no steps'),'ln-out'); return; }
   const show=full?steps:steps.slice(0,5);
   show.forEach(st=>{ const idx=NID.has(st.nodeId)?NID.get(st.nodeId):-1;
     const d=tPrint('    '+st.order+'. <span style="color:var(--muted)">'+esc(st.role||'step')+'</span> '+esc(st.label||st.filePath||st.nodeId||'step')+(st.filePath?'  <span style="color:var(--muted)">'+esc(st.filePath)+'</span>':''),'ln-node ln-out');
@@ -908,7 +909,7 @@ function tFlow(f,full){
   if(!full&&steps.length>5)tPrint('    …and '+(steps.length-5)+' more step(s); run flow '+esc(f.domainKey||f.name||f.id)+' for details','ln-out');
 }
 const TERM_CMDS={
-  help(){ tPrint('Explore & test this codebase — all offline, against the embedded graph:','ln-ok');
+  help(){ tPrint(tr('terminal.help_intro','Explore & test this codebase — all offline, against the embedded graph:'),'ln-ok');
     tPrint('  find &lt;q&gt;       search nodes by name / path\n  open &lt;q&gt;       focus a node in the graph\n  deps &lt;q&gt;       what it connects to  (outgoing)\n  rdeps &lt;q&gt;      what connects to it  (incoming)\n  grep &lt;re&gt;      regex-search the source code\n  stats          project metrics\n  layers         list layers\n  domains        list domains\n  flows [q]      list process flows\n  flow &lt;q&gt;       show one process flow with clickable steps\n  processes [q]  alias for flows\n  process &lt;q&gt;    alias for flow\n  js &lt;expr&gt;      run JavaScript (or start a line with &gt;)\n  clear          clear the screen','ln-out'); },
   find(a){ const m=findNodes(a); tPrint(m.length+' match'+(m.length===1?'':'es')+(a?' for "'+esc(a)+'"':''),'ln-ok'); tNodes(m); },
   open(a){ const i=oneNode(a); if(i<0){tPrint('  no node matches "'+esc(a)+'"','ln-err');return;} tPrint('  → '+esc(N[i].name),'ln-ok'); goToNode(i); },
@@ -922,8 +923,8 @@ const TERM_CMDS={
         const d=tPrint('  <span style="color:var(--muted)">'+esc(path)+':'+(k+1)+'</span>  '+esc(lines[k].trim().slice(0,90)),'ln-node ln-out'); if(idx>=0)d.onclick=()=>goToNode(idx); } } } }
     tPrint(n+' match(es)'+(n>40?' (showing 40)':''),'ln-ok'); },
   stats(){ const s=DATA.stats; tPrint('  '+s.nodes+' nodes · '+s.edges+' edges · '+s.layers+' layers · '+TY.length+' types','ln-out'); },
-  layers(){ if(!L.length){tPrint('  none','ln-out');return;} L.forEach((l,i)=>tPrint('  ['+i+'] '+esc(l.name)+'  ('+l.count+' files)','ln-out')); },
-  domains(){ if(!DM.length){tPrint('  no domains detected','ln-out');return;} DM.forEach(d=>tPrint('  '+esc(d.name)+'  ('+d.nFiles+' files · '+d.flowCount+' flows)','ln-out')); },
+  layers(){ if(!L.length){tPrint('  '+tr('terminal.none','none'),'ln-out');return;} L.forEach((l,i)=>tPrint('  ['+i+'] '+esc(l.name)+'  ('+l.count+' files)','ln-out')); },
+  domains(){ if(!DM.length){tPrint('  '+tr('terminal.no_domains','no domains detected'),'ln-out');return;} DM.forEach(d=>tPrint('  '+esc(d.name)+'  ('+d.nFiles+' files · '+d.flowCount+' flows)','ln-out')); },
   flows(a){ const m=findFlows(a); if(!m.length){tPrint('  no process flows'+(a?' for "'+esc(a)+'"':''),'ln-out');return;} m.slice(0,12).forEach(f=>tFlow(f,false)); if(m.length>12)tPrint('  …and '+(m.length-12)+' more flow(s)','ln-out'); },
   flow(a){ if(!a){tPrint('  usage: flow &lt;name-or-domain&gt;','ln-err');return;} const m=findFlows(a); if(!m.length){tPrint('  no process flow matches "'+esc(a)+'"','ln-err');return;} tFlow(m[0],true); },
   processes(a){ TERM_CMDS.flows(a); },
@@ -936,7 +937,7 @@ function runTerm(line){ line=line.trim(); if(!line)return; tPrint('<span class="
       tPrint('  '+esc(out&&out.length>2000?out.slice(0,2000)+'…':out),'ln-out'); }catch(e){ tPrint('  '+esc(e.message),'ln-err'); } return; }
   const sp=line.indexOf(' '), cmd=(sp<0?line:line.slice(0,sp)).toLowerCase(), arg=sp<0?'':line.slice(sp+1);
   if(TERM_CMDS[cmd]){ try{ TERM_CMDS[cmd](arg); }catch(e){ tPrint('  '+esc(e.message),'ln-err'); } }
-  else tPrint('  unknown command: '+esc(cmd)+'  (try help)','ln-err'); }
+  else tPrint('  '+tr('terminal.unknown','unknown command')+': '+esc(cmd)+'  ('+tr('terminal.try_help','try help')+')','ln-err'); }
 termIn.addEventListener('keydown',e=>{ e.stopPropagation();
   if(e.key==='Enter'){ runTerm(termIn.value); termIn.value=''; }
   else if(e.key==='Escape'){ toggleTerm(false); }
@@ -958,16 +959,16 @@ function stepAnim(){ if(!_animWanted()){ _animRunning=false; return; } if(animOn
 function setAnim(on){ animOn=on; const b=$('btnAnim'); if(b)b.classList.toggle('on',on); if(on) startAnim(); else draw(); }
 $('btnAnim').onclick=()=>setAnim(!animOn);
 document.querySelectorAll('#modeSeg button').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
-[['domain',DM.length,'No domains detected'],['knowledge',KN.length,'No markdown docs to link']].forEach(([m,n,t])=>{ if(!n){ const b=document.querySelector('#modeSeg [data-m="'+m+'"]'); if(b){ b.disabled=true; b.style.opacity=0.4; b.title=t; } } });
+[['domain',DM.length,tr('empty.domains','No domains detected.')],['knowledge',KN.length,tr('empty.knowledge','No markdown docs to link.')]].forEach(([m,n,t])=>{ if(!n){ const b=document.querySelector('#modeSeg [data-m="'+m+'"]'); if(b){ b.disabled=true; b.style.opacity=0.4; b.title=t; } } });
 
 // theme menu (presets + accent swatches + heading font)
 const themeMenu=$('themeMenu');
-function buildThemeMenu(){ let h='<div class="tm-h">Theme</div>';
+function buildThemeMenu(){ let h='<div class="tm-h">'+tr('theme.title','Theme')+'</div>';
   for(const k in THEMES){ const t=THEMES[k];
     h+='<button class="tm-row" data-theme="'+k+'"><span class="tm-sw" style="background:'+t.bg+'"></span><span class="tm-sw" style="background:'+t.card+'"></span><span class="tm-sw" style="background:'+t.accent+'"></span><span class="tm-name">'+t.label+'</span><span class="tm-chk">✓</span></button>'; }
-  h+='<div class="tm-h">Accent color</div><div class="tm-acc">';
+  h+='<div class="tm-h">'+tr('theme.accent','Accent color')+'</div><div class="tm-acc">';
   for(const a of ACCENTS) h+='<button class="tm-dot" data-acc="'+a+'" style="background:'+a+'"></button>';
-  h+='</div><div class="tm-h">Heading font</div><div class="tm-font">';
+  h+='</div><div class="tm-h">'+tr('theme.heading_font','Heading font')+'</div><div class="tm-font">';
   for(const f in FONTS) h+='<button class="tm-fbtn" data-font="'+f+'" style="font-family:'+FONTS[f]+'">'+f+'</button>';
   themeMenu.innerHTML=h+'</div>';
   themeMenu.querySelectorAll('[data-theme]').forEach(b=>b.onclick=()=>{ THEME_STATE.name=b.dataset.theme; applyTheme(); refreshThemeMenu(); });
