@@ -17,6 +17,24 @@ The target is not feature parity. The target is a better Python-first implementa
 - generated files that work for humans and agents
 - no Node, database, hosted service, or agent-platform runtime dependency
 
+## Implementation Status
+
+Foundation shipped on 2026-06-12:
+
+- `codeglance ask`: deterministic, no-API-key graph Q&A with cited node IDs and file paths.
+- `codeglance processes`: explicit business domain/process map in Markdown or JSON.
+- `codeglance agents`: registry, dry-run planning, and safe installation for common agent/editor guidance files.
+- `src/codeglance/i18n.py`: offline locale normalization and UI/CLI string catalog foundation.
+- Generated bundles include `processes.md` and `processes.json` for `human`, `agent`, and `all` profiles.
+- Public SDK exports include `answer_question(...)` and `render_process_report(...)`.
+
+Still to finish before claiming full competitive advantage:
+
+- richer `ask` intents such as reverse dependencies, changed-file risk, and read-first recommendations
+- first-class process data in `knowledge-graph.json` and `knowledge-graph.toon`
+- localized static HTML labels wired through the renderer
+- installer command polish, generated marketplace manifests, and platform-specific validation docs
+
 ## Capability 1: `codeglance ask`
 
 **Capability**

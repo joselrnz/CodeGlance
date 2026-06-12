@@ -35,9 +35,13 @@ Already implemented:
 - `codeglance serve`: local output browser with desktop and LAN URLs.
 - `codeglance generate`: profile-based output bundles.
 - `codeglance review`: graph/output quality report.
+- `codeglance ask`: deterministic graph-backed Q&A with cited evidence and JSON/Markdown output.
+- `codeglance processes`: explicit business domain and process-flow sidecar output.
+- `codeglance agents`: safe agent/editor guidance install planning.
 - `impact.md`, `onboarding.md`, `agent.md`, `llms.txt`, `knowledge-graph.toon`,
   `knowledge-graph.json`, `llm-context.schema.json`, and `meta.json`.
 - `codeglance init`: project config, agent instructions, and command assets.
+- Localization foundation: locale normalization, string catalog fallback, and coverage validation.
 - Broad language extraction through Python AST and tree-sitter language pack.
 - Static package version policy: package version is `0.0.1` until intentionally changed.
 
@@ -54,12 +58,13 @@ Already implemented:
 | Editor links | Shipped | Keep VS Code/Cursor links, add graceful fallback copy action. |
 | Graph review report | Shipped | Add `doctor` for release/readiness checks. |
 | Impact report | Shipped | Add changed-only context mode. |
-| Agent context | Shipped | Add `ask` retrieval workflow. |
-| Domain mode | Partial | Add explicit business flow/process extraction. |
+| Agent context | Shipped | Add richer `ask` intents and generated answer artifacts. |
+| Domain mode | Partial | Persist business process data into graph/TOON and HTML inspector. |
 | Knowledge mode | Partial | Add concept/entity extraction from docs. |
 | Persona modes | Partial | Expand from current view presets into audience presets. |
 | Language concepts | Partial | Add concept cards and filters. |
-| Localization | Not started | Add UI string table first. |
+| Localization | Foundation | Wire catalog into static HTML and CLI help labels. |
+| Agent installers | Foundation | Add marketplace manifests and platform-specific validation. |
 | Team sharing | Partial docs | Add release/share checklist and commit policy. |
 
 ## Immediate Push Readiness
@@ -71,6 +76,9 @@ python -m pytest
 python -m build
 python -m codeglance generate . --out .codeglance/outputs --profile all --full
 python -m codeglance review . -o .codeglance/outputs/review.md
+python -m codeglance ask "What should I read first?" . --format json
+python -m codeglance processes . --format json
+python -m codeglance agents plan . --platform codex
 ```
 
 Then manually verify:
@@ -152,7 +160,10 @@ Suggested files:
 - `src/codeglance/services/projects.py`
 - `tests/test_smoke.py`
 
-## Phase 3: `codeglance ask`
+## Phase 3: `codeglance ask` Foundation
+
+Status: foundation shipped. The command works offline, returns Markdown or JSON, and cites graph
+evidence.
 
 Goal: let users and agents ask repo questions without stuffing the whole repo into a prompt.
 

@@ -875,6 +875,8 @@ def test_generate_outputs_writes_complete_bundle(tmp_path):
         "glance.html",
         "graph.static.html",
         "wiki.html",
+        "processes.md",
+        "processes.json",
         "context.md",
         "agent.md",
         "onboarding.md",
@@ -891,14 +893,18 @@ def test_generate_outputs_writes_complete_bundle(tmp_path):
     assert "<canvas" in (out / "glance.html").read_text(encoding="utf-8")
     assert "agent context" in (out / "agent.md").read_text(encoding="utf-8")
     assert "Onboarding Guide" in (out / "onboarding.md").read_text(encoding="utf-8")
+    assert "Business Process Map" in (out / "processes.md").read_text(encoding="utf-8")
+    assert "domains" in json.loads((out / "processes.json").read_text(encoding="utf-8"))
     assert "Impact Report" in (out / "impact.md").read_text(encoding="utf-8")
     assert "Codeglance Review" in (out / "review.md").read_text(encoding="utf-8")
     index = (out / "index.html").read_text(encoding="utf-8")
     assert "glance.html" in index and "llm-context.schema.json" in index
     assert "onboarding.md" in index and "impact.md" in index and "review.md" in index
+    assert "processes.md" in index and "processes.json" in index
     llms = (out / "llms.txt").read_text(encoding="utf-8")
     assert "Read Order" in llms and "`agent.md`" in llms
     assert "`onboarding.md`" in llms and "`impact.md`" in llms and "`review.md`" in llms
+    assert "`processes.md`" in llms and "`processes.json`" in llms
     assert "`knowledge-graph.toon`" in llms
     toon = (out / "knowledge-graph.toon").read_text(encoding="utf-8")
     assert "nodes[" in toon and "{id,type,name,path,summary,complexity,tags}" in toon
@@ -909,6 +915,8 @@ def test_generate_outputs_writes_complete_bundle(tmp_path):
     assert "knowledgeGraphSchema" in schema
     assert "knowledge-graph.toon" in schema["generatedArtifacts"]
     assert "onboarding.md" in schema["generatedArtifacts"]
+    assert "processes.md" in schema["generatedArtifacts"]
+    assert "processes.json" in schema["generatedArtifacts"]
     assert "impact.md" in schema["generatedArtifacts"]
     assert "review.md" in schema["generatedArtifacts"]
     assert "file" in schema["nodeTypes"]
@@ -980,16 +988,18 @@ def test_generate_accepts_out_alias():
 
 def test_public_api_and_model_facade():
     import codeglance
-    from codeglance.api import analyze_project, render_agent_context, render_html
+    from codeglance.api import analyze_project, answer_question, render_agent_context, render_html, render_process_report
     from codeglance.models import KnowledgeGraph as PublicKnowledgeGraph
 
     root = Path("examples/taskman")
     graph = analyze_project(root, full=True)
 
     assert codeglance.analyze_project is analyze_project
+    assert codeglance.answer_question is answer_question
     assert isinstance(graph, PublicKnowledgeGraph)
     assert "<!doctype html>" in render_html(graph, root)
     assert "AI Reading Protocol" in render_agent_context(graph, root, mode="agent")
+    assert "Business Process Map" in render_process_report(graph)
 
 
 def test_more_example_projects_are_analyzable():

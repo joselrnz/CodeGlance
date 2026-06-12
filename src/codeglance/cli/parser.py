@@ -7,6 +7,8 @@ import argparse
 from .. import __version__
 from ..commands import (
     cmd_analyze,
+    cmd_agents,
+    cmd_ask,
     cmd_context,
     cmd_dashboard,
     cmd_explain,
@@ -14,6 +16,7 @@ from ..commands import (
     cmd_impact,
     cmd_init,
     cmd_onboard,
+    cmd_processes,
     cmd_review,
     cmd_render,
     cmd_serve,
@@ -33,6 +36,9 @@ SUBCOMMANDS = {
     "review",
     "onboard",
     "init",
+    "ask",
+    "processes",
+    "agents",
 }
 
 
@@ -55,6 +61,9 @@ def build_parser() -> argparse.ArgumentParser:
     _add_impact_parser(subcommands)
     _add_review_parser(subcommands)
     _add_onboard_parser(subcommands)
+    _add_ask_parser(subcommands)
+    _add_processes_parser(subcommands)
+    _add_agents_parser(subcommands)
     _add_generate_parser(subcommands)
     _add_serve_parser(subcommands)
 
@@ -176,6 +185,48 @@ def _add_onboard_parser(subcommands: argparse._SubParsersAction) -> None:
     cmd.add_argument("--full", action="store_true", help="force a full rebuild, ignoring fingerprints")
     cmd.add_argument("-o", "--output", default=None, help="write Markdown to a file instead of stdout")
     cmd.set_defaults(func=cmd_onboard)
+
+
+def _add_ask_parser(subcommands: argparse._SubParsersAction) -> None:
+    cmd = subcommands.add_parser("ask", help="answer a natural-language question from graph evidence")
+    cmd.add_argument("question", help="question to answer")
+    cmd.add_argument("path", nargs="?", default=".", help="project directory (default: .)")
+    cmd.add_argument("--format", choices=("markdown", "json"), default="markdown", help="output format")
+    cmd.add_argument("--max-results", type=int, default=5, help="maximum cited evidence items")
+    cmd.add_argument("--llm", action="store_true", help="enrich summaries via an LLM before retrieval")
+    cmd.add_argument("--model", default=None, help="LLM model id")
+    cmd.add_argument("--full", action="store_true", help="force a full rebuild, ignoring fingerprints")
+    cmd.add_argument("-o", "--output", default=None, help="write answer to a file instead of stdout")
+    cmd.set_defaults(func=cmd_ask)
+
+
+def _add_processes_parser(subcommands: argparse._SubParsersAction) -> None:
+    cmd = subcommands.add_parser("processes", help="generate an explicit business domain/process map")
+    cmd.add_argument("path", nargs="?", default=".", help="project directory (default: .)")
+    cmd.add_argument("--format", choices=("markdown", "json"), default="markdown", help="output format")
+    cmd.add_argument("--llm", action="store_true", help="enrich summaries via an LLM before extraction")
+    cmd.add_argument("--model", default=None, help="LLM model id")
+    cmd.add_argument("--full", action="store_true", help="force a full rebuild, ignoring fingerprints")
+    cmd.add_argument("-o", "--output", default=None, help="write process map to a file instead of stdout")
+    cmd.set_defaults(func=cmd_processes)
+
+
+def _add_agents_parser(subcommands: argparse._SubParsersAction) -> None:
+    cmd = subcommands.add_parser("agents", help="list, plan, or install agent/editor integration files")
+    actions = cmd.add_subparsers(dest="action", required=True)
+
+    actions.add_parser("list", help="list supported agent/editor targets").set_defaults(func=cmd_agents)
+
+    for action, help_text in (
+        ("plan", "show repo-relative files that would be installed"),
+        ("install", "write repo-relative integration files"),
+    ):
+        child = actions.add_parser(action, help=help_text)
+        child.add_argument("path", nargs="?", default=".", help="project directory (default: .)")
+        child.add_argument("--platform", action="append", help="platform id; repeat for multiple platforms")
+        child.add_argument("--all", action="store_true", help="target all supported platforms")
+        child.add_argument("--overwrite", action="store_true", help="replace existing integration files")
+        child.set_defaults(func=cmd_agents)
 
 
 def _add_generate_parser(subcommands: argparse._SubParsersAction) -> None:

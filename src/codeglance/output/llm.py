@@ -20,6 +20,8 @@ def build_llms_txt(root: Path, outputs: list[GeneratedOutput]) -> str:
     ]
     read_order = [
         ("agent.md", "compact repo map, read order, dependency hotspots, and agent rules"),
+        ("processes.md", "explicit business domains, process flows, and ordered steps"),
+        ("processes.json", "machine-readable business domain and process-flow sidecar"),
         ("onboarding.md", "human-friendly architecture walkthrough and first-day reading order"),
         ("impact.md", "changed-file impact report and dependency ripple checklist"),
         ("review.md", "graph and generated-output quality report before sharing or pushing"),
@@ -55,6 +57,8 @@ def build_llm_context_schema(root: Path, outputs: list[GeneratedOutput]) -> dict
         "readOrder": [
             "llms.txt",
             "agent.md",
+            "processes.md",
+            "processes.json",
             "llm-context.schema.json",
             "context.md",
             "knowledge-graph.toon",
@@ -93,6 +97,22 @@ def build_llm_context_schema(root: Path, outputs: list[GeneratedOutput]) -> dict
                 "audience": "agent",
                 "contains": ["read-first files", "file dependency map", "per-file summaries", "symbols"],
                 "useWhen": "Use when agent.md is not enough to choose files.",
+            },
+            {
+                "path": "processes.md",
+                "format": "markdown",
+                "tier": 1,
+                "audience": "human-agent",
+                "contains": ["business domains", "ordered flows", "step evidence", "confidence"],
+                "useWhen": "Use when work needs product/business process context, not just file structure.",
+            },
+            {
+                "path": "processes.json",
+                "format": "json",
+                "tier": 1,
+                "audience": "tool-agent",
+                "contains": ["domains", "flows", "processes", "ordered steps", "evidence"],
+                "useWhen": "Use for structured workflow retrieval and agent planning.",
             },
             {
                 "path": "onboarding.md",

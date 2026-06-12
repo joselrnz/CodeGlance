@@ -7,6 +7,7 @@ import shutil
 from pathlib import Path
 
 from ..graph import analyze
+from ..processes import extract_process_map, render_process_map
 from ..render import (
     render_context,
     render_impact,
@@ -50,6 +51,8 @@ def generate_outputs(
         GeneratedOutput("Glance interactive visual", out / "glance.html", "HTML"),
         GeneratedOutput("Static graph", out / "graph.static.html", "HTML"),
         GeneratedOutput("Wiki", out / "wiki.html", "HTML"),
+        GeneratedOutput("Business process map", out / "processes.md", "Markdown"),
+        GeneratedOutput("Business process map JSON", out / "processes.json", "JSON"),
         GeneratedOutput("Full agent context", out / "context.md", "Markdown"),
         GeneratedOutput("Compact agent context", out / "agent.md", "Markdown"),
         GeneratedOutput("Onboarding guide", out / "onboarding.md", "Markdown"),
@@ -72,6 +75,12 @@ def generate_outputs(
         (out / "graph.static.html").write_text(render_static(graph, root), encoding="utf-8")
     if "wiki.html" in selected:
         (out / "wiki.html").write_text(render_wiki(graph, root), encoding="utf-8")
+    if "processes.md" in selected or "processes.json" in selected:
+        process_map = extract_process_map(graph)
+        if "processes.md" in selected:
+            (out / "processes.md").write_text(render_process_map(process_map, graph.project.name), encoding="utf-8")
+        if "processes.json" in selected:
+            (out / "processes.json").write_text(json.dumps(process_map.to_dict(), indent=2), encoding="utf-8")
     if "context.md" in selected:
         (out / "context.md").write_text(render_context(graph, root, mode="full"), encoding="utf-8")
     if "agent.md" in selected:

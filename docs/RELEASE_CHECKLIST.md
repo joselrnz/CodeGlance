@@ -80,6 +80,8 @@ Expected `--profile all` outputs:
 - `wiki.html`
 - `context.md`
 - `agent.md`
+- `processes.md`
+- `processes.json`
 - `onboarding.md`
 - `impact.md`
 - `review.md`
