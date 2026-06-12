@@ -601,7 +601,7 @@ def _review_outputs(
     glance = output_dir / "glance.html"
     if glance.is_file():
         text = glance.read_text(encoding="utf-8", errors="ignore")
-        for marker in ("const DATA = ", 'id="refreshNotice"', "startOutputRefreshWatch"):
+        for marker in ("const DATA = ", 'id="btnReload"', "startOutputRefreshWatch"):
             if marker not in text:
                 findings.append(ReviewFinding(
                     "warning",

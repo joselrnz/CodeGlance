@@ -152,11 +152,8 @@ STYLE = r'''
   .pact.on { color:var(--accent); border-color:var(--accent); background:rgba(var(--accent-rgb),0.16); }
   #toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(12px); padding:9px 16px; font-size:13px; z-index:30; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; }
   #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-  #refreshNotice { position:fixed; left:50%; bottom:78px; transform:translateX(-50%); z-index:29; display:flex; align-items:center; gap:10px;
-    padding:9px 12px; font-size:12px; color:var(--text); border-color:rgba(var(--accent-rgb),0.45); box-shadow:0 18px 50px rgba(0,0,0,.35); }
-  #refreshNotice.hidden { display:none; }
-  #refreshNotice button { padding:5px 10px; color:var(--accent); }
-  #refreshDismiss { color:var(--text2); border-color:var(--line); }
+  #btnReload.stale { color:var(--accent); border-color:rgba(var(--accent-rgb),0.72); background:rgba(var(--accent-rgb),0.18); box-shadow:0 0 0 1px rgba(var(--accent-rgb),0.18) inset; }
+  #btnReload.stale::after { content:""; width:6px; height:6px; margin-left:6px; border-radius:50%; background:var(--accent); display:inline-block; vertical-align:middle; box-shadow:0 0 10px rgba(var(--accent-rgb),0.8); }
   /* responsive: progressively shed non-essential header controls as the window narrows */
   @media (max-width:1360px){ #layerChips { display:none; } }
   @media (max-width:1160px){ #catFilters { display:none; } }
@@ -347,8 +344,6 @@ STYLE = r'''
     body.tour-active #zoom { bottom:calc(44dvh + max(18px,env(safe-area-inset-bottom))); }
     body.term-open.tour-active #zoom { bottom:calc(max(min(48dvh,340px),44dvh) + max(18px,env(safe-area-inset-bottom))); }
     #termFab { left:max(8px,env(safe-area-inset-left)); bottom:max(10px,env(safe-area-inset-bottom)); }
-    #refreshNotice { left:max(8px,env(safe-area-inset-left)); right:max(8px,env(safe-area-inset-right)); bottom:calc(max(10px,env(safe-area-inset-bottom)) + 54px);
-      transform:none; justify-content:space-between; }
     #panelReopen { top:auto; right:max(8px,env(safe-area-inset-right)); bottom:max(10px,env(safe-area-inset-bottom));
       height:auto; border-radius:999px; padding:10px 12px; }
   }

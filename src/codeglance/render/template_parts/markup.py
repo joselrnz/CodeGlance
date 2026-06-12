@@ -48,6 +48,7 @@ HTML_BODY = r'''</style>
     <button id="btnAnim" class="on" title="Toggle edge flow animation (a)">≈ Flow</button>
     <button id="btnTheme" title="Theme (t)">◑ Theme</button>
     <button id="btnTerm" title="Terminal — query the graph + run JS, offline (~)">&gt;_ Term</button>
+    <button id="btnReload" title="Reload this HTML while keeping the current selection">↻ Refresh</button>
     <button id="btnHelp" title="Shortcuts (?)">?</button>
   </span>
 </div>
@@ -93,6 +94,7 @@ HTML_BODY = r'''</style>
     <button data-mirror="btnAnim">Flow</button>
     <button data-mirror="btnTheme">Theme</button>
     <button data-mirror="btnTerm">Term</button>
+    <button data-mirror="btnReload">Refresh</button>
     <button data-mirror="btnHelp">Help</button>
   </div>
 </div>
@@ -102,11 +104,6 @@ HTML_BODY = r'''</style>
   <button id="zout" class="card" title="Zoom out">−</button>
 </div>
 <button id="termFab" class="card" title="Open terminal">&gt;_</button>
-<div id="refreshNotice" class="card hidden">
-  <span>New codeglance output is ready.</span>
-  <button id="refreshNow" title="Reload this HTML while keeping the current selection">Refresh</button>
-  <button id="refreshDismiss" title="Hide this notice until another output is generated">Later</button>
-</div>
 <div id="panel" class="card"></div>
 <button id="panelReopen" class="card hidden" title="Show inspector">‹ Inspector</button>
 <div id="tip" class="card"></div>

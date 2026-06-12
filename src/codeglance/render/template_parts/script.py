@@ -1002,13 +1002,11 @@ function handleResize(){ const isMobile=innerWidth<=900;
   resize(); }
 window.addEventListener('resize',handleResize);
 const INITIAL_META={lastAnalyzedAt:(DATA.project&&DATA.project.analyzedAt)||'',gitCommitHash:(DATA.project&&DATA.project.gitCommitHash)||'',version:DATA.version||''};
-const REFRESH_DISMISS_PREFIX='cg-refresh-dismissed:';
-let pendingRefreshMeta=null;
-function refreshMetaKey(m){ return [m&&m.lastAnalyzedAt||'',m&&m.gitCommitHash||'',m&&m.version||''].join('|'); }
-function refreshDismissed(m){ try{return sessionStorage.getItem(REFRESH_DISMISS_PREFIX+refreshMetaKey(m))==='1';}catch(e){return false;} }
-function setRefreshDismissed(m){ try{sessionStorage.setItem(REFRESH_DISMISS_PREFIX+refreshMetaKey(m),'1');}catch(e){} }
-function showRefreshNotice(m){ if(refreshDismissed(m))return; pendingRefreshMeta=m; const n=$('refreshNotice'); if(n)n.classList.remove('hidden'); }
-function hideRefreshNotice(){ const n=$('refreshNotice'); if(n)n.classList.add('hidden'); }
+function setRefreshAvailable(available,m){
+  const b=$('btnReload'); if(!b)return;
+  b.classList.toggle('stale', !!available);
+  b.title=available?'New codeglance output is ready. Reload while keeping the current selection.':'Reload this HTML while keeping the current selection';
+}
 function reloadGlance(){ const base=location.href.split('#')[0].split('?')[0], hash=location.hash||''; location.href=base+'?v='+Date.now()+hash; }
 function metaChanged(m){ if(!m)return false;
   return (m.lastAnalyzedAt&&m.lastAnalyzedAt!==INITIAL_META.lastAnalyzedAt)
@@ -1016,10 +1014,9 @@ function metaChanged(m){ if(!m)return false;
     || (m.version&&m.version!==INITIAL_META.version); }
 async function checkOutputRefresh(){ if(!/^https?:$/.test(location.protocol))return;
   try{ const r=await fetch('meta.json?cg='+Date.now(),{cache:'no-store'}); if(!r.ok)return;
-    const m=await r.json(); if(metaChanged(m))showRefreshNotice(m); else hideRefreshNotice(); }catch(e){} }
+    const m=await r.json(); setRefreshAvailable(metaChanged(m),m); }catch(e){} }
 function startOutputRefreshWatch(){ if(!/^https?:$/.test(location.protocol))return;
-  const b=$('refreshNow'); if(b)b.onclick=reloadGlance;
-  const d=$('refreshDismiss'); if(d)d.onclick=()=>{ if(pendingRefreshMeta)setRefreshDismissed(pendingRefreshMeta); hideRefreshNotice(); };
+  const b=$('btnReload'); if(b)b.onclick=reloadGlance;
   setTimeout(checkOutputRefresh,2400); setInterval(checkOutputRefresh,5000); }
 // keep the breadcrumb / panel / popovers below the header even when it wraps to 2-3 rows on a small window
 const _topbarEl=document.getElementById('topbar');
