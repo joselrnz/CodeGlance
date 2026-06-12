@@ -395,10 +395,11 @@ When the package version changes, update:
 The current package structure is split into SDK, services, CLI, commands, models, output,
 renderers, and analysis. The next useful pieces are:
 
+- richer process cards and flow-focused polish for non-expert users
+- multi-agent/platform installer docs and validation polish
 - release hardening with wheel install validation and `docs/RELEASE_CHECKLIST.md`
 - `codeglance doctor` to automate package, output, metadata, and UI marker checks
-- `codeglance ask` to answer repo questions from `llms.txt`, `agent.md`, TOON, and selected context
-- business-flow extraction for domain/process views
+- richer `codeglance ask` intents for reverse dependencies, changed-file risk, and read-first plans
 - persona preset cleanup for Human, Developer, Reviewer, PM, and Agent audiences
 - language concept cards and filters
 - richer output-folder landing pages with project stats

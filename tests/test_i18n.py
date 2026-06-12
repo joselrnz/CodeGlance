@@ -78,6 +78,16 @@ def test_ui_catalog_embeds_runtime_labels_with_locale_fallbacks():
     assert catalog["theme.heading_font"] == "Fuente de titulos"
     assert catalog["overview.nodes"] == "Nodos"
 
+    ja = ui_catalog("ja-JP")
+    assert ja["help.title"] == "キーボードショートカット"
+    assert ja["filter.reset"] == "フィルターをリセット"
+    assert ja["panel.source"] == "ソース"
+
+    ar = ui_catalog("ar")
+    assert ar["help.title"] == "اختصارات لوحة المفاتيح"
+    assert ar["filter.reset"] == "إعادة ضبط المرشحات"
+    assert ar["panel.source"] == "المصدر"
+
     assert ui_catalog("xx-YY")["help.title"] == "Keyboard Shortcuts"
 
 

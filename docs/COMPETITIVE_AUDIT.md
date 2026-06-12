@@ -55,7 +55,7 @@ Those four areas are now strategic pre-push gates by project decision. The plan 
 | Persona UI | Junior dev, PM, power user | Partial: Overview/Drill/Explore/Tour view presets | Not a push blocker; needs clearer persona naming later |
 | Language concepts | Pattern explanations in context | Partial: symbol extraction and language notes exist; concept cards not implemented | Not a push blocker |
 | Chat/Q&A | Ask anything about the codebase | Foundation shipped: deterministic offline `codeglance ask` with evidence; richer intents still pending | Strategic pre-push gate |
-| Localization | UI labels, summaries, tours in supported languages | Foundation shipped: catalog + generated static HTML chrome localization; config/init and full label coverage pending | Strategic pre-push gate |
+| Localization | UI labels, summaries, tours in supported languages | UI/runtime gate shipped: English, Spanish, Japanese, and Arabic labels cover toolbar, Tools, inspector, terminal/help, filter/theme menus, path modal, and document direction; generated prose localization remains opt-in/future | Good enough to push for UI localization |
 | Auto-update | Auto-update hook and incremental updates | Partial: fingerprints and `serve --watch` quiet refresh; no post-commit hook | Not a push blocker |
 | Plugin distribution | Claude, Codex, Cursor, Copilot, Gemini, more | Foundation shipped: Tier 1 generated adapters/dry-run/validation; polish docs pending | Strategic pre-push gate |
 | Team sharing | Commit graph artifacts, Git LFS guidance | Partial: release/team sharing docs now exist | Good enough to push after `.gitignore` cleanup |
@@ -87,7 +87,7 @@ These should be fixed before pushing:
 
 - `codeglance ask` works offline with cited graph evidence.
 - Domains, flows, processes, and steps are first-class graph data. **Done.**
-- Localized UI works for at least English, Spanish, Japanese, and one RTL locale. **Partial.**
+- Localized UI works for at least English, Spanish, Japanese, and one RTL locale. **Done for UI/runtime labels.**
 - `codeglance init --agents all --dry-run` covers Tier 1 agent/platform outputs.
 - Build artifacts and release-smoke folders must stay ignored.
 - Full test suite must pass.
@@ -108,12 +108,11 @@ These remain useful but should not block the competitive superset push:
 
 After push readiness:
 
-1. finish localization config/init defaults and broad static-label coverage
-2. add richer process cards and flow-focused UI polish
-3. harden multi-agent/platform installer docs and validation
-4. run release build/wheel install smoke
-5. `codeglance doctor`
-6. concept cards
+1. add richer process cards and flow-focused UI polish
+2. harden multi-agent/platform installer docs and validation
+3. run release build/wheel install smoke
+4. `codeglance doctor`
+5. concept cards
 
 This order keeps Codeglance useful today while directly addressing the places where Understand
 Anything is visibly ahead.

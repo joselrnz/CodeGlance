@@ -31,7 +31,9 @@ Foundation shipped on 2026-06-12:
   confidence.
 - `knowledge-graph.toon` now includes compact domain, flow, and process-step tables.
 - `glance.html` supports static UI localization via `VizConfig(ui_language=...)` and
-  `codeglance generate --language/--ui-language`, including document `lang` and `dir`.
+  `codeglance generate --language/--ui-language`, including document `lang`, `dir`, embedded
+  runtime UI labels, inspector labels, terminal/help labels, filter/theme menus, and path modal
+  labels.
 - Domain inspector now shows persisted process flows with clickable step evidence, and the offline
   terminal supports `flows`, `flow <query>`, `processes`, and `process <query>`.
 
@@ -39,7 +41,7 @@ Still to finish before claiming full competitive advantage:
 
 - richer `ask` intents such as reverse dependencies, changed-file risk, and read-first recommendations
 - richer process cards in Domain mode and flow-focused polish
-- config/init language defaults and broader localized labels for inspector, terminal, help, and menus
+- generated prose localization policy and optional LLM-backed content localization
 - installer command polish, generated marketplace manifests, and platform-specific validation docs
 
 ## Capability 1: `codeglance ask`
@@ -213,11 +215,12 @@ Tests:
 
 **Status**
 
-Static HTML localization shell is started. `VizConfig(ui_language=...)` normalizes locale IDs,
-sets document `lang` and RTL/LTR direction, and localizes core toolbar/Tools chrome. `codeglance
-generate --language/--ui-language` now writes localized bundles. Remaining work is config/init
-language defaults and full label coverage for inspector, terminal, help, export menus, and generated
-prose policy.
+Static HTML localization is now usable offline. `VizConfig(ui_language=...)` normalizes locale IDs,
+sets document `lang` and RTL/LTR direction, and localizes toolbar/Tools chrome, overview labels,
+inspector labels, terminal/help labels, filter/theme menus, path modal labels, and empty states.
+`codeglance generate --language/--ui-language` writes localized bundles. `codeglance init
+--language/--ui-language/--content-language` records project defaults in `.codeglance/config.json`.
+Remaining work is generated prose localization policy and optional LLM-backed content localization.
 
 **Capability**
 
@@ -291,7 +294,8 @@ HTML:
 - set `dir="rtl"` for `ar` and `he`
 - embed selected catalog plus English fallback
 - localize toolbar labels, titles, placeholders, terminal help, export menu, path finder, empty
-  states, inspector labels, and cards
+  states, inspector labels, and cards. **Done for English, Spanish, Japanese, and Arabic runtime
+  coverage; other locales safely fall back per key.**
 
 Policy:
 
@@ -308,7 +312,7 @@ Tests:
 - HTML embeds selected locale and direction
 - missing translations fall back to English
 - agent outputs stay English by default
-- `init --language` writes config
+- `init --language` writes config. **Done.**
 - RTL smoke for `ar`
 
 ## Capability 4: Multi-Agent And Platform Installers
@@ -474,8 +478,7 @@ Do not push until all are true:
 - `codeglance ask` works offline and cites evidence.
 - `knowledge-graph.json` persists domains, flows, processes, and steps. **Done.**
 - `glance.html` can render localized UI in at least English, Spanish, Japanese, and one RTL locale.
-  **Partial: core chrome supports English, Spanish, and RTL document direction through generate
-  flags.**
+  **Done for UI/runtime labels: English, Spanish, Japanese, and Arabic.**
 - `codeglance init --agents all --dry-run` shows all Tier 1 platform outputs.
 - `codeglance review` validates the expanded bundle.
 - Full test suite passes.

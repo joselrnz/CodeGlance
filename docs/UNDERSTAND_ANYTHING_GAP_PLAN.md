@@ -48,8 +48,10 @@ Already implemented:
 - `codeglance init`: project config, agent instructions, and command assets.
 - Localization foundation: locale normalization, string catalog fallback, and coverage validation.
 - Static HTML localization shell: `VizConfig(ui_language=...)` and
-  `codeglance generate --language/--ui-language` set `<html lang dir>` and localize core
-  toolbar/Tools labels without changing graph IDs or schema keys.
+  `codeglance generate --language/--ui-language` set `<html lang dir>` and localize toolbar,
+  Tools, overview, inspector, terminal/help, filter/theme menus, path modal, and empty-state labels
+  without changing graph IDs or schema keys.
+- `codeglance init --language/--ui-language/--content-language` writes project localization defaults.
 - Broad language extraction through Python AST and tree-sitter language pack.
 - Static package version policy: package version is `0.0.1` until intentionally changed.
 
@@ -71,7 +73,7 @@ Already implemented:
 | Knowledge mode | Partial | Add concept/entity extraction from docs. |
 | Persona modes | Partial | Expand from current view presets into audience presets. |
 | Language concepts | Partial | Add concept cards and filters. |
-| Localization | Static HTML shell | Add config/init defaults and broaden all panel/terminal/help labels. |
+| Localization | UI/runtime gate shipped | Generated prose localization remains opt-in/future. |
 | Agent installers | Foundation | Add marketplace manifests and platform-specific validation. |
 | Team sharing | Partial docs | Add release/share checklist and commit policy. |
 
@@ -345,14 +347,13 @@ for those four gates lives in [`COMPETITIVE_SUPERSET_PLAN.md`](COMPETITIVE_SUPER
 
 Recommended next sequence:
 
-1. Finish deterministic UI localization config/init defaults and full static-shell label coverage.
-2. Add richer process cards and flow-focused polish.
-3. Harden multi-agent/platform installer docs and validation.
-4. Release hardening and wheel install smoke.
-5. `codeglance doctor`.
-6. Persona preset cleanup.
-7. Language concept cards.
-8. Knowledge/docs graph improvements.
+1. Add richer process cards and flow-focused polish.
+2. Harden multi-agent/platform installer docs and validation.
+3. Release hardening and wheel install smoke.
+4. `codeglance doctor`.
+5. Persona preset cleanup.
+6. Language concept cards.
+7. Knowledge/docs graph improvements.
 
 The first four items are the competitive gate. The later items reduce push/publish risk and improve
 product depth without changing the static/Python-first architecture.

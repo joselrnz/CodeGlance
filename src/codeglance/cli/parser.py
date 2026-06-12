@@ -104,6 +104,14 @@ def _add_init_parser(subcommands: argparse._SubParsersAction) -> None:
     cmd.add_argument("--marketplace-manifests", action="store_true", help="also generate local integration manifest JSON files")
     cmd.add_argument("--force", action="store_true", help="overwrite files that already exist")
     cmd.add_argument("--generate", action="store_true", help="generate the configured output bundle after init")
+    cmd.add_argument("--language", default="en", help="default UI/content language to write into .codeglance/config.json")
+    cmd.add_argument("--ui-language", default=None, help="UI language override for generated HTML")
+    cmd.add_argument("--content-language", default=None, help="future generated prose language; defaults to --language")
+    cmd.add_argument(
+        "--localize-generated-text",
+        action="store_true",
+        help="record that generated prose should localize when LLM enrichment is enabled",
+    )
     cmd.set_defaults(func=cmd_init)
 
 

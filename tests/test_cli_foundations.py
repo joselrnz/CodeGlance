@@ -21,11 +21,31 @@ def test_cli_registers_competitive_foundation_commands():
     assert agents.action == "plan"
     assert agents.platform == ["codex"]
 
-    init = build_parser().parse_args(["init", ".", "--agents", "codex,cursor", "--dry-run", "--marketplace-manifests"])
+    init = build_parser().parse_args(
+        [
+            "init",
+            ".",
+            "--agents",
+            "codex,cursor",
+            "--dry-run",
+            "--marketplace-manifests",
+            "--language",
+            "es-MX",
+            "--ui-language",
+            "ja",
+            "--content-language",
+            "ar",
+            "--localize-generated-text",
+        ]
+    )
     assert init.command == "init"
     assert init.agents == "codex,cursor"
     assert init.dry_run is True
     assert init.marketplace_manifests is True
+    assert init.language == "es-MX"
+    assert init.ui_language == "ja"
+    assert init.content_language == "ar"
+    assert init.localize_generated_text is True
 
     validate = build_parser().parse_args(["agents", "validate", ".", "--platform", "all", "--marketplace-manifests"])
     assert validate.action == "validate"

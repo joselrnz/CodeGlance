@@ -128,7 +128,12 @@ def test_init_creates_project_bootstrap_files(tmp_path):
     config = json.loads((project / ".codeglance" / "config.json").read_text(encoding="utf-8"))
     assert config["schema"] == "codeglance.config"
     assert config["profile"] == "all"
+    assert config["language"] == "en"
+    assert config["uiLanguage"] == "en"
+    assert config["contentLanguage"] == "en"
+    assert config["localizeGeneratedText"] is False
     assert "codeglance generate" in config["commands"]["generate"]
+    assert "--ui-language en" in config["commands"]["generate"]
     assert "review.md" in config["agent"]["review"]
     assert "codeglance review" in config["commands"]["review"]
     assert (project / ".codeglance" / ".codeglanceignore").is_file()
@@ -155,6 +160,35 @@ def test_init_can_generate_bundle(tmp_path):
     assert (project / ".codeglance" / "outputs" / "llms.txt").is_file()
     assert (project / ".codeglance" / "outputs" / "agent.md").is_file()
     assert not (project / "AGENTS.md").exists()
+
+
+def test_init_writes_localization_defaults(tmp_path):
+    from codeglance.cli.main import main
+
+    project = tmp_path / "localized"
+    project.mkdir()
+    rc = main(
+        [
+            "init",
+            str(project),
+            "--no-agents",
+            "--language",
+            "es-MX",
+            "--ui-language",
+            "ja-JP",
+            "--content-language",
+            "ar",
+            "--localize-generated-text",
+        ]
+    )
+    assert rc == 0
+
+    config = json.loads((project / ".codeglance" / "config.json").read_text(encoding="utf-8"))
+    assert config["language"] == "es"
+    assert config["uiLanguage"] == "ja"
+    assert config["contentLanguage"] == "ar"
+    assert config["localizeGeneratedText"] is True
+    assert "--ui-language ja" in config["commands"]["generate"]
 
 
 def test_render_interactive_is_self_contained():
@@ -840,6 +874,13 @@ def test_interactive_html_localizes_static_chrome():
 
     html_ar = render_interactive(_sample_graph(), config=VizConfig(ui_language="ar"))
     assert '<html lang="ar" dir="rtl">' in html_ar
+    assert '"help.title": "اختصارات لوحة المفاتيح"' in html_ar
+    assert '"filter.reset": "إعادة ضبط المرشحات"' in html_ar
+
+    html_ja = render_interactive(_sample_graph(), config=VizConfig(ui_language="ja-JP"))
+    assert '<html lang="ja" dir="ltr">' in html_ja
+    assert '"help.title": "キーボードショートカット"' in html_ja
+    assert '"terminal.help_intro": "埋め込みグラフを使って' in html_ja
 
 
 def test_wiki_docs_mode_is_self_contained():

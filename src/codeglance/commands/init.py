@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 
 from ..api import generate_bundle
+from ..i18n import normalize_locale
 from ..integrations import (
     create_install_plan,
     default_platforms,
@@ -32,6 +33,9 @@ def cmd_init(args: argparse.Namespace) -> int:
 
     written: list[Path] = []
     skipped: list[Path] = []
+    language = normalize_locale(args.language)
+    ui_language = normalize_locale(args.ui_language or language)
+    content_language = normalize_locale(args.content_language or language)
 
     def write(rel: str, content: str) -> None:
         path = root / rel
@@ -45,7 +49,17 @@ def cmd_init(args: argparse.Namespace) -> int:
         path.write_text(content, encoding="utf-8")
         written.append(path)
 
-    write(".codeglance/config.json", _config_json(args.profile, args.output))
+    write(
+        ".codeglance/config.json",
+        _config_json(
+            args.profile,
+            args.output,
+            language=language,
+            ui_language=ui_language,
+            content_language=content_language,
+            localize_generated_text=args.localize_generated_text,
+        ),
+    )
     write(".codeglance/.codeglanceignore", _ignore_text())
 
     if not args.no_agents:
@@ -84,7 +98,14 @@ def cmd_init(args: argparse.Namespace) -> int:
 
     if args.generate and not args.dry_run:
         emit("")
-        graph, outputs = generate_bundle(root, root / args.output, full=False, profile=args.profile, progress=emit)
+        graph, outputs = generate_bundle(
+            root,
+            root / args.output,
+            full=False,
+            profile=args.profile,
+            ui_language=ui_language,
+            progress=emit,
+        )
         stats = graph.stats()
         emit(f"✓ generated {len(outputs)} {args.profile} outputs")
         emit(f"  {stats['nodes']} nodes · {stats['edges']} edges · {stats['layers']} layers")
@@ -98,10 +119,22 @@ def cmd_init(args: argparse.Namespace) -> int:
     return 0
 
 
-def _config_json(profile: str, output: str) -> str:
+def _config_json(
+    profile: str,
+    output: str,
+    *,
+    language: str = "en",
+    ui_language: str = "en",
+    content_language: str = "en",
+    localize_generated_text: bool = False,
+) -> str:
     data = {
         "schema": "codeglance.config",
         "version": 1,
+        "language": language,
+        "uiLanguage": ui_language,
+        "contentLanguage": content_language,
+        "localizeGeneratedText": localize_generated_text,
         "outputDir": output,
         "profile": profile,
         "agent": {
@@ -113,7 +146,7 @@ def _config_json(profile: str, output: str) -> str:
             "graph": "knowledge-graph.toon",
         },
         "commands": {
-            "generate": f"codeglance generate . --out {output} --profile {profile}",
+            "generate": f"codeglance generate . --out {output} --profile {profile} --ui-language {ui_language}",
             "serve": f"codeglance serve {output} --host 0.0.0.0 --port 8777",
             "context": "codeglance context . --mode agent -o AGENTS.md",
             "impact": f"codeglance impact . -o {output}/impact.md",
