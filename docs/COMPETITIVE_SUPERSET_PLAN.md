@@ -24,6 +24,8 @@ Foundation shipped on 2026-06-12:
 - `codeglance ask`: deterministic, no-API-key graph Q&A with cited node IDs and file paths.
 - `codeglance processes`: explicit business domain/process map in Markdown or JSON.
 - `codeglance agents`: registry, dry-run planning, and safe installation for common agent/editor guidance files.
+- Agent/editor adapters now validate required Codeglance artifact references and optional marketplace
+  manifest structure.
 - `src/codeglance/i18n.py`: offline locale normalization and UI/CLI string catalog foundation.
 - Generated bundles include `processes.md` and `processes.json` for `human`, `agent`, and `all` profiles.
 - Public SDK exports include `answer_question(...)` and `render_process_report(...)`.
@@ -44,7 +46,7 @@ Still to finish before claiming full competitive advantage:
 - richer `ask` intents such as reverse dependencies, changed-file risk, and read-first recommendations
 - deeper Process subview and broader flow-focused polish beyond the Domain inspector cards
 - generated prose localization policy and optional LLM-backed content localization
-- installer command polish, generated marketplace manifests, and platform-specific validation docs
+- release wheel smoke and `doctor`
 
 ## Capability 1: `codeglance ask`
 
@@ -399,6 +401,9 @@ Current implementation note:
   manifests are implemented.
 - The integration package is split into `models.py`, `templates.py`, `registry.py`, and `install.py`;
   `__init__.py` remains a compatibility facade for public imports.
+- Validation checks missing files, modified files, missing required artifact references, unreadable
+  files, and invalid marketplace manifest contracts.
+- Platform matrix and safety behavior are documented in `docs/INTEGRATIONS.md`.
 - Merge-block editing and ownership-aware force are still pending; do not market those as shipped.
 
 Tests:
@@ -481,7 +486,7 @@ Do not push until all are true:
 - `knowledge-graph.json` persists domains, flows, processes, and steps. **Done.**
 - `glance.html` can render localized UI in at least English, Spanish, Japanese, and one RTL locale.
   **Done for UI/runtime labels: English, Spanish, Japanese, and Arabic.**
-- `codeglance init --agents all --dry-run` shows all Tier 1 platform outputs.
+- `codeglance init --agents all --dry-run` shows all Tier 1 platform outputs. **Done.**
 - `codeglance review` validates the expanded bundle.
 - Full test suite passes.
 - Wheel install smoke passes.

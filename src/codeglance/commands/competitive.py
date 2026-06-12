@@ -83,7 +83,8 @@ def cmd_agents(args: argparse.Namespace) -> int:
             emit(f"✓ integration files valid for {', '.join(report.platforms)}")
             return 0
         for finding in report.findings:
-            emit(f"{finding.status}\t{finding.platform}\t{finding.relative_path}")
+            detail = f"\t{finding.detail}" if finding.detail else ""
+            emit(f"{finding.status}\t{finding.platform}\t{finding.relative_path}{detail}")
         return 1
 
     dry_run = args.action == "plan" or args.dry_run

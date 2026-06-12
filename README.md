@@ -375,6 +375,7 @@ codeglance render .codeglance/knowledge-graph.json --static -o graph.static.html
 - `docs/UNDERSTAND_ANYTHING_GAP_PLAN.md`: current mega plan for shipped capabilities, release hardening, `doctor`, `ask`, business flows, concepts, localization, and team sharing
 - `docs/COMPETITIVE_AUDIT.md`: push-readiness comparison against Understand Anything
 - `docs/COMPETITIVE_SUPERSET_PLAN.md`: pre-push implementation plan for Q&A, business flows, localization, and platform installers
+- `docs/INTEGRATIONS.md`: agent/editor platform matrix, safety rules, and validation behavior
 - `docs/RELEASE_CHECKLIST.md`: pre-push and pre-publish validation checklist
 - `docs/README.md`: documentation index and screenshot guidance
 - `REFACTOR_PLAN.md`: longer-term cleanup and enhancement plan

@@ -6,6 +6,15 @@ import json
 
 from .models import GuidanceFile, Platform
 
+REQUIRED_CONTEXT_ARTIFACTS: tuple[str, ...] = (
+    ".codeglance/outputs/llms.txt",
+    ".codeglance/outputs/agent.md",
+    ".codeglance/outputs/processes.md",
+    ".codeglance/outputs/impact.md",
+    ".codeglance/outputs/review.md",
+    ".codeglance/outputs/knowledge-graph.toon",
+)
+
 
 def guidance(platform_name: str, *extra: str) -> str:
     """Return a common repo guidance document for an agent/editor platform."""
@@ -16,11 +25,12 @@ def guidance(platform_name: str, *extra: str) -> str:
         "Use CodeGlance outputs as repo-relative context before broad edits.",
         "",
         "- Refresh context with `codeglance generate . --profile agent`.",
-        "- Start with `.codeglance/outputs/agent.md` for compact agent guidance.",
-        "- Use `.codeglance/outputs/llms.txt` for the generated artifact index.",
-        "- Use `.codeglance/outputs/knowledge-graph.toon` for dependency-first structure.",
+        "- Start with `.codeglance/outputs/llms.txt` for the generated artifact index.",
+        "- Use `.codeglance/outputs/agent.md` for compact agent guidance.",
+        "- Use `.codeglance/outputs/processes.md` for business domains, flows, and ordered steps.",
         "- Use `.codeglance/outputs/impact.md` before changing shared code.",
         "- Use `.codeglance/outputs/review.md` before pushing or sharing outputs.",
+        "- Use `.codeglance/outputs/knowledge-graph.toon` for dependency-first structure.",
         "- Keep generated guidance repo-relative; do not add secrets or network-only setup.",
     ]
     if extra:
@@ -79,6 +89,7 @@ def marketplace_manifest(platform: Platform) -> GuidanceFile:
         "description": platform.description,
         "files": [file.relative_path for file in platform.files],
         "entrypoint": ".codeglance/outputs/llms.txt",
+        "requiredArtifacts": list(REQUIRED_CONTEXT_ARTIFACTS),
         "commands": {
             "generate": "codeglance generate . --out .codeglance/outputs --profile all",
             "serve": "codeglance serve . --dir .codeglance/outputs --host 0.0.0.0 --port 8777",

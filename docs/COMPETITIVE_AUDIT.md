@@ -57,7 +57,7 @@ Those four areas are now strategic pre-push gates by project decision. The plan 
 | Chat/Q&A | Ask anything about the codebase | Foundation shipped: deterministic offline `codeglance ask` with evidence; richer intents still pending | Strategic pre-push gate |
 | Localization | UI labels, summaries, tours in supported languages | UI/runtime gate shipped: English, Spanish, Japanese, and Arabic labels cover toolbar, Tools, inspector, terminal/help, filter/theme menus, path modal, and document direction; generated prose localization remains opt-in/future | Good enough to push for UI localization |
 | Auto-update | Auto-update hook and incremental updates | Partial: fingerprints and `serve --watch` quiet refresh; no post-commit hook | Not a push blocker |
-| Plugin distribution | Claude, Codex, Cursor, Copilot, Gemini, more | Foundation shipped: Tier 1 generated adapters/dry-run/validation; polish docs pending | Strategic pre-push gate |
+| Plugin distribution | Claude, Codex, Cursor, Copilot, Gemini, more | Tier 1 adapters ship with dry-run/install/validate, local marketplace manifests, required artifact validation, and platform docs | Good enough to push for generated adapters |
 | Team sharing | Commit graph artifacts, Git LFS guidance | Partial: release/team sharing docs now exist | Good enough to push after `.gitignore` cleanup |
 | Output validation | Not emphasized as a primary feature | Shipped: `codeglance review` | Codeglance advantage |
 | Static/offline bundle | Dashboard/plugin oriented | Shipped: HTML/Markdown/JSON/TOON work without backend | Codeglance advantage |
@@ -88,7 +88,7 @@ These should be fixed before pushing:
 - `codeglance ask` works offline with cited graph evidence.
 - Domains, flows, processes, and steps are first-class graph data. **Done.**
 - Localized UI works for at least English, Spanish, Japanese, and one RTL locale. **Done for UI/runtime labels.**
-- `codeglance init --agents all --dry-run` covers Tier 1 agent/platform outputs.
+- `codeglance init --agents all --dry-run` covers Tier 1 agent/platform outputs. **Done.**
 - Build artifacts and release-smoke folders must stay ignored.
 - Full test suite must pass.
 - Wheel must build and install into a clean venv.
@@ -108,10 +108,9 @@ These remain useful but should not block the competitive superset push:
 
 After push readiness:
 
-1. harden multi-agent/platform installer docs and validation
-2. run release build/wheel install smoke
-3. `codeglance doctor`
-4. deeper process subview and concept cards
+1. run release build/wheel install smoke
+2. `codeglance doctor`
+3. deeper process subview and concept cards
 
 This order keeps Codeglance useful today while directly addressing the places where Understand
 Anything is visibly ahead.

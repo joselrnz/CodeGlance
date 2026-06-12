@@ -59,6 +59,7 @@ class ValidationFinding:
     platform: str
     relative_path: str
     status: str
+    detail: str = ""
 
 
 @dataclass(frozen=True)

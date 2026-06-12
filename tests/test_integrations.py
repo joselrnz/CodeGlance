@@ -11,6 +11,7 @@ from codeglance.integrations import (
     parse_platforms,
     validate_installation,
 )
+from codeglance.integrations.templates import REQUIRED_CONTEXT_ARTIFACTS
 
 
 EXPECTED_PLATFORMS = (
@@ -60,6 +61,8 @@ def test_dry_run_plan_reports_file_actions_without_writing(tmp_path):
     assert plan.actions[0].target_path == tmp_path / "AGENTS.md"
     assert "codeglance generate" in plan.actions[0].content
     assert "repo-relative" in plan.actions[0].content
+    for artifact in REQUIRED_CONTEXT_ARTIFACTS:
+        assert artifact in plan.actions[0].content
     assert not (tmp_path / "AGENTS.md").exists()
 
     applied = apply_install_plan(plan)
@@ -130,6 +133,8 @@ def test_marketplace_manifests_are_optional_install_plan_files(tmp_path):
     ]
     assert '"schema": "codeglance.integration"' in plan.actions[1].content
     assert '"platform": "cursor"' in plan.actions[1].content
+    assert '"requiredArtifacts": [' in plan.actions[1].content
+    assert ".codeglance/outputs/processes.md" in plan.actions[1].content
 
 
 def test_validate_reports_missing_and_modified_integration_files(tmp_path):
@@ -145,4 +150,38 @@ def test_validate_reports_missing_and_modified_integration_files(tmp_path):
 
     (tmp_path / "AGENTS.md").write_text("changed\n", encoding="utf-8")
     modified = validate_installation(tmp_path, platforms=["codex"])
-    assert [(item.status, item.relative_path) for item in modified.findings] == [("modified", "AGENTS.md")]
+    assert ("modified", "AGENTS.md", "") in [
+        (item.status, item.relative_path, item.detail) for item in modified.findings
+    ]
+    assert ("missing_reference", "AGENTS.md", ".codeglance/outputs/llms.txt") in [
+        (item.status, item.relative_path, item.detail) for item in modified.findings
+    ]
+
+
+def test_validate_checks_marketplace_manifest_contract(tmp_path):
+    apply_install_plan(
+        create_install_plan(
+            tmp_path,
+            platforms=["cursor"],
+            marketplace_manifests=True,
+            dry_run=False,
+        )
+    )
+    clean = validate_installation(tmp_path, platforms=["cursor"], marketplace_manifests=True)
+    assert clean.ok is True
+
+    manifest = tmp_path / ".codeglance" / "marketplace" / "cursor.json"
+    manifest.write_text('{"schema":"wrong","platform":"cursor"}\n', encoding="utf-8")
+    report = validate_installation(tmp_path, platforms=["cursor"], marketplace_manifests=True)
+    details = {(item.status, item.relative_path, item.detail) for item in report.findings}
+    assert ("modified", ".codeglance/marketplace/cursor.json", "") in details
+    assert ("invalid_manifest", ".codeglance/marketplace/cursor.json", "schema") in details
+    assert ("invalid_manifest", ".codeglance/marketplace/cursor.json", "requiredArtifacts") in details
+
+
+def test_all_platform_templates_reference_required_context_artifacts():
+    for platform_id in EXPECTED_PLATFORMS:
+        platform = get_platform(platform_id)
+        for guidance_file in platform.files:
+            for artifact in REQUIRED_CONTEXT_ARTIFACTS:
+                assert artifact in guidance_file.content, (platform_id, guidance_file.relative_path, artifact)

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from collections.abc import Iterable
 from pathlib import Path
 
@@ -14,7 +15,7 @@ from .models import (
     ValidationReport,
 )
 from .registry import get_platform, normalize_platforms
-from .templates import marketplace_manifest
+from .templates import REQUIRED_CONTEXT_ARTIFACTS, marketplace_manifest
 
 
 def create_install_plan(
@@ -105,6 +106,10 @@ def validate_installation(
                 continue
             if current != file.content:
                 findings.append(ValidationFinding(platform.id, relative_path.as_posix(), "modified"))
+            if relative_path.parts[:2] == (".codeglance", "marketplace"):
+                findings.extend(_validate_marketplace_manifest(platform.id, relative_path.as_posix(), current))
+            else:
+                findings.extend(_validate_guidance_references(platform.id, relative_path.as_posix(), current))
 
     return ValidationReport(root_path, platform_ids, tuple(findings))
 
@@ -130,3 +135,39 @@ def _action_status(*, exists: bool, overwrite: bool, dry_run: bool) -> str:
     if exists:
         return "would_conflict" if dry_run else "conflict"
     return "would_create" if dry_run else "create"
+
+
+def _validate_guidance_references(platform_id: str, relative_path: str, content: str) -> list[ValidationFinding]:
+    findings: list[ValidationFinding] = []
+    for artifact in REQUIRED_CONTEXT_ARTIFACTS:
+        if artifact not in content:
+            findings.append(ValidationFinding(platform_id, relative_path, "missing_reference", artifact))
+    return findings
+
+
+def _validate_marketplace_manifest(platform_id: str, relative_path: str, content: str) -> list[ValidationFinding]:
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError as exc:
+        return [ValidationFinding(platform_id, relative_path, "invalid_manifest", f"json: {exc.msg}")]
+
+    findings: list[ValidationFinding] = []
+    expected = {
+        "schema": "codeglance.integration",
+        "version": 1,
+        "platform": platform_id,
+        "entrypoint": ".codeglance/outputs/llms.txt",
+    }
+    for key, value in expected.items():
+        if data.get(key) != value:
+            findings.append(ValidationFinding(platform_id, relative_path, "invalid_manifest", key))
+    files = data.get("files")
+    if not isinstance(files, list) or not files:
+        findings.append(ValidationFinding(platform_id, relative_path, "invalid_manifest", "files"))
+    commands = data.get("commands")
+    if not isinstance(commands, dict) or "generate" not in commands or "ask" not in commands:
+        findings.append(ValidationFinding(platform_id, relative_path, "invalid_manifest", "commands"))
+    artifacts = data.get("requiredArtifacts")
+    if not isinstance(artifacts, list) or any(artifact not in artifacts for artifact in REQUIRED_CONTEXT_ARTIFACTS):
+        findings.append(ValidationFinding(platform_id, relative_path, "invalid_manifest", "requiredArtifacts"))
+    return findings

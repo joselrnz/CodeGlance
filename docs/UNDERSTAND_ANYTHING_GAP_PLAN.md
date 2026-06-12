@@ -38,6 +38,7 @@ Already implemented:
 - `codeglance ask`: deterministic graph-backed Q&A with cited evidence and JSON/Markdown output.
 - `codeglance processes`: explicit business domain and process-flow sidecar output.
 - `codeglance agents`: safe agent/editor guidance install planning.
+- Agent/editor integrations validate required artifact references and optional marketplace manifests.
 - First-class `knowledge-graph.json` fields for `domains`, `flows`, `processes`, process evidence,
   and process confidence.
 - `knowledge-graph.toon` domain, flow, and process-step tables for compact agent context.
@@ -76,7 +77,7 @@ Already implemented:
 | Persona modes | Partial | Expand from current view presets into audience presets. |
 | Language concepts | Partial | Add concept cards and filters. |
 | Localization | UI/runtime gate shipped | Generated prose localization remains opt-in/future. |
-| Agent installers | Foundation | Add marketplace manifests and platform-specific validation. |
+| Agent installers | Tier 1 validation shipped | Merge-block editing and ownership-aware force remain later polish. |
 | Team sharing | Partial docs | Add release/share checklist and commit policy. |
 
 ## Immediate Push Readiness
@@ -349,10 +350,9 @@ for those four gates lives in [`COMPETITIVE_SUPERSET_PLAN.md`](COMPETITIVE_SUPER
 
 Recommended next sequence:
 
-1. Harden multi-agent/platform installer docs and validation.
-2. Release hardening and wheel install smoke.
-3. `codeglance doctor`.
-4. Deeper Process subview and broader flow polish.
+1. Release hardening and wheel install smoke.
+2. `codeglance doctor`.
+3. Deeper Process subview and broader flow polish.
 5. Persona preset cleanup.
 6. Language concept cards.
 7. Knowledge/docs graph improvements.
