@@ -28,7 +28,8 @@ Understand Anything is still stronger in four visible areas:
 - Localized generated UI/content.
 - Broad multi-agent/plugin marketplace distribution.
 
-Those four areas should drive the next roadmap after release hardening.
+Those four areas are now strategic pre-push gates by project decision. The plan to exceed them is in
+[`COMPETITIVE_SUPERSET_PLAN.md`](COMPETITIVE_SUPERSET_PLAN.md).
 
 ## Component Scorecard
 
@@ -36,8 +37,8 @@ Those four areas should drive the next roadmap after release hardening.
 | --- | --- | --- | --- |
 | Interactive graph | Hierarchical drill-down, smart layout, community clustering | Shipped: overview, drill, explore, folder drill-down, breadcrumbs, canvas graph | Good enough to push; keep validating on large repos |
 | File/function/class graph | Every file, function, class, dependency | Shipped across Python and tree-sitter languages | Good enough to push |
-| Domain view | Business domains, flows, process steps | Partial: domain cards and cross-domain flow edges exist; process steps are not explicit | Not a push blocker; next product gap |
-| Knowledge graph | Wiki/docs graph with implicit relationships and claims | Partial: Markdown/docs nodes and knowledge mode exist; claim extraction is not done | Not a push blocker |
+| Domain view | Business domains, flows, process steps | Partial: domain cards and cross-domain flow edges exist; process steps are not explicit | Strategic pre-push gate |
+| Knowledge graph | Wiki/docs graph with implicit relationships and claims | Partial: Markdown/docs nodes and knowledge mode exist; claim extraction is not done | Not a first-gate blocker |
 | Search | Fuzzy and semantic search | Shipped: fuzzy and offline keyword semantic ranking | Good enough to push; true embedding search later |
 | Filters | Type, complexity, layer | Shipped: category/type/layer/filter controls | Good enough to push |
 | Dependency path finder | Shortest path between components | Shipped: path finder and terminal graph commands | Good enough to push |
@@ -45,10 +46,10 @@ Those four areas should drive the next roadmap after release hardening.
 | Diff impact | Ripple effects before commit | Shipped: `impact.md` and changed-file overlay | Good enough to push |
 | Persona UI | Junior dev, PM, power user | Partial: Overview/Drill/Explore/Tour view presets | Not a push blocker; needs clearer persona naming later |
 | Language concepts | Pattern explanations in context | Partial: symbol extraction and language notes exist; concept cards not implemented | Not a push blocker |
-| Chat/Q&A | Ask anything about the codebase | Missing: planned `codeglance ask` | Biggest functional gap after release |
-| Localization | UI labels, summaries, tours in supported languages | Missing | Not a push blocker for `0.0.1`; roadmap item |
+| Chat/Q&A | Ask anything about the codebase | Missing: planned `codeglance ask` | Strategic pre-push gate |
+| Localization | UI labels, summaries, tours in supported languages | Missing | Strategic pre-push gate |
 | Auto-update | Auto-update hook and incremental updates | Partial: fingerprints and `serve --watch`; no post-commit hook | Not a push blocker |
-| Plugin distribution | Claude, Codex, Cursor, Copilot, Gemini, more | Partial: generated Codex/Claude-style assets; no broad installer | Not a push blocker for PyPI-first package |
+| Plugin distribution | Claude, Codex, Cursor, Copilot, Gemini, more | Partial: generated Codex/Claude-style assets; no broad installer | Strategic pre-push gate |
 | Team sharing | Commit graph artifacts, Git LFS guidance | Partial: release/team sharing docs now exist | Good enough to push after `.gitignore` cleanup |
 | Output validation | Not emphasized as a primary feature | Shipped: `codeglance review` | Codeglance advantage |
 | Static/offline bundle | Dashboard/plugin oriented | Shipped: HTML/Markdown/JSON/TOON work without backend | Codeglance advantage |
@@ -76,6 +77,10 @@ That means the push bar is not "clone every Understand Anything feature." The pu
 
 These should be fixed before pushing:
 
+- `codeglance ask` works offline with cited graph evidence.
+- Domains, flows, processes, and steps are first-class graph data.
+- Localized UI works for at least English, Spanish, Japanese, and one RTL locale.
+- `codeglance init --agents all --dry-run` covers Tier 1 agent/platform outputs.
 - Build artifacts and release-smoke folders must stay ignored.
 - Full test suite must pass.
 - Wheel must build and install into a clean venv.
@@ -84,26 +89,23 @@ These should be fixed before pushing:
 
 ## Not Push Blockers
 
-These are product gaps but should not block the first GitHub push:
+These remain useful but should not block the competitive superset push:
 
-- `codeglance ask`
 - `codeglance doctor`
-- process-step extraction
 - concept cards
-- localization
-- broad plugin installers
 - GitHub Actions release workflow
+- marketplace publishing beyond generated manifests
 
 ## Next Product Work
 
 After push readiness:
 
-1. `codeglance doctor`
-2. `codeglance ask`
-3. explicit business flow/process extraction
-4. concept cards
-5. localization
-6. plugin/skill templates for more agent platforms
+1. `codeglance ask`
+2. persisted business flow/process extraction
+3. localization
+4. multi-agent/platform installers
+5. `codeglance doctor`
+6. concept cards
 
 This order keeps Codeglance useful today while directly addressing the places where Understand
 Anything is visibly ahead.

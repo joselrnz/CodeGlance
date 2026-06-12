@@ -320,20 +320,24 @@ Commit `glance.html` only when the team wants visual artifacts in Git. Otherwise
 
 ## Implementation Order
 
+Current project decision: do not push until Codeglance is materially stronger than Understand
+Anything in Q&A, business flows, localization, and platform installers. The implementation contract
+for those four gates lives in [`COMPETITIVE_SUPERSET_PLAN.md`](COMPETITIVE_SUPERSET_PLAN.md).
+
 Recommended next sequence:
 
-1. Release hardening and `docs/RELEASE_CHECKLIST.md`.
-2. `codeglance doctor`.
-3. `codeglance ask` retrieval-only mode.
-4. Business flow extraction.
-5. Persona preset cleanup.
-6. Language concept cards.
-7. Knowledge/docs graph improvements.
-8. Localization.
-9. Team sharing polish.
+1. `codeglance ask` retrieval-only mode.
+2. Persisted business domains, flows, processes, and steps.
+3. Deterministic UI localization.
+4. Multi-agent/platform installers.
+5. Release hardening and `docs/RELEASE_CHECKLIST.md`.
+6. `codeglance doctor`.
+7. Persona preset cleanup.
+8. Language concept cards.
+9. Knowledge/docs graph improvements.
 
-The first two items reduce push/publish risk. The later items improve product depth without changing
-the static/Python-first architecture.
+The first four items are the competitive gate. The later items reduce push/publish risk and improve
+product depth without changing the static/Python-first architecture.
 
 ## Validation Standard
 

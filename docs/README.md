@@ -11,6 +11,7 @@ This folder holds project documentation that is useful for humans and agents.
 | `GLANCE_WALKTHROUGH.md` | Walkthrough for `glance.html`, workflow outputs, mobile behavior, screenshots, and human-in-the-loop review. |
 | `UNDERSTAND_ANYTHING_GAP_PLAN.md` | Current mega plan: shipped capabilities, release hardening, doctor/ask roadmap, business flows, concepts, localization, and team sharing. |
 | `COMPETITIVE_AUDIT.md` | Push-readiness comparison against Understand Anything with blockers, non-blockers, and next product gaps. |
+| `COMPETITIVE_SUPERSET_PLAN.md` | Four-workstream implementation contract for Q&A, business flows, localization, and agent/platform installers before push. |
 | `RELEASE_CHECKLIST.md` | Pre-push and pre-publish validation checklist for package build, generated outputs, UI, and commit policy. |
 | `README.md` | This documentation index. |
 
