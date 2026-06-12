@@ -32,11 +32,13 @@ Foundation shipped on 2026-06-12:
 - `knowledge-graph.toon` now includes compact domain, flow, and process-step tables.
 - `glance.html` supports static UI localization via `VizConfig(ui_language=...)` and
   `codeglance generate --language/--ui-language`, including document `lang` and `dir`.
+- Domain inspector now shows persisted process flows with clickable step evidence, and the offline
+  terminal supports `flows`, `flow <query>`, `processes`, and `process <query>`.
 
 Still to finish before claiming full competitive advantage:
 
 - richer `ask` intents such as reverse dependencies, changed-file risk, and read-first recommendations
-- process cards in Domain mode, inspector flow evidence, and terminal `flows`/`flow <domain>` commands
+- richer process cards in Domain mode and flow-focused polish
 - config/init language defaults and broader localized labels for inspector, terminal, help, and menus
 - installer command polish, generated marketplace manifests, and platform-specific validation docs
 
@@ -120,9 +122,9 @@ Tests:
 **Status**
 
 Core persistence is shipped. The graph schema, TOON output, process sidecar commands, SDK facade,
-and generated LLM context schema now carry domains, flows, processes, and process steps. Remaining
-work is the human-facing Domain-mode product layer: process cards, inspector evidence, and terminal
-commands.
+and generated LLM context schema now carry domains, flows, processes, and process steps. The HTML
+inspector and terminal can read those flows. Remaining work is richer flow-card presentation and
+polish for non-expert users.
 
 **Capability**
 

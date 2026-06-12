@@ -66,6 +66,9 @@ STYLE = r'''
   .nb { font-size:12px; padding:4px 7px; border-radius:6px; cursor:pointer; color:var(--text);
     overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .nb:hover { background:var(--elevated); color:#fff; }
   .nb .et { color:#7c8aa3; font-family:ui-monospace,monospace; font-size:10px; } .muted{color:var(--muted)}
+  .flowbox { margin:7px 0; padding:7px; border:1px solid rgba(var(--accent-rgb),0.16); border-radius:8px; background:rgba(255,255,255,0.025); }
+  .flow-title { font-size:12px; color:var(--text); margin:0 0 5px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .small { font-size:11px; padding:3px 7px; }
   .path .lr { color:var(--accent); font-size:10px; }
   pre.sig { background:var(--code-bg); border:1px solid rgba(var(--accent-rgb),0.14); border-left:2px solid #5a9e6f; border-radius:6px;
     padding:7px 9px; margin:8px 0; overflow:auto; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;

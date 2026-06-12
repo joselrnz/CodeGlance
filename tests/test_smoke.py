@@ -446,6 +446,47 @@ def test_domain_view_built_with_cross_domain_flows():
         assert {"a", "b", "label", "count"} <= set(e)
 
 
+def test_process_flows_are_embedded_in_html_inspector_and_terminal():
+    from codeglance.schema import BusinessFlow, Domain, ProcessStep
+
+    graph = _sample_graph()
+    graph.domains = [Domain(key="demo", name="Demo", node_ids=["file:a.py"], evidence=["a.py"], confidence=0.8)]
+    graph.flows = [
+        BusinessFlow(
+            id="flow:demo",
+            name="Demo Flow",
+            domain_key="demo",
+            steps=[
+                ProcessStep(
+                    order=1,
+                    label="Open demo file",
+                    domain_key="demo",
+                    node_id="file:a.py",
+                    file_path="a.py",
+                    role="file",
+                    evidence=["a.py"],
+                    confidence=0.8,
+                )
+            ],
+            node_ids=["file:a.py"],
+            evidence=["a.py"],
+            confidence=0.8,
+        )
+    ]
+    html = render_interactive(graph)
+
+    for marker in (
+        "Demo Flow",
+        "processStepHTML",
+        "Process flows",
+        "const PF=DATA.processFlows",
+        "flows [q]",
+        "flow &lt;q&gt;",
+        "processes [q]",
+    ):
+        assert marker in html, f"missing process flow marker: {marker}"
+
+
 def test_default_theme_is_ocean_and_flow_animation_present():
     html = render_interactive(_sample_graph())
     # Dark Gold is the default — matches the original dashboard's signature accent (first paint + JS state)

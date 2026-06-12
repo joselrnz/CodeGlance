@@ -143,6 +143,16 @@ It is offline and works inside the generated HTML. It is currently for guidance 
 not for running shell commands on the host machine. That keeps the artifact safe to open locally or
 from a phone.
 
+Useful commands:
+
+- `find <query>`: search nodes by name or path.
+- `open <query>`: focus a node in the graph.
+- `deps <query>` / `rdeps <query>`: inspect outgoing or incoming graph relationships.
+- `domains`: list inferred business domains.
+- `flows [query]`: list persisted process flows.
+- `flow <query>`: show one flow with clickable step evidence.
+- `grep <regex>`: search embedded source snippets.
+
 Useful direction for later:
 
 - add repo-specific help commands

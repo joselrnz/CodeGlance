@@ -9,6 +9,8 @@ const NID=new Map(N.map((n,i)=>[n.id,i]));
 const LC=DATA.layerCards||[], LE=DATA.layerEdges||[], lcW=DATA.layerCardW||300, lcH=DATA.layerCardH||172;
 const LF=DATA.layerFolders||{}, folderW=DATA.folderCardW||292, folderH=DATA.folderCardH||132;
 const DM=DATA.domains||[], DE=DATA.domainEdges||[], dW=DATA.domainCardW||300, dH=DATA.domainCardH||150;
+const PF=DATA.processFlows||DATA.processes||[], PS=DATA.processSteps||[];
+const PF_BY_DOMAIN={}; for(const f of PF){ const k=f.domainKey||f.domain_key||''; (PF_BY_DOMAIN[k]=PF_BY_DOMAIN[k]||[]).push(f); }
 const KN=(DATA.knowledge&&DATA.knowledge.nodes)||[], KE=(DATA.knowledge&&DATA.knowledge.edges)||[], kW=(DATA.knowledge&&DATA.knowledge.cardW)||280, kH=(DATA.knowledge&&DATA.knowledge.cardH)||150;
 const CARDSETS={
  domain:{nodes:DM,edges:DE,cw:dW,ch:dH,label:'DOMAIN',title:'Domain Map',blurb:'Business domains inferred from the project structure, linked by cross-domain flows. Click a domain for details.',n2:'Domains',e2:'Flows',descKey:'description',entKey:'entities',entLabel:'ENTITIES',footL:'nFiles',footLw:'files',footR:'flowCount',footRw:'flows',ptype:'domain'},
@@ -467,9 +469,20 @@ function cardInfoHTML(i){ const S=CD(); if(!S)return ''; const d=S.nodes[i];
   const outs=S.edges.filter(e=>e.a===i), ins=S.edges.filter(e=>e.b===i);
   if(outs.length){ h+='<div class="ov-h">'+S.e2+' out ('+outs.length+')</div>'; for(const e of outs) h+='<div class="nb" data-dom="'+e.b+'"><span class="et">'+esc(e.label||'link')+'</span> '+esc(S.nodes[e.b].name)+(e.count?' <span class="muted">· '+e.count+'</span>':'')+'</div>'; }
   if(ins.length){ h+='<div class="ov-h">'+S.e2+' in ('+ins.length+')</div>'; for(const e of ins) h+='<div class="nb" data-dom="'+e.a+'"><span class="et">'+esc(e.label||'link')+'</span> '+esc(S.nodes[e.a].name)+(e.count?' <span class="muted">· '+e.count+'</span>':'')+'</div>'; }
+  if(graphMode==='domain'){ const flows=PF_BY_DOMAIN[d.key]||[];
+    if(flows.length){ h+='<div class="ov-h">Process flows ('+flows.length+')</div>';
+      for(const f of flows.slice(0,4)){ h+='<div class="flowbox"><div class="flow-title">'+esc(f.name||f.id||'Flow')+(f.confidence!==undefined?' <span class="muted">· '+Math.round(f.confidence*100)+'%</span>':'')+'</div>';
+        const steps=f.steps||[]; for(const st of steps.slice(0,6)) h+=processStepHTML(st);
+        if(steps.length>6) h+='<div class="muted small">+'+(steps.length-6)+' more step(s)</div>';
+        h+='</div>'; }
+    }
+  }
   if(graphMode==='domain' && d.members&&d.members.length){ h+='<div class="ov-h">Files ('+d.nFiles+')</div>'; for(const idx of d.members.slice(0,40)){ const n=N[idx]; if(!n||!FILE_LEVEL.has(n.type))continue; h+='<div class="nb" data-i="'+idx+'">'+esc(n.name)+' <span class="muted">· '+esc(n.type)+'</span></div>'; } }
   if(graphMode==='knowledge' && d.memberIdx>=0 && N[d.memberIdx]){ h+='<div class="ov-h">Source</div><div class="nb" data-i="'+d.memberIdx+'">'+esc(N[d.memberIdx].name)+' <span class="muted">· open in code graph</span></div>'; }
   return h; }
+function processStepHTML(st){ const idx=NID.has(st.nodeId)?NID.get(st.nodeId):-1, role=st.role||'step', label=st.label||st.filePath||st.nodeId||'step';
+  const path=st.filePath||(idx>=0&&N[idx]?N[idx].path:'');
+  return '<div class="nb" '+(idx>=0?'data-i="'+idx+'"':'style="cursor:default"')+'><span class="et">'+esc(role)+'</span> '+esc(label)+(path?' <span class="muted">· '+esc(path)+'</span>':'')+'</div>'; }
 
 const tip=document.getElementById('tip');
 function tooltip(i,e){ if(i<0){tip.style.display='none';return;} const n=N[i];
@@ -882,9 +895,21 @@ function tNodes(list){ if(!list.length){ tPrint('  (none)','ln-out'); return; } 
 function findNodes(q){ q=(q||'').toLowerCase().trim(); if(!q)return []; const r=[]; for(let i=0;i<N.length;i++){ const n=N[i];
   if((n.name||'').toLowerCase().includes(q)||(n.path||'').toLowerCase().includes(q)) r.push(i); } return r; }
 function oneNode(q){ const m=findNodes(q); return m.length?m[0]:-1; }
+function flowText(f){ return [f.id,f.name,f.domainKey].concat((f.steps||[]).flatMap(s=>[s.label,s.role,s.filePath,s.nodeId])).join(' ').toLowerCase(); }
+function findFlows(q){ q=(q||'').toLowerCase().trim(); if(!q)return PF.slice(); return PF.filter(f=>flowText(f).includes(q)); }
+function tFlow(f,full){
+  tPrint('  <span style="color:var(--accent)">'+esc(f.name||f.id||'Flow')+'</span>  <span style="color:var(--muted)">'+esc(f.domainKey||'domain')+(f.confidence!==undefined?' · '+Math.round(f.confidence*100)+'%':'')+'</span>','ln-ok');
+  const steps=f.steps||[]; if(!steps.length){ tPrint('    no steps','ln-out'); return; }
+  const show=full?steps:steps.slice(0,5);
+  show.forEach(st=>{ const idx=NID.has(st.nodeId)?NID.get(st.nodeId):-1;
+    const d=tPrint('    '+st.order+'. <span style="color:var(--muted)">'+esc(st.role||'step')+'</span> '+esc(st.label||st.filePath||st.nodeId||'step')+(st.filePath?'  <span style="color:var(--muted)">'+esc(st.filePath)+'</span>':''),'ln-node ln-out');
+    if(idx>=0)d.onclick=()=>goToNode(idx);
+  });
+  if(!full&&steps.length>5)tPrint('    …and '+(steps.length-5)+' more step(s); run flow '+esc(f.domainKey||f.name||f.id)+' for details','ln-out');
+}
 const TERM_CMDS={
   help(){ tPrint('Explore & test this codebase — all offline, against the embedded graph:','ln-ok');
-    tPrint('  find &lt;q&gt;     search nodes by name / path\n  open &lt;q&gt;     focus a node in the graph\n  deps &lt;q&gt;     what it connects to  (outgoing)\n  rdeps &lt;q&gt;    what connects to it  (incoming)\n  grep &lt;re&gt;    regex-search the source code\n  stats        project metrics\n  layers       list layers\n  domains      list domains\n  js &lt;expr&gt;    run JavaScript (or start a line with &gt;)\n  clear        clear the screen','ln-out'); },
+    tPrint('  find &lt;q&gt;       search nodes by name / path\n  open &lt;q&gt;       focus a node in the graph\n  deps &lt;q&gt;       what it connects to  (outgoing)\n  rdeps &lt;q&gt;      what connects to it  (incoming)\n  grep &lt;re&gt;      regex-search the source code\n  stats          project metrics\n  layers         list layers\n  domains        list domains\n  flows [q]      list process flows\n  flow &lt;q&gt;       show one process flow with clickable steps\n  processes [q]  alias for flows\n  process &lt;q&gt;    alias for flow\n  js &lt;expr&gt;      run JavaScript (or start a line with &gt;)\n  clear          clear the screen','ln-out'); },
   find(a){ const m=findNodes(a); tPrint(m.length+' match'+(m.length===1?'':'es')+(a?' for "'+esc(a)+'"':''),'ln-ok'); tNodes(m); },
   open(a){ const i=oneNode(a); if(i<0){tPrint('  no node matches "'+esc(a)+'"','ln-err');return;} tPrint('  → '+esc(N[i].name),'ln-ok'); goToNode(i); },
   deps(a){ const i=oneNode(a); if(i<0){tPrint('  no match for "'+esc(a)+'"','ln-err');return;} const o=[]; for(const e of E) if(e[0]===i)o.push(e[1]);
@@ -899,6 +924,10 @@ const TERM_CMDS={
   stats(){ const s=DATA.stats; tPrint('  '+s.nodes+' nodes · '+s.edges+' edges · '+s.layers+' layers · '+TY.length+' types','ln-out'); },
   layers(){ if(!L.length){tPrint('  none','ln-out');return;} L.forEach((l,i)=>tPrint('  ['+i+'] '+esc(l.name)+'  ('+l.count+' files)','ln-out')); },
   domains(){ if(!DM.length){tPrint('  no domains detected','ln-out');return;} DM.forEach(d=>tPrint('  '+esc(d.name)+'  ('+d.nFiles+' files · '+d.flowCount+' flows)','ln-out')); },
+  flows(a){ const m=findFlows(a); if(!m.length){tPrint('  no process flows'+(a?' for "'+esc(a)+'"':''),'ln-out');return;} m.slice(0,12).forEach(f=>tFlow(f,false)); if(m.length>12)tPrint('  …and '+(m.length-12)+' more flow(s)','ln-out'); },
+  flow(a){ if(!a){tPrint('  usage: flow &lt;name-or-domain&gt;','ln-err');return;} const m=findFlows(a); if(!m.length){tPrint('  no process flow matches "'+esc(a)+'"','ln-err');return;} tFlow(m[0],true); },
+  processes(a){ TERM_CMDS.flows(a); },
+  process(a){ TERM_CMDS.flow(a); },
   clear(){ termOut.innerHTML=''; },
 };
 function runTerm(line){ line=line.trim(); if(!line)return; tPrint('<span class="pr">›</span> '+esc(line),'ln-cmd'); termHist.push(line); termHi=termHist.length;

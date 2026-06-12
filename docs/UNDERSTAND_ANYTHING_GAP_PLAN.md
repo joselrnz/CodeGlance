@@ -41,6 +41,8 @@ Already implemented:
 - First-class `knowledge-graph.json` fields for `domains`, `flows`, `processes`, process evidence,
   and process confidence.
 - `knowledge-graph.toon` domain, flow, and process-step tables for compact agent context.
+- Domain inspector process-flow evidence and terminal commands: `flows`, `flow <query>`,
+  `processes`, and `process <query>`.
 - `impact.md`, `onboarding.md`, `agent.md`, `llms.txt`, `knowledge-graph.toon`,
   `knowledge-graph.json`, `llm-context.schema.json`, and `meta.json`.
 - `codeglance init`: project config, agent instructions, and command assets.
@@ -65,7 +67,7 @@ Already implemented:
 | Graph review report | Shipped | Add `doctor` for release/readiness checks. |
 | Impact report | Shipped | Add changed-only context mode. |
 | Agent context | Shipped | Add richer `ask` intents and generated answer artifacts. |
-| Domain mode | Advanced foundation | Add process cards/inspector details and terminal flow commands. |
+| Domain mode | Advanced foundation | Add richer process cards and flow-focused polish. |
 | Knowledge mode | Partial | Add concept/entity extraction from docs. |
 | Persona modes | Partial | Expand from current view presets into audience presets. |
 | Language concepts | Partial | Add concept cards and filters. |
@@ -344,7 +346,7 @@ for those four gates lives in [`COMPETITIVE_SUPERSET_PLAN.md`](COMPETITIVE_SUPER
 Recommended next sequence:
 
 1. Finish deterministic UI localization config/init defaults and full static-shell label coverage.
-2. Add process cards/inspector details and terminal `flows`/`flow <domain>` commands.
+2. Add richer process cards and flow-focused polish.
 3. Harden multi-agent/platform installer docs and validation.
 4. Release hardening and wheel install smoke.
 5. `codeglance doctor`.
