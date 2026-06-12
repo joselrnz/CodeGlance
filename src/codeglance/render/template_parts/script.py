@@ -32,6 +32,7 @@ let _crumbHTML='';
 const collapsed=new Set();                 // container layer-keys collapsed in the cluster view
 let chHover=null, _cl=null, _allCol=false; // hovered cluster header; cached cluster layout (cleared on collapse); all-collapsed toggle
 const CLUSTER_HEAD=44, CLUSTER_CONTENT_TOP=42, _LANE_GAP=48;       // header-safe swimlane spacing (mirrors layout.py)
+const FOLDER_FILE_HEADER=56;                                      // reserved title band for file drilldowns
 let graphMode='structural', dhover=-1, selDomain=-1; // graphMode: 'structural' | 'domain'
 const REDUCED=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 let animOn=!REDUCED, dashPhase=0, pulse=0, _animRunning=false, _flyReq=null;    // marching-ants edge-flow + selection "heartbeat" pulse
@@ -100,8 +101,9 @@ function FLL(){ if(folderMode!=='files')return null;
   const pos={}, cols=Math.max(1,Math.ceil(Math.sqrt(idxs.length*1.25))), gx=52, gy=42;
   let a=1e9,b=1e9,c=-1e9,d=-1e9;
   idxs.forEach((idx,k)=>{ const r=Math.floor(k/cols), col=k%cols;
-    const x=60+col*(cardW+gx)+cardW/2, y=60+r*(cardH+gy)+cardH/2; pos[idx]=[x,y];
+    const x=60+col*(cardW+gx)+cardW/2, y=60+FOLDER_FILE_HEADER+r*(cardH+gy)+cardH/2; pos[idx]=[x,y];
     a=Math.min(a,x-cardW/2); b=Math.min(b,y-cardH/2); c=Math.max(c,x+cardW/2); d=Math.max(d,y+cardH/2); });
+  if(idxs.length)b=Math.min(b,60);
   _folderFileKey=key; _folderFileLayout={idxs,pos,bounds:idxs.length?[a,b,c,d]:[0,0,800,600]}; return _folderFileLayout; }
 function nodeWorldPos(i){ if(folderMode==='files'){ const p=FLL()&&FLL().pos[i]; if(p)return {x:p[0],y:p[1]}; }
   const n=N[i], cl=(view==='clusters')?CLL():null, dy=(cl&&cl[n.layer])?cl[n.layer].dy:0; return {x:n.x,y:n.y+dy}; }
@@ -218,6 +220,8 @@ const CXC={simple:'#5a9e6f',moderate:'#fbbf24',complex:'#fb7185'};  // complexit
 function drawFolderFileFrame(){ const l=FLL(), layer=L[folderLayer]||{}, bb=l?l.bounds:[0,0,800,600], pad=18;
   const x=SX(bb[0]-pad), y=SY(bb[1]-pad), w=(bb[2]-bb[0]+pad*2)*scale, h=(bb[3]-bb[1]+pad*2)*scale;
   rr(x,y,w,h,12); ctx.fillStyle=T.tint; ctx.fill(); ctx.lineWidth=1.2; ctx.strokeStyle=(layer.color||T.accent)+'66'; ctx.stroke();
+  if(scale>0.24&&l&&l.idxs.length){ ctx.font='700 '+Math.max(11,Math.round(11*scale))+'px '+(T.fontHeading||'Georgia,serif');
+    ctx.fillStyle=layer.color||T.accent; ctx.fillText(clipText((layer.name||'Files')+'  ('+l.idxs.length+')', Math.max(80,w-28)), x+12, y+24); }
 }
 function drawCard(i){ const n=N[i], p=nodeWorldPos(i);
   const w=cardW*scale,h=cardH*scale,x=SX(p.x)-w/2,y=SY(p.y)-h/2;
