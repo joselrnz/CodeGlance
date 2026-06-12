@@ -2,7 +2,8 @@
 
 > Goal: make the codebase clean, packaged, and **configuration-driven** so visual/behavioural
 > tweaks happen in **one typed place** instead of hunting magic numbers across files.
-> Status: PLAN ONLY — no code changed yet. Implement after review.
+> Status: historical refactor plan. Many sections are now implemented; use
+> `docs/UNDERSTAND_ANYTHING_GAP_PLAN.md` for the current execution plan.
 
 ---
 
@@ -421,7 +422,7 @@ docs site** from the *same* analysis — "a generated wiki", low-jargon.
 (no canvas, no server). Shares `build_view_model()`; new module `render/wiki.py` (`render_wiki_html(vm, config)`),
 plus `analyze/manifests.py` for install detection.
 
-**Status:** PLAN ONLY — implement after the config/enums refactor (should consume `VizConfig` too).
+**Status:** implemented as generated wiki/docs output. Keep this section as historical design context.
 
 ---
 
@@ -462,6 +463,7 @@ Completed 2026-06-09 as one atomic commit (`Rename scopinglang -> codeglance`, 3
 - ✅ **Wiki / docs HTML mode** — `codeglance wiki`, 5 themes (Dark Ocean default), setup-first — `63a5419`/`a23ef9b`
 - ✅ **AI context map** — `codeglance context` (dependency-first map) + `.claude/skills/codebase-map` — `c476fca`
 
-**COMPLETE.** Config-driven (one `VizConfig`), enum-typed, human and agent outputs from one analysis:
+**COMPLETE.** Config-driven, enum-typed, human and agent outputs from one analysis:
 graph (`codeglance .`), wiki (`codeglance wiki`), AI context map (`codeglance context`), bundle generation
-(`codeglance generate`), and local artifact browsing (`codeglance serve`). 48 tests green.
+(`codeglance generate`), local artifact browsing/watch mode (`codeglance serve`), and output validation
+(`codeglance review`). Current smoke suite: 62 tests.

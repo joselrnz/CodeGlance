@@ -9,7 +9,8 @@ This folder holds project documentation that is useful for humans and agents.
 | `STRUCTURE.md` | Current repo/package tree, module responsibilities, SDK imports, generated output layout. |
 | `AGENT_CONTEXT.md` | How CodeGlance builds low-token context for AI agents. |
 | `GLANCE_WALKTHROUGH.md` | Walkthrough for `glance.html`, workflow outputs, mobile behavior, screenshots, and human-in-the-loop review. |
-| `UNDERSTAND_ANYTHING_GAP_PLAN.md` | Competitive gap plan for watch mode, Q&A, persona UI, business flows, concepts, localization, and plugin assets while keeping static HTML/Python serving. |
+| `UNDERSTAND_ANYTHING_GAP_PLAN.md` | Current mega plan: shipped capabilities, release hardening, doctor/ask roadmap, business flows, concepts, localization, and team sharing. |
+| `RELEASE_CHECKLIST.md` | Pre-push and pre-publish validation checklist for package build, generated outputs, UI, and commit policy. |
 | `README.md` | This documentation index. |
 
 ## Screenshot Assets

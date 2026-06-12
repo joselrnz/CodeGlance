@@ -256,8 +256,9 @@ It lists HTML, Markdown, JSON, TXT, and SVG files. This is the easiest way to ch
 views from a phone without pushing or deploying anything.
 
 Use `--watch` when you want a live local workflow. Codeglance regenerates the selected output
-profile when project files change, and `glance.html` shows a refresh notice when served output is
-newer than the page you are viewing. The same HTML still opens directly from disk without a server.
+profile when project files change, and `glance.html` quietly marks the toolbar Refresh button when
+served output is newer than the page you are viewing. It does not force reloads or show pop-up
+banners. The same HTML still opens directly from disk without a server.
 
 For a guided walkthrough of `glance.html`, the generated files, mobile behavior, screenshots, and the
 human-in-the-loop review flow, see [`docs/GLANCE_WALKTHROUGH.md`](docs/GLANCE_WALKTHROUGH.md).
@@ -350,7 +351,8 @@ codeglance render .codeglance/knowledge-graph.json --static -o graph.static.html
 
 - `docs/STRUCTURE.md`: package layout, module responsibilities, and SDK/CLI boundaries
 - `docs/AGENT_CONTEXT.md`: agent reading protocol and generated context strategy
-- `docs/UNDERSTAND_ANYTHING_GAP_PLAN.md`: roadmap for missing Understand Anything-style capabilities while preserving static HTML and Python serving
+- `docs/UNDERSTAND_ANYTHING_GAP_PLAN.md`: current mega plan for shipped capabilities, release hardening, `doctor`, `ask`, business flows, concepts, localization, and team sharing
+- `docs/RELEASE_CHECKLIST.md`: pre-push and pre-publish validation checklist
 - `docs/README.md`: documentation index and screenshot guidance
 - `REFACTOR_PLAN.md`: longer-term cleanup and enhancement plan
 
@@ -367,14 +369,14 @@ When the package version changes, update:
 
 ## Next Build Plan
 
-The current package structure is now split into SDK, services, CLI, commands, models, output,
+The current package structure is split into SDK, services, CLI, commands, models, output,
 renderers, and analysis. The next useful pieces are:
 
-- `codeglance review` to validate graph/output quality before sharing or pushing
+- release hardening with wheel install validation and `docs/RELEASE_CHECKLIST.md`
+- `codeglance doctor` to automate package, output, metadata, and UI marker checks
 - `codeglance ask` to answer repo questions from `llms.txt`, `agent.md`, TOON, and selected context
-- persona modes in Glance for Overview, Developer, Reviewer, PM, and Agent audiences
 - business-flow extraction for domain/process views
-- richer output-folder landing pages with screenshots and project stats
-- optional strict Pydantic models behind a `pydantic` extra
-- JSON context mode for tools that prefer smaller structured ingestion
+- persona preset cleanup for Human, Developer, Reviewer, PM, and Agent audiences
+- language concept cards and filters
+- richer output-folder landing pages with project stats
 - changed-only context mode for fast review after edits

@@ -27,6 +27,15 @@ Serve the output folder on the current machine:
 python -m codeglance serve .codeglance/outputs --host 0.0.0.0 --port 8777
 ```
 
+For the live local workflow, serve the project with watch mode:
+
+```bash
+python -m codeglance serve . --dir .codeglance/outputs --host 0.0.0.0 --port 8777 --watch --profile all
+```
+
+When watch mode regenerates output, Glance quietly marks the toolbar Refresh button. It does not
+force a reload or show a pop-up banner.
+
 If you only need a basic static server:
 
 ```bash
@@ -66,6 +75,7 @@ http://<your-lan-ip>:8777/glance.html
 | `agent.md` | Agent | Compact low-token repo handoff. | First file an AI agent should read after `llms.txt`. |
 | `onboarding.md` | Human/agent | First-day guide with read-first files, layers, tour order, and workflow. | Use when joining a repo or handing it to another agent. |
 | `impact.md` | Human/agent | Changed-file impact report with dependency ripples and review checklist. | Use before commit or code review. |
+| `review.md` | Human/agent | Graph/output quality report. | Use before sharing, pushing, or publishing. |
 | `llms.txt` | Agent | Tiny entrypoint and artifact read order. | Tell an agent where to start and what to avoid reading too early. |
 | `llm-context.schema.json` | Agent/tool | Schema contract for generated artifacts. | Validate parsers and understand fields before consuming JSON/TOON. |
 | `knowledge-graph.toon` | Agent | Compact graph table format. | Use for prompt context when JSON is too expensive. |
@@ -86,6 +96,8 @@ The top bar gives the shortest path into the repo:
 - `Domain`: grouped inferred business/domain areas when detected.
 - `Knowledge`: docs and Markdown knowledge graph.
 - Search: finds nodes by name, path, summary, and related text.
+- `Refresh`: reloads the current generated HTML while preserving the selected node hash. In watch
+  mode it gains a small highlighted state when newer output exists.
 
 On mobile, the top mode row is intentionally compacted. The same controls move into the Tools sidebar.
 
@@ -156,7 +168,8 @@ When the terminal opens, the zoom controls lift above it.
 9. Use the Terminal for local guidance and graph-oriented help.
 10. Run `codeglance explain <path-or-symbol>` when a specific file or symbol needs a focused explanation.
 11. Run `codeglance impact` before committing.
-12. Change code, regenerate outputs, and compare the updated graph.
+12. Run `codeglance review` before sharing or pushing.
+13. Change code, regenerate outputs, and compare the updated graph.
 
 ## Recommended Agent Workflow
 
@@ -166,10 +179,11 @@ Agents should read generated context in this order:
 2. `agent.md`
 3. `onboarding.md` when the task needs first-day orientation
 4. `impact.md` when the task involves edits or review
-5. `llm-context.schema.json`
-6. `knowledge-graph.toon`
-7. `knowledge-graph.json` only when exact graph data is needed
-8. source files only after the generated map identifies the relevant area
+5. `review.md` before sharing or pushing
+6. `llm-context.schema.json`
+7. `knowledge-graph.toon`
+8. `knowledge-graph.json` only when exact graph data is needed
+9. source files only after the generated map identifies the relevant area
 
 This keeps token usage low. The agent starts from a summary, follows the graph to the right files, then
 opens exact source only when a task requires it.
@@ -190,8 +204,8 @@ Use Glance as a review loop:
 2. CodeGlance regenerates outputs.
 3. Human opens `glance.html` and checks Overview, Drill, Inspector, and Wiki.
 4. Human flags confusing areas or missing docs.
-5. Agent reads the compact context and updates only the relevant code/docs.
-6. Repeat until the graph, wiki, and source agree.
+5. Agent reads `review.md` and compact context, then updates only the relevant code/docs.
+6. Repeat until the graph, wiki, review report, and source agree.
 
 This gives the human a visual checkpoint and gives the agent a compact memory checkpoint.
 
