@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 420" role="img" aria-labelledby="title desc">
-  <title id="title">CodeGlance Python lens</title>
-  <desc id="desc">A Python-style code map inspected through a magnifying glass.</desc>
+  <title id="title">CodeGlance schema lens</title>
+  <desc id="desc">A codebase schema map inspected through a magnifying glass.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#06111d"/>
@@ -14,10 +14,6 @@
     <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#67e8f9"/>
       <stop offset="1" stop-color="#38bdf8"/>
-    </linearGradient>
-    <linearGradient id="py" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#3674a7"/>
-      <stop offset="1" stop-color="#ffd24a"/>
     </linearGradient>
     <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
       <feGaussianBlur stdDeviation="7" result="blur"/>
@@ -56,10 +52,20 @@
     <circle cx="145" cy="145" r="102" fill="#0b1621" stroke="url(#accent)" stroke-width="13" opacity=".96"/>
     <circle cx="145" cy="145" r="78" fill="#102433" stroke="#dff7ff" stroke-width="2" opacity=".72"/>
     <path d="M218 218l88 88" stroke="#67e8f9" stroke-width="24" stroke-linecap="round"/>
-    <path d="M120 110c0-26 20-42 48-42h28v54h-58c-10 0-18-5-18-12z" fill="#3674a7"/>
-    <path d="M170 178c0 26-20 42-48 42H94v-54h58c10 0 18 5 18 12z" fill="#ffd24a"/>
-    <circle cx="176" cy="90" r="6.5" fill="#ffd24a" stroke="#102433" stroke-width="2"/>
-    <circle cx="118" cy="198" r="6.5" fill="#3674a7" stroke="#102433" stroke-width="2"/>
+    <g stroke="#67e8f9" stroke-width="3" opacity=".72" fill="none">
+      <path d="M101 111L154 91"/>
+      <path d="M104 149L158 178"/>
+      <path d="M178 105L183 164"/>
+    </g>
+    <g>
+      <rect x="76" y="92" width="64" height="42" rx="8" fill="#1d3141" stroke="#67e8f9" stroke-width="2"/>
+      <rect x="151" y="69" width="72" height="44" rx="8" fill="#162331" stroke="#5eead4" stroke-width="2"/>
+      <rect x="155" y="159" width="76" height="46" rx="8" fill="#162331" stroke="#fde047" stroke-width="2"/>
+      <path d="M88 106h32M88 119h22M166 84h38M166 97h25M171 175h40M171 188h28" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="108" cy="113" r="5" fill="#67e8f9"/>
+      <circle cx="187" cy="91" r="5" fill="#5eead4"/>
+      <circle cx="193" cy="182" r="5" fill="#fde047"/>
+    </g>
   </g>
   <g font-family="Inter, ui-sans-serif, system-ui, sans-serif">
     <text x="82" y="352" fill="#f8fafc" font-size="30" font-weight="800">Map first. Read less. Change with evidence.</text>

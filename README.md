@@ -9,7 +9,7 @@
   <img alt="Offline HTML" src="https://img.shields.io/badge/output-offline%20HTML-155e75">
 </p>
 <p align="center">
-  <img src="brand/codeglance-python-lens.svg" alt="CodeGlance maps Python projects into human and agent context" width="860">
+  <img src="brand/codeglance-schema-lens.svg" alt="CodeGlance maps repositories into human and agent context" width="860">
 </p>
 
 `codeglance` turns a repo into a clean map that both humans and agents can use before touching

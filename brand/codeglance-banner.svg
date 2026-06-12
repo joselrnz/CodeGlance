@@ -21,23 +21,19 @@
         <circle cx="206" cy="120" r="2.5"/><circle cx="64" cy="160" r="2.5"/><circle cx="186" cy="200" r="2.5"/>
         <circle cx="120" cy="216" r="2.5"/><circle cx="74" cy="206" r="2.5"/>
       </g>
-      <g stroke="#2DD4BF" stroke-width="3" opacity="0.55">
-        <line x1="92" y1="92" x2="166" y2="126"/>
+      <g stroke="#2DD4BF" stroke-width="3.5" opacity="0.9">
+        <line x1="116" y1="98" x2="166" y2="126"/>
         <line x1="112" y1="102" x2="112" y2="154"/>
-        <line x1="130" y1="162" x2="178" y2="142"/>
+        <line x1="130" y1="162" x2="164" y2="142"/>
       </g>
       <g fill="#2DD4BF">
         <path d="M166 126 l-11 -1.5 5.5 -9.5 Z"/>
         <path d="M112 154 l-5.5 -9.5 11 0 Z"/>
       </g>
-      <g>
-        <path d="M91 99c0-22 17-36 41-36h27v47h-52c-9 0-16-4.5-16-11z" fill="#3674A7"/>
-        <path d="M166 160c0 22-17 36-41 36H98v-47h52c9 0 16 4.5 16 11z" fill="#FFD24A"/>
-        <circle cx="139" cy="82" r="5.5" fill="#FFD24A" stroke="#0F1B26" stroke-width="2"/>
-        <circle cx="118" cy="178" r="5.5" fill="#3674A7" stroke="#0F1B26" stroke-width="2"/>
-      </g>
-      <rect x="168" y="116" width="44" height="31" rx="5" fill="#1B2A38" stroke="#2DD4BF" stroke-width="1.5" opacity="0.95"/>
-      <path d="M178 128h20M178 137h14" stroke="#7E8C9A" stroke-width="3" stroke-linecap="round"/>
+      <rect x="86" y="74" width="54" height="36" rx="5" fill="url(#oceanb)"/>
+      <circle cx="102" cy="86" r="5" fill="#E6F6FB"/>
+      <rect x="156" y="116" width="48" height="32" rx="5" fill="#1B2A38" stroke="#24384A" stroke-width="1.5"/>
+      <rect x="86" y="154" width="46" height="30" rx="5" fill="#155E75"/>
     </g>
     <circle cx="130" cy="130" r="86" fill="none" stroke="url(#lensb)" stroke-width="11"/>
     <path d="M 69 88 A 74 74 0 0 1 111 59" fill="none" stroke="#E6F6FB" stroke-width="5" stroke-linecap="round" opacity="0.35"/>
