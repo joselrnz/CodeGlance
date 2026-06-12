@@ -156,6 +156,7 @@ STYLE = r'''
     padding:9px 12px; font-size:12px; color:var(--text); border-color:rgba(var(--accent-rgb),0.45); box-shadow:0 18px 50px rgba(0,0,0,.35); }
   #refreshNotice.hidden { display:none; }
   #refreshNotice button { padding:5px 10px; color:var(--accent); }
+  #refreshDismiss { color:var(--text2); border-color:var(--line); }
   /* responsive: progressively shed non-essential header controls as the window narrows */
   @media (max-width:1360px){ #layerChips { display:none; } }
   @media (max-width:1160px){ #catFilters { display:none; } }
