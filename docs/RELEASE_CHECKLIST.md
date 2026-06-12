@@ -95,7 +95,7 @@ Expected `--profile all` outputs:
 
 ## Commit Policy
 
-Usually commit source, docs, tests, examples, and release notes.
+Usually commit source, docs, tests, brand assets, and release notes.
 
 Usually do not commit local generated output unless it is intentionally promoted:
 

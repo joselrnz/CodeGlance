@@ -11,7 +11,6 @@ codeglance/
 ├── brand/                  # SVG brand assets
 ├── demo/                   # committed demo outputs
 ├── docs/                   # package and agent documentation
-├── examples/               # sample repositories and fixtures for demos
 ├── src/codeglance/         # installable Python package
 ├── tests/                  # pytest smoke tests and fixtures
 ├── .gitignore

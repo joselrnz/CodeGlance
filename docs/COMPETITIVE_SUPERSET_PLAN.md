@@ -210,7 +210,7 @@ Generated outputs:
 Tests:
 
 - schema round trip with domains/flows/processes.
-- microservices checkout process steps.
+- checkout process steps across services.
 - Java service flow from service to repository/model.
 - Terraform root module to network/app modules/resources.
 - negative shared/utility fixture to avoid noisy fake domains.

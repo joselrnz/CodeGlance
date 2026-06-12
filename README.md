@@ -8,16 +8,22 @@
   <img alt="Python based" src="https://img.shields.io/badge/runtime-Python--based-1f6feb">
   <img alt="Offline HTML" src="https://img.shields.io/badge/output-offline%20HTML-155e75">
 </p>
+<p align="center">
+  <img src="brand/codeglance-python-lens.svg" alt="CodeGlance maps Python projects into human and agent context" width="860">
+</p>
 
-`codeglance` turns a codebase into files you can actually inspect:
+`codeglance` turns a repo into a clean map that both humans and agents can use before touching
+code. It scans locally, writes deterministic artifacts, and gives you one place to inspect
+structure, dependencies, business flows, source snippets, and AI-ready context.
 
-- an interactive HTML graph for humans
-- a readable wiki page for humans
-- a compact Markdown map for AI agents
-- a low-token agent handoff that can be refreshed after edits
-- a local output browser so you can view generated HTMLs from your laptop or phone
+- Interactive `glance.html` for humans.
+- Compact `llms.txt`, `agent.md`, and TOON for AI agents.
+- Review, impact, onboarding, process, and wiki outputs for change planning.
+- Local browser mode so generated HTML works from your laptop or phone.
+- Agent/editor adapters for Codex, Claude Code, Cursor, Windsurf, Copilot, Gemini CLI, Cline,
+  Roo, Aider, Continue, Augment Code, and Zed.
 
-No Node. No npm. No hosted service. Install it with pip, point it at a folder, open the output.
+No Node. No npm. No hosted service. Pure Python in, static files out.
 
 ```bash
 pip install codeglance
@@ -123,7 +129,6 @@ codeglance/
 ├── brand/                  # banner, logo, badge, favicon, social-card SVGs
 ├── demo/                   # generated demo HTML/Markdown outputs
 ├── docs/                   # structure, agent-context, and project notes
-├── examples/               # sample repos used for validation and demos
 ├── src/codeglance/
 │   ├── analyze/            # scanners, language registry, symbol extraction, layers, tours
 │   ├── cli/                # console entrypoint and argparse parser
@@ -327,24 +332,6 @@ languages:
   Solidity, PowerShell, Tcl, Common Lisp, Scheme, Racket, Gleam, shell, and more
 
 Unsupported text files still appear as file-level nodes with summaries.
-
-## Example Projects
-
-The `examples/` folder has small repos you can use to test the different views:
-
-```bash
-codeglance examples/taskman
-codeglance examples/microservices
-codeglance examples/canvas-cli
-codeglance examples/terraform-aws
-codeglance examples/terraform-azure
-codeglance examples/rust-cli
-codeglance examples/java-service
-codeglance examples/wiki
-```
-
-They cover Python apps, CLIs, microservices, AWS and Azure Terraform modules, Rust modules,
-Java packages, and Markdown knowledge graphs.
 
 ## Schema
 

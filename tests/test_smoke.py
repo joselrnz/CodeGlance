@@ -20,7 +20,6 @@ from codeglance.schema import Edge, KnowledgeGraph, Layer, Node, Project
 FIXTURES = Path(__file__).parent / "fixtures" / "multilang"
 FIXTURES_IMPORTS = Path(__file__).parent / "fixtures" / "imports"
 FIXTURES_LEGACY = Path(__file__).parent / "fixtures" / "legacy"
-EXAMPLES = Path(__file__).resolve().parent.parent / "examples"
 
 
 def test_package_version_matches_pyproject():
@@ -1122,12 +1121,90 @@ def test_generate_accepts_out_alias():
     assert args.profile == "agent"
 
 
-def test_public_api_and_model_facade():
+def _write(path: Path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
+
+
+def _make_python_app(root: Path) -> Path:
+    _write(root / "README.md", "# Temp App\n\nGenerated inside pytest.\n")
+    _write(root / "app" / "__init__.py", "from .routes import route_task\n")
+    _write(
+        root / "app" / "models.py",
+        "class Task:\n"
+        "    def __init__(self, title: str) -> None:\n"
+        "        self.title = title\n",
+    )
+    _write(
+        root / "app" / "routes.py",
+        "from .models import Task\n\n"
+        "def route_task(title: str) -> Task:\n"
+        "    return Task(title)\n",
+    )
+    return root
+
+
+def _make_terraform_project(root: Path) -> Path:
+    _write(
+        root / "main.tf",
+        'resource "azurerm_resource_group" "main" {\n'
+        '  name = "rg-codeglance"\n'
+        '  location = "eastus"\n'
+        "}\n\n"
+        'module "app" {\n'
+        '  source = "./modules/app"\n'
+        "}\n",
+    )
+    _write(root / "outputs.tf", 'output "resource_group_name" { value = azurerm_resource_group.main.name }\n')
+    _write(root / "modules" / "app" / "main.tf", 'resource "azurerm_linux_web_app" "main" {}\n')
+    return root
+
+
+def _make_rust_project(root: Path) -> Path:
+    _write(root / "Cargo.toml", "[package]\nname = \"demo\"\nversion = \"0.1.0\"\nedition = \"2021\"\n")
+    _write(root / "src" / "config.rs", "pub struct CliConfig { pub verbose: bool }\n")
+    _write(root / "src" / "report.rs", "pub fn build_report() -> String { String::from(\"ok\") }\n")
+    _write(root / "src" / "lib.rs", "pub mod config;\npub mod report;\n")
+    _write(
+        root / "src" / "main.rs",
+        "mod config;\n"
+        "mod report;\n"
+        "use config::CliConfig;\n"
+        "use report::build_report;\n\n"
+        "pub fn run() { let _cfg = CliConfig { verbose: true }; let _ = build_report(); }\n"
+        "fn main() { run(); }\n",
+    )
+    return root
+
+
+def _make_canvas_cli_project(root: Path) -> Path:
+    _write(root / "canvas_cli" / "__init__.py", "")
+    _write(root / "canvas_cli" / "models.py", "class Canvas: pass\nclass Shape: pass\nclass ShapeKind: pass\n")
+    _write(root / "canvas_cli" / "commands.py", "def main() -> None:\n    pass\n")
+    _write(root / "canvas_cli" / "renderer.py", "from .models import Canvas, Shape\n\ndef render_svg(canvas: Canvas) -> str:\n    return '<svg />'\n")
+    _write(root / "canvas_cli" / "cli.py", "from .commands import main\n")
+    return root
+
+
+def _make_java_project(root: Path) -> Path:
+    base = root / "src" / "main" / "java" / "com" / "example" / "orders"
+    _write(
+        base / "App.java",
+        "package com.example.orders;\n\n"
+        "import com.example.orders.service.OrderService;\n\n"
+        "public class App { public static void main(String[] args) { new OrderService().place(); } }\n",
+    )
+    _write(base / "service" / "OrderService.java", "package com.example.orders.service;\npublic class OrderService { public void place() {} }\n")
+    _write(base / "repo" / "InMemoryOrderRepository.java", "package com.example.orders.repo;\npublic class InMemoryOrderRepository {}\n")
+    return root
+
+
+def test_public_api_and_model_facade(tmp_path):
     import codeglance
     from codeglance.api import analyze_project, answer_question, render_agent_context, render_html, render_process_report
     from codeglance.models import KnowledgeGraph as PublicKnowledgeGraph
 
-    root = Path("examples/taskman")
+    root = _make_python_app(tmp_path / "python_app")
     graph = analyze_project(root, full=True)
 
     assert codeglance.analyze_project is analyze_project
@@ -1138,19 +1215,22 @@ def test_public_api_and_model_facade():
     assert "Business Process Map" in render_process_report(graph)
 
 
-def test_more_example_projects_are_analyzable():
-    examples = {
-        "terraform-azure": {
+def test_multilanguage_fixture_projects_are_analyzable(tmp_path):
+    projects = {
+        "terraform-fixture": {
+            "root": _make_terraform_project(tmp_path / "terraform_fixture"),
             "languages": {"terraform"},
             "symbols": {"resource azurerm_resource_group.main", "module app"},
             "deps": [("outputs.tf", "main.tf")],
         },
-        "rust-cli": {
+        "rust-fixture": {
+            "root": _make_rust_project(tmp_path / "rust_fixture"),
             "languages": {"rust"},
             "symbols": {"CliConfig", "build_report", "run"},
             "deps": [("src/main.rs", "src/config.rs"), ("src/main.rs", "src/report.rs")],
         },
-        "canvas-cli": {
+        "python-cli-fixture": {
+            "root": _make_canvas_cli_project(tmp_path / "python_cli_fixture"),
             "languages": {"python"},
             "symbols": {"Canvas", "Shape", "ShapeKind", "render_svg", "main"},
             "deps": [
@@ -1158,15 +1238,16 @@ def test_more_example_projects_are_analyzable():
                 ("canvas_cli/renderer.py", "canvas_cli/models.py"),
             ],
         },
-        "java-service": {
+        "java-fixture": {
+            "root": _make_java_project(tmp_path / "java_fixture"),
             "languages": {"java"},
             "symbols": {"App", "OrderService", "InMemoryOrderRepository"},
             "deps": [("src/main/java/com/example/orders/App.java",
                       "src/main/java/com/example/orders/service/OrderService.java")],
         },
     }
-    for name, expected in examples.items():
-        graph = analyze(EXAMPLES / name, use_llm=False, full=True)
+    for name, expected in projects.items():
+        graph = analyze(expected["root"], use_llm=False, full=True)
         if expected["languages"]:
             assert expected["languages"] <= set(graph.project.languages), name
         symbols = {node.name for node in graph.nodes}

@@ -16,7 +16,7 @@ htmlcov/
 .venv-*/
 venv/
 
-# Generated graphs and rendered HTML (examples kept in demo/ are fine to regenerate)
+# Generated graphs and rendered HTML
 .codeglance/
 tmp-release-smoke/
 tmp-codeglance/
