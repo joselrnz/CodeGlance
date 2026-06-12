@@ -1001,6 +1001,18 @@ function handleResize(){ const isMobile=innerWidth<=900;
   if(isMobile!==_toolsMobile){ _toolsMobile=isMobile; setToolsCollapsed(isMobile,false); }
   resize(); }
 window.addEventListener('resize',handleResize);
+const INITIAL_META={lastAnalyzedAt:(DATA.project&&DATA.project.analyzedAt)||'',gitCommitHash:(DATA.project&&DATA.project.gitCommitHash)||'',version:DATA.version||''};
+function showRefreshNotice(){ const n=$('refreshNotice'); if(n)n.classList.remove('hidden'); }
+function reloadGlance(){ const base=location.href.split('#')[0].split('?')[0], hash=location.hash||''; location.href=base+'?v='+Date.now()+hash; }
+function metaChanged(m){ if(!m)return false;
+  return (m.lastAnalyzedAt&&m.lastAnalyzedAt!==INITIAL_META.lastAnalyzedAt)
+    || (m.gitCommitHash&&m.gitCommitHash!==INITIAL_META.gitCommitHash)
+    || (m.version&&m.version!==INITIAL_META.version); }
+async function checkOutputRefresh(){ if(!/^https?:$/.test(location.protocol))return;
+  try{ const r=await fetch('meta.json?cg='+Date.now(),{cache:'no-store'}); if(!r.ok)return;
+    const m=await r.json(); if(metaChanged(m))showRefreshNotice(); }catch(e){} }
+function startOutputRefreshWatch(){ if(!/^https?:$/.test(location.protocol))return;
+  const b=$('refreshNow'); if(b)b.onclick=reloadGlance; setTimeout(checkOutputRefresh,2400); setInterval(checkOutputRefresh,5000); }
 // keep the breadcrumb / panel / popovers below the header even when it wraps to 2-3 rows on a small window
 const _topbarEl=document.getElementById('topbar');
 function syncTopbarH(){ if(_topbarEl) document.documentElement.style.setProperty('--topbar-h', _topbarEl.offsetHeight+'px'); }
@@ -1008,6 +1020,7 @@ if(window.ResizeObserver){ try{ new ResizeObserver(syncTopbarH).observe(_topbarE
 window.addEventListener('resize',syncTopbarH); syncTopbarH();
 try{ const sv=JSON.parse(localStorage.getItem('sl-theme-v2')||'null'); if(sv&&THEMES[sv.name]) THEME_STATE=sv; }catch(e){}
 applyTheme(); applyDetail(); applyModeUI(); renderPanel(); togglePanel(innerWidth>900); setToolsCollapsed(innerWidth<=900,false); fit(); resize();
+startOutputRefreshWatch();
 if(animOn) startAnim(); else { const _b=document.getElementById('btnAnim'); if(_b)_b.classList.remove('on'); }
 (function(){ try{ const m=/[#&]n=([^&]+)/.exec(location.hash||''); if(m){ const i=N.findIndex(n=>n.id===decodeURIComponent(m[1])); if(i>=0) goToNode(i); } }catch(e){} })();
 '''

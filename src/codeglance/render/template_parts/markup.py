@@ -102,6 +102,10 @@ HTML_BODY = r'''</style>
   <button id="zout" class="card" title="Zoom out">−</button>
 </div>
 <button id="termFab" class="card" title="Open terminal">&gt;_</button>
+<div id="refreshNotice" class="card hidden">
+  <span>New codeglance output is ready.</span>
+  <button id="refreshNow" title="Reload this HTML while keeping the current selection">Refresh</button>
+</div>
 <div id="panel" class="card"></div>
 <button id="panelReopen" class="card hidden" title="Show inspector">‹ Inspector</button>
 <div id="tip" class="card"></div>

@@ -75,6 +75,7 @@ codeglance init
 codeglance generate . --out .codeglance/outputs
 codeglance generate . --out .codeglance/outputs --profile all
 codeglance serve . --host 0.0.0.0
+codeglance serve . --host 0.0.0.0 --watch
 ```
 
 Then open the printed URL on your desktop or phone on the same Wi-Fi.
@@ -243,11 +244,16 @@ LLM-specific generated files:
 codeglance serve .
 codeglance serve . --dir .codeglance
 codeglance serve .codeglance/outputs --host 0.0.0.0
+codeglance serve . --host 0.0.0.0 --watch --profile all
 codeglance serve demo --host 0.0.0.0
 ```
 
 It lists HTML, Markdown, JSON, TXT, and SVG files. This is the easiest way to check all generated
 views from a phone without pushing or deploying anything.
+
+Use `--watch` when you want a live local workflow. Codeglance regenerates the selected output
+profile when project files change, and `glance.html` shows a refresh notice when served output is
+newer than the page you are viewing. The same HTML still opens directly from disk without a server.
 
 For a guided walkthrough of `glance.html`, the generated files, mobile behavior, screenshots, and the
 human-in-the-loop review flow, see [`docs/GLANCE_WALKTHROUGH.md`](docs/GLANCE_WALKTHROUGH.md).
@@ -360,8 +366,6 @@ When the package version changes, update:
 The current package structure is now split into SDK, services, CLI, commands, models, output,
 renderers, and analysis. The next useful pieces are:
 
-- `codeglance serve --watch` to regenerate outputs when files change
-- browser auto-refresh when `.codeglance` artifacts update
 - `codeglance review` to validate graph/output quality before sharing or pushing
 - `codeglance ask` to answer repo questions from `llms.txt`, `agent.md`, TOON, and selected context
 - persona modes in Glance for Overview, Developer, Reviewer, PM, and Agent audiences

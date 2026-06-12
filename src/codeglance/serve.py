@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import html
 import socket
+import threading
 import time
 import webbrowser
 from dataclasses import dataclass
@@ -12,6 +13,20 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 ARTIFACT_SUFFIXES = {".html", ".htm", ".md", ".json", ".txt", ".svg"}
+WATCH_SKIP_DIRS = {
+    ".git",
+    ".hg",
+    ".svn",
+    ".codeglance",
+    "__pycache__",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+    ".venv",
+    "venv",
+    "node_modules",
+    "tmp-codeglance",
+}
 
 
 @dataclass(frozen=True)
@@ -34,6 +49,20 @@ class Artifact:
         if self.suffix == ".svg":
             return "SVG"
         return self.suffix.lstrip(".").upper() or "File"
+
+
+@dataclass(frozen=True)
+class WatchConfig:
+    """Configuration for serving a generated folder while refreshing it."""
+
+    project_root: Path
+    output_dir: Path
+    profile: str = "minimal"
+    use_llm: bool = False
+    model: str | None = None
+    full: bool = False
+    interval: float = 1.5
+    quiet: bool = False
 
 
 def iter_artifacts(root: Path) -> list[Artifact]:
@@ -135,9 +164,20 @@ def build_index_html(root: Path, title: str = "codeglance outputs") -> str:
 """
 
 
-def serve_directory(root: Path, host: str = "127.0.0.1", port: int = 8765, open_browser: bool = False) -> None:
+def serve_directory(
+    root: Path,
+    host: str = "127.0.0.1",
+    port: int = 8765,
+    open_browser: bool = False,
+    watch: WatchConfig | None = None,
+) -> None:
     """Serve `root` until interrupted."""
     root = root.resolve()
+    stop_watch = threading.Event()
+    watch_thread = None
+    if watch:
+        watch_thread = threading.Thread(target=_watch_outputs, args=(watch, stop_watch), daemon=True)
+        watch_thread.start()
     handler = partial(_OutputHandler, directory=str(root), title=f"codeglance outputs: {root.name}")
     server = ThreadingHTTPServer((host, port), handler)
     actual_host, actual_port = server.server_address
@@ -148,6 +188,8 @@ def serve_directory(root: Path, host: str = "127.0.0.1", port: int = 8765, open_
     print(f"Desktop: {local_url}")
     if host in {"0.0.0.0", ""} and lan_url:
         print(f"Phone on same Wi-Fi: {lan_url}")
+    if watch:
+        print(f"Watch: {watch.project_root} -> {watch.output_dir} ({watch.profile})")
     print("Press Ctrl+C to stop.")
     if open_browser:
         webbrowser.open(local_url)
@@ -156,7 +198,10 @@ def serve_directory(root: Path, host: str = "127.0.0.1", port: int = 8765, open_
     except KeyboardInterrupt:
         print("\nStopped.")
     finally:
+        stop_watch.set()
         server.server_close()
+        if watch_thread and watch_thread.is_alive():
+            watch_thread.join(timeout=2)
 
 
 def lan_ip() -> str:
@@ -184,6 +229,78 @@ def _quote_url_part(value: str) -> str:
     from urllib.parse import quote
 
     return quote(value, safe="")
+
+
+def _watch_outputs(config: WatchConfig, stop: threading.Event) -> None:
+    """Poll project files and regenerate outputs when source files change."""
+    from .services.projects import generate_bundle
+
+    root = config.project_root.resolve()
+    out = config.output_dir.resolve()
+    last = _watch_signature(root, out)
+    while not stop.wait(max(0.2, config.interval)):
+        current = _watch_signature(root, out)
+        if current == last:
+            continue
+        last = current
+        _watch_log(config, "Change detected; regenerating outputs...")
+        try:
+            graph, outputs = generate_bundle(
+                root,
+                out,
+                use_llm=config.use_llm,
+                model=config.model,
+                full=config.full,
+                profile=config.profile,
+                progress=None if config.quiet else (lambda msg: _watch_log(config, msg)),
+            )
+        except Exception as exc:
+            _watch_log(config, f"Regeneration failed: {exc}")
+            continue
+        stats = graph.stats()
+        _watch_log(
+            config,
+            f"Regenerated {len(outputs)} outputs: {stats['nodes']} nodes, {stats['edges']} edges.",
+        )
+
+
+def _watch_signature(root: Path, output_dir: Path) -> tuple[tuple[str, int, int], ...]:
+    """Return a stable source-file signature for polling watch mode."""
+    rows: list[tuple[str, int, int]] = []
+    root = root.resolve()
+    output_dir = output_dir.resolve()
+    for path in root.rglob("*"):
+        if not path.is_file():
+            continue
+        if _is_watch_ignored(path, root, output_dir):
+            continue
+        try:
+            stat = path.stat()
+        except OSError:
+            continue
+        rows.append((path.relative_to(root).as_posix(), stat.st_mtime_ns, stat.st_size))
+    return tuple(sorted(rows))
+
+
+def _is_watch_ignored(path: Path, root: Path, output_dir: Path) -> bool:
+    try:
+        resolved = path.resolve()
+        resolved.relative_to(output_dir)
+        return True
+    except ValueError:
+        pass
+    try:
+        parts = path.relative_to(root).parts
+    except ValueError:
+        return True
+    if parts == (".codeglance", "config.json"):
+        return False
+    return any(part in WATCH_SKIP_DIRS for part in parts)
+
+
+def _watch_log(config: WatchConfig, message: str) -> None:
+    if not config.quiet:
+        print(f"[watch] {message}")
 
 
 class _OutputHandler(SimpleHTTPRequestHandler):

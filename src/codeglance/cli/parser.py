@@ -191,4 +191,16 @@ def _add_serve_parser(subcommands: argparse._SubParsersAction) -> None:
     cmd.add_argument("--host", default="127.0.0.1", help="bind host (use 0.0.0.0 for phone access)")
     cmd.add_argument("--port", type=int, default=8765, help="port to bind (default: 8765)")
     cmd.add_argument("--open", action="store_true", help="open the local index in a browser")
+    cmd.add_argument("--watch", action="store_true", help="regenerate outputs when project files change")
+    cmd.add_argument("--interval", type=float, default=1.5, help="watch polling interval in seconds")
+    cmd.add_argument("--llm", action="store_true", help="enrich summaries via an LLM while watching")
+    cmd.add_argument("--model", default=None, help="LLM model id used with --llm")
+    cmd.add_argument("--full", action="store_true", help="force full rebuilds when watch regenerates")
+    cmd.add_argument(
+        "--profile",
+        choices=("minimal", "human", "agent", "all"),
+        default="all",
+        help="output set to generate when --watch is used",
+    )
+    cmd.add_argument("--quiet", action="store_true", help="suppress watch progress messages")
     cmd.set_defaults(func=cmd_serve)

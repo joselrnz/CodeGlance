@@ -51,6 +51,9 @@ def test_cli_registers_workflow_commands():
     from codeglance.cli.parser import SUBCOMMANDS, build_parser
 
     assert {"explain", "impact", "onboard", "init"} <= SUBCOMMANDS
+    args = build_parser().parse_args(["serve", ".", "--watch", "--profile", "all", "--interval", "0.5"])
+    assert args.command == "serve" and args.watch is True
+    assert args.profile == "all" and args.interval == 0.5
     help_text = build_parser().format_help()
     assert "explain" in help_text
     assert "impact" in help_text
@@ -676,6 +679,10 @@ def test_interactive_toolbar_stays_compact():
         "showFns=false",
         "showFns=true",
         "refreshMoreControls",
+        'id="refreshNotice"',
+        "checkOutputRefresh",
+        "meta.json?cg=",
+        "reloadGlance",
     ):
         assert m in html, f"missing compact toolbar marker: {m}"
     assert 'id="btnMore"' not in html
@@ -795,7 +802,8 @@ def test_agent_context_is_low_token_handoff():
 
 def test_serve_index_lists_output_artifacts(tmp_path):
     from codeglance.cli import _resolve_serve_dir
-    from codeglance.serve import build_index_html, iter_artifacts
+    from codeglance.commands.serve import resolve_watch_root
+    from codeglance.serve import _watch_signature, build_index_html, iter_artifacts
 
     out = tmp_path / "demo"
     out.mkdir()
@@ -818,6 +826,20 @@ def test_serve_index_lists_output_artifacts(tmp_path):
     assert _resolve_serve_dir(str(project)) == generated.resolve()
     assert _resolve_serve_dir(str(project), "demo") == (project / "demo").resolve()
     assert _resolve_serve_dir(str(out)) == out.resolve()
+    outputs = generated / "outputs"
+    outputs.mkdir()
+    assert resolve_watch_root(str(project), None, generated) == project.resolve()
+    assert resolve_watch_root(str(outputs), None, outputs) == project.resolve()
+
+    (project / "app.py").write_text("def main():\n    return 1\n", encoding="utf-8")
+    before = _watch_signature(project, outputs)
+    (outputs / "meta.json").write_text("{}", encoding="utf-8")
+    assert _watch_signature(project, outputs) == before
+    (generated / "config.json").write_text('{"profile":"all"}\n', encoding="utf-8")
+    assert _watch_signature(project, outputs) != before
+    before = _watch_signature(project, outputs)
+    (project / "app.py").write_text("def main():\n    return 2\n", encoding="utf-8")
+    assert _watch_signature(project, outputs) != before
 
 
 def test_generate_outputs_writes_complete_bundle(tmp_path):
