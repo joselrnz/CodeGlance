@@ -512,6 +512,11 @@ def test_process_flows_are_embedded_in_html_inspector_and_terminal():
     for marker in (
         "Demo Flow",
         "processStepHTML",
+        "processFlowCardHTML",
+        "flowcard",
+        "flowstep",
+        "flow-open",
+        "data-flow-open",
         "Process flows",
         "const PF=DATA.processFlows",
         "flows [q]",
@@ -868,6 +873,7 @@ def test_interactive_html_localizes_static_chrome():
     assert '"terminal.help_intro": "Explora y prueba este codigo' in html_es
     assert '"filter.node_types": "Tipos de nodo"' in html_es
     assert '"theme.heading_font": "Fuente de titulos"' in html_es
+    assert '"flow.open_first_step": "Abrir primer paso"' in html_es
     assert "Buscador de rutas de dependencia" in html_es
     assert "Documentacion" in html_es
     assert "Restablecer filtros" in html_es
@@ -876,11 +882,13 @@ def test_interactive_html_localizes_static_chrome():
     assert '<html lang="ar" dir="rtl">' in html_ar
     assert '"help.title": "اختصارات لوحة المفاتيح"' in html_ar
     assert '"filter.reset": "إعادة ضبط المرشحات"' in html_ar
+    assert '"flow.open_first_step": "افتح الخطوة الأولى"' in html_ar
 
     html_ja = render_interactive(_sample_graph(), config=VizConfig(ui_language="ja-JP"))
     assert '<html lang="ja" dir="ltr">' in html_ja
     assert '"help.title": "キーボードショートカット"' in html_ja
     assert '"terminal.help_intro": "埋め込みグラフを使って' in html_ja
+    assert '"flow.open_first_step": "最初のステップを開く"' in html_ja
 
 
 def test_wiki_docs_mode_is_self_contained():

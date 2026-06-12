@@ -45,7 +45,7 @@ Those four areas are now strategic pre-push gates by project decision. The plan 
 | --- | --- | --- | --- |
 | Interactive graph | Hierarchical drill-down, smart layout, community clustering | Shipped: overview, drill, explore, folder drill-down, breadcrumbs, canvas graph | Good enough to push; keep validating on large repos |
 | File/function/class graph | Every file, function, class, dependency | Shipped across Python and tree-sitter languages | Good enough to push |
-| Domain view | Business domains, flows, process steps | Advanced foundation: graph/TOON/process JSON persist domains, flows, processes, and steps; inspector/terminal expose flow evidence; richer cards pending | Strategic pre-push gate |
+| Domain view | Business domains, flows, process steps | Advanced foundation: graph/TOON/process JSON persist domains, flows, processes, and steps; inspector/terminal expose flow evidence; flow cards now show steps/files/confidence/entry/exit and clickable step evidence | Strategic pre-push gate |
 | Knowledge graph | Wiki/docs graph with implicit relationships and claims | Partial: Markdown/docs nodes and knowledge mode exist; claim extraction is not done | Not a first-gate blocker |
 | Search | Fuzzy and semantic search | Shipped: fuzzy and offline keyword semantic ranking | Good enough to push; true embedding search later |
 | Filters | Type, complexity, layer | Shipped: category/type/layer/filter controls | Good enough to push |
@@ -108,11 +108,10 @@ These remain useful but should not block the competitive superset push:
 
 After push readiness:
 
-1. add richer process cards and flow-focused UI polish
-2. harden multi-agent/platform installer docs and validation
-3. run release build/wheel install smoke
-4. `codeglance doctor`
-5. concept cards
+1. harden multi-agent/platform installer docs and validation
+2. run release build/wheel install smoke
+3. `codeglance doctor`
+4. deeper process subview and concept cards
 
 This order keeps Codeglance useful today while directly addressing the places where Understand
 Anything is visibly ahead.

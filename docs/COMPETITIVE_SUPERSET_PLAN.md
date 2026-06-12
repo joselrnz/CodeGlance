@@ -36,11 +36,13 @@ Foundation shipped on 2026-06-12:
   labels.
 - Domain inspector now shows persisted process flows with clickable step evidence, and the offline
   terminal supports `flows`, `flow <query>`, `processes`, and `process <query>`.
+- Domain inspector flow cards now show step count, file count, confidence, entry/exit hints, a
+  compact clickable step timeline, and an open-first-step action.
 
 Still to finish before claiming full competitive advantage:
 
 - richer `ask` intents such as reverse dependencies, changed-file risk, and read-first recommendations
-- richer process cards in Domain mode and flow-focused polish
+- deeper Process subview and broader flow-focused polish beyond the Domain inspector cards
 - generated prose localization policy and optional LLM-backed content localization
 - installer command polish, generated marketplace manifests, and platform-specific validation docs
 
@@ -125,8 +127,8 @@ Tests:
 
 Core persistence is shipped. The graph schema, TOON output, process sidecar commands, SDK facade,
 and generated LLM context schema now carry domains, flows, processes, and process steps. The HTML
-inspector and terminal can read those flows. Remaining work is richer flow-card presentation and
-polish for non-expert users.
+inspector and terminal can read those flows. Domain inspector cards now expose the main process
+story for non-experts; remaining work is a deeper Process subview and broader flow-focused polish.
 
 **Capability**
 
@@ -186,8 +188,8 @@ Extraction heuristics:
 UI:
 
 - Domain cards show kind, summary, entities, entrypoints, confidence, inbound/outbound flows.
-- Inspector shows flow evidence and open-source-node actions.
-- Add a Process subview or process cards under Domain mode.
+- Inspector shows flow evidence and open-source-node actions. **First pass done.**
+- Add a deeper Process subview beyond the Domain inspector cards.
 - Terminal commands:
   - `domains`
   - `flows`

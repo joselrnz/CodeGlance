@@ -472,18 +472,30 @@ function cardInfoHTML(i){ const S=CD(); if(!S)return ''; const d=S.nodes[i];
   if(ins.length){ h+='<div class="ov-h">'+S.e2+' in ('+ins.length+')</div>'; for(const e of ins) h+='<div class="nb" data-dom="'+e.a+'"><span class="et">'+esc(e.label||'link')+'</span> '+esc(S.nodes[e.a].name)+(e.count?' <span class="muted">· '+e.count+'</span>':'')+'</div>'; }
   if(graphMode==='domain'){ const flows=PF_BY_DOMAIN[d.key]||[];
     if(flows.length){ h+='<div class="ov-h">'+tr('panel.process_flows','Process flows')+' ('+flows.length+')</div>';
-      for(const f of flows.slice(0,4)){ h+='<div class="flowbox"><div class="flow-title">'+esc(f.name||f.id||'Flow')+(f.confidence!==undefined?' <span class="muted">· '+Math.round(f.confidence*100)+'%</span>':'')+'</div>';
-        const steps=f.steps||[]; for(const st of steps.slice(0,6)) h+=processStepHTML(st);
-        if(steps.length>6) h+='<div class="muted small">+'+(steps.length-6)+' more step(s)</div>';
-        h+='</div>'; }
+      for(const f of flows.slice(0,5)) h+=processFlowCardHTML(f);
     }
   }
   if(graphMode==='domain' && d.members&&d.members.length){ h+='<div class="ov-h">'+tr('detail.files','Files')+' ('+d.nFiles+')</div>'; for(const idx of d.members.slice(0,40)){ const n=N[idx]; if(!n||!FILE_LEVEL.has(n.type))continue; h+='<div class="nb" data-i="'+idx+'">'+esc(n.name)+' <span class="muted">· '+esc(n.type)+'</span></div>'; } }
   if(graphMode==='knowledge' && d.memberIdx>=0 && N[d.memberIdx]){ h+='<div class="ov-h">'+tr('panel.source','Source')+'</div><div class="nb" data-i="'+d.memberIdx+'">'+esc(N[d.memberIdx].name)+' <span class="muted">· open in code graph</span></div>'; }
   return h; }
+function stepNodeIdx(st){ return NID.has(st.nodeId)?NID.get(st.nodeId):-1; }
+function uniqueFlowFiles(steps){ const seen=new Set(), files=[]; for(const st of steps){ const idx=stepNodeIdx(st), p=st.filePath||(idx>=0&&N[idx]?N[idx].path:''); if(p&&!seen.has(p)){seen.add(p); files.push(p);} } return files; }
+function processFlowCardHTML(f){ const steps=f.steps||[], files=uniqueFlowFiles(steps), first=steps[0]||{}, last=steps[steps.length-1]||{}, firstIdx=stepNodeIdx(first);
+  let h='<div class="flowcard"'+(firstIdx>=0?' data-flow-open="'+firstIdx+'"':'')+'>';
+  h+='<div class="flowtop"><div class="flow-name">'+esc(f.name||f.id||'Flow')+'</div>';
+  if(firstIdx>=0) h+='<button class="pact flow-open" data-i="'+firstIdx+'" title="'+tr('flow.open_first_step','Open first step')+'">↗</button>';
+  h+='</div><div class="flowmeta">';
+  h+='<span>'+steps.length+' '+tr('flow.steps','steps')+'</span><span>'+files.length+' '+tr('flow.files','files')+'</span>';
+  if(f.confidence!==undefined) h+='<span>'+tr('flow.confidence','confidence')+' '+Math.round(f.confidence*100)+'%</span>';
+  h+='</div>';
+  if(first.label||last.label) h+='<div class="flowroute"><span>'+tr('flow.entry','entry')+': '+esc(first.label||first.filePath||'start')+'</span><span>'+tr('flow.exit','exit')+': '+esc(last.label||last.filePath||'end')+'</span></div>';
+  h+='<div class="flowsteps">';
+  for(const st of steps.slice(0,6)) h+=processStepHTML(st);
+  if(steps.length>6) h+='<div class="flow-more">+'+(steps.length-6)+' '+tr('flow.more_steps','more step(s)')+'</div>';
+  h+='</div></div>'; return h; }
 function processStepHTML(st){ const idx=NID.has(st.nodeId)?NID.get(st.nodeId):-1, role=st.role||'step', label=st.label||st.filePath||st.nodeId||'step';
   const path=st.filePath||(idx>=0&&N[idx]?N[idx].path:'');
-  return '<div class="nb" '+(idx>=0?'data-i="'+idx+'"':'style="cursor:default"')+'><span class="et">'+esc(role)+'</span> '+esc(label)+(path?' <span class="muted">· '+esc(path)+'</span>':'')+'</div>'; }
+  return '<div class="flowstep" '+(idx>=0?'data-i="'+idx+'"':'style="cursor:default"')+'><span class="num">'+(st.order||'')+'</span><span class="et">'+esc(role)+'</span><span class="flowstep-main">'+esc(label)+(path?' <span class="muted">· '+esc(path)+'</span>':'')+'</span></div>'; }
 
 const tip=document.getElementById('tip');
 function tooltip(i,e){ if(i<0){tip.style.display='none';return;} const n=N[i];
@@ -598,6 +610,7 @@ function renderPanel(){
   panel.querySelector('.pclose').onclick=()=>togglePanel(false);
   panel.querySelectorAll('.nb[data-dom]').forEach(el=>el.onclick=()=>selectDomain(+el.dataset.dom));
   panel.querySelectorAll('.nb[data-i]').forEach(el=>el.onclick=()=>goToNode(+el.dataset.i));
+  panel.querySelectorAll('.flowstep[data-i], .flow-open[data-i]').forEach(el=>el.onclick=e=>{ e.stopPropagation(); goToNode(+el.dataset.i); });
   panel.querySelectorAll('.fitem[data-i]').forEach(el=>el.onclick=()=>goToNode(+el.dataset.i));
   panel.querySelectorAll('.source-expand[data-code-i]').forEach(el=>el.onclick=()=>openCodeModal(+el.dataset.codeI));
   panel.querySelectorAll('.fdirrow').forEach(el=>el.onclick=()=>{ const p=el.dataset.d;

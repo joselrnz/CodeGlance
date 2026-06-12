@@ -68,6 +68,24 @@ STYLE = r'''
   .nb .et { color:#7c8aa3; font-family:ui-monospace,monospace; font-size:10px; } .muted{color:var(--muted)}
   .flowbox { margin:7px 0; padding:7px; border:1px solid rgba(var(--accent-rgb),0.16); border-radius:8px; background:rgba(255,255,255,0.025); }
   .flow-title { font-size:12px; color:var(--text); margin:0 0 5px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .flowcard { margin:8px 0 10px; padding:9px; border:1px solid rgba(var(--accent-rgb),0.22); border-radius:8px;
+    background:linear-gradient(180deg,rgba(var(--accent-rgb),0.08),rgba(255,255,255,0.025)); box-shadow:0 10px 28px rgba(0,0,0,.16); }
+  .flowtop { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .flow-name { flex:1; min-width:0; color:var(--text); font-weight:800; font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .flow-open { flex:none; padding:3px 7px; }
+  .flowmeta { display:flex; flex-wrap:wrap; gap:5px; margin:0 0 7px; }
+  .flowmeta span { border:1px solid rgba(var(--accent-rgb),0.18); background:rgba(0,0,0,0.16); color:var(--text2);
+    border-radius:999px; padding:2px 7px; font-size:10px; }
+  .flowroute { display:grid; gap:3px; margin:0 0 7px; color:var(--muted); font-size:11px; line-height:1.35; }
+  .flowroute span { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .flowsteps { display:grid; gap:4px; position:relative; }
+  .flowstep { display:grid; grid-template-columns:18px auto minmax(0,1fr); align-items:center; gap:6px; padding:5px 6px;
+    border-radius:7px; cursor:pointer; color:var(--text); background:rgba(0,0,0,0.12); }
+  .flowstep:hover { background:var(--elevated); }
+  .flowstep .num { display:grid; place-items:center; width:18px; height:18px; border-radius:999px; background:rgba(var(--accent-rgb),0.18);
+    color:var(--accent); font-size:10px; font-family:ui-monospace,monospace; }
+  .flowstep-main { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:11px; }
+  .flow-more { color:var(--muted); font-size:11px; padding:3px 6px; }
   .small { font-size:11px; padding:3px 7px; }
   .path .lr { color:var(--accent); font-size:10px; }
   pre.sig { background:var(--code-bg); border:1px solid rgba(var(--accent-rgb),0.14); border-left:2px solid #5a9e6f; border-radius:6px;
