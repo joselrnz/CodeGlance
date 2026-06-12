@@ -94,6 +94,14 @@ def _add_init_parser(subcommands: argparse._SubParsersAction) -> None:
         help="default output profile to write into .codeglance/config.json",
     )
     cmd.add_argument("--no-agents", action="store_true", help="only create .codeglance config/ignore files")
+    cmd.add_argument(
+        "--agents",
+        default="default",
+        help="agent/editor targets to install: default, all, or comma-separated ids",
+    )
+    cmd.add_argument("--list-agents", action="store_true", help="list supported agent/editor targets and exit")
+    cmd.add_argument("--dry-run", action="store_true", help="show files that would be written without writing them")
+    cmd.add_argument("--marketplace-manifests", action="store_true", help="also generate local integration manifest JSON files")
     cmd.add_argument("--force", action="store_true", help="overwrite files that already exist")
     cmd.add_argument("--generate", action="store_true", help="generate the configured output bundle after init")
     cmd.set_defaults(func=cmd_init)
@@ -220,12 +228,16 @@ def _add_agents_parser(subcommands: argparse._SubParsersAction) -> None:
     for action, help_text in (
         ("plan", "show repo-relative files that would be installed"),
         ("install", "write repo-relative integration files"),
+        ("validate", "validate installed integration files"),
     ):
         child = actions.add_parser(action, help=help_text)
         child.add_argument("path", nargs="?", default=".", help="project directory (default: .)")
-        child.add_argument("--platform", action="append", help="platform id; repeat for multiple platforms")
+        child.add_argument("--platform", action="append", help="platform id, all, default, or comma list; repeat for multiple")
         child.add_argument("--all", action="store_true", help="target all supported platforms")
-        child.add_argument("--overwrite", action="store_true", help="replace existing integration files")
+        child.add_argument("--marketplace-manifests", action="store_true", help="include local integration manifest JSON files")
+        child.add_argument("--force", action="store_true", help="replace existing integration files")
+        child.add_argument("--overwrite", action="store_true", help="deprecated alias for --force")
+        child.add_argument("--dry-run", action="store_true", help="show install actions without writing files")
         child.set_defaults(func=cmd_agents)
 
 

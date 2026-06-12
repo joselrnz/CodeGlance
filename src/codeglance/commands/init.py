@@ -7,11 +7,24 @@ import json
 from pathlib import Path
 
 from ..api import generate_bundle
+from ..integrations import (
+    create_install_plan,
+    default_platforms,
+    get_platform,
+    list_platforms,
+    parse_platforms,
+)
 from .common import emit
 
 
 def cmd_init(args: argparse.Namespace) -> int:
     """Create project-local CodeGlance config and optional agent/command files."""
+    if args.list_agents:
+        for platform_id in list_platforms():
+            platform = get_platform(platform_id)
+            emit(f"{platform.id}\t{platform.display_name}\t{platform.description}")
+        return 0
+
     root = Path(args.path).resolve()
     if not root.is_dir():
         emit(f"Error: not a directory: {root}")
@@ -22,6 +35,9 @@ def cmd_init(args: argparse.Namespace) -> int:
 
     def write(rel: str, content: str) -> None:
         path = root / rel
+        if args.dry_run:
+            skipped.append(path)
+            return
         if path.exists() and not args.force:
             skipped.append(path)
             return
@@ -33,24 +49,49 @@ def cmd_init(args: argparse.Namespace) -> int:
     write(".codeglance/.codeglanceignore", _ignore_text())
 
     if not args.no_agents:
-        write("AGENTS.md", _agents_md(root.name))
-        write(".agents/skills/codeglance/SKILL.md", _skill_md(root.name))
-        write(".claude/skills/codeglance/SKILL.md", _skill_md(root.name))
-        write(".claude/commands/codeglance.md", _slash_command_md(root.name))
+        try:
+            platforms = parse_platforms(args.agents, default=default_platforms())
+            plan = create_install_plan(
+                root,
+                platforms=platforms,
+                overwrite=args.force,
+                dry_run=args.dry_run,
+                marketplace_manifests=args.marketplace_manifests,
+            )
+        except KeyError as exc:
+            emit(f"Error: {exc}")
+            return 1
+        for action in plan.actions:
+            emit(f"  {action.status:<15} {action.platform:<10} {action.relative_path}")
+        if not args.dry_run:
+            for action in plan.actions:
+                if action.status == "conflict":
+                    skipped.append(action.target_path)
+                    continue
+                if action.status not in {"create", "overwrite"}:
+                    continue
+                action.target_path.parent.mkdir(parents=True, exist_ok=True)
+                action.target_path.write_text(action.content, encoding="utf-8", newline="\n")
+                written.append(action.target_path)
 
-    emit(f"✓ initialized CodeGlance in {root}")
+    prefix = "would initialize" if args.dry_run else "initialized"
+    emit(f"✓ {prefix} CodeGlance in {root}")
     for path in written:
         emit(f"  wrote   {path.relative_to(root)}")
     for path in skipped:
-        emit(f"  exists  {path.relative_to(root)} (use --force to overwrite)")
+        label = "would   " if args.dry_run else "exists "
+        emit(f"  {label} {path.relative_to(root)}" + ("" if args.dry_run else " (use --force to overwrite)"))
 
-    if args.generate:
+    if args.generate and not args.dry_run:
         emit("")
         graph, outputs = generate_bundle(root, root / args.output, full=False, profile=args.profile, progress=emit)
         stats = graph.stats()
         emit(f"✓ generated {len(outputs)} {args.profile} outputs")
         emit(f"  {stats['nodes']} nodes · {stats['edges']} edges · {stats['layers']} layers")
         emit(f"  Output folder: {root / args.output}")
+    elif args.generate and args.dry_run:
+        emit("")
+        emit(f"Would generate `{args.profile}` outputs into {root / args.output}")
     else:
         emit("")
         emit(f"Next: run `codeglance generate . --out {args.output} --profile {args.profile}`")
@@ -105,120 +146,4 @@ __pycache__/
 .terraform/
 *.pyc
 *.log
-"""
-
-
-def _agents_md(project: str) -> str:
-    return f"""# Agent Instructions
-
-Use CodeGlance before broad source reads in `{project}`.
-
-## Fast Path
-
-1. Read `.codeglance/outputs/llms.txt` if it exists.
-2. Read `.codeglance/outputs/agent.md` for the compact repo map.
-3. Read `.codeglance/outputs/onboarding.md` for first-day orientation.
-4. Read `.codeglance/outputs/impact.md` before reviewing or committing edits.
-5. Read `.codeglance/outputs/review.md` before sharing generated outputs.
-6. Open exact source files only after the generated map names them.
-
-## Refresh
-
-```bash
-codeglance generate . --out .codeglance/outputs --profile all
-```
-
-## Focused Commands
-
-```bash
-codeglance explain <path-or-symbol>
-codeglance impact . -o .codeglance/outputs/impact.md
-codeglance review . -o .codeglance/outputs/review.md
-codeglance onboard . -o .codeglance/outputs/onboarding.md
-codeglance serve . --dir .codeglance/outputs --host 0.0.0.0 --port 8777 --watch --profile all
-```
-
-Keep generated files aligned with structural code changes.
-"""
-
-
-def _skill_md(project: str) -> str:
-    return f"""---
-name: codeglance
-description: Use CodeGlance to understand `{project}` quickly with generated maps, onboarding docs, impact reports, and focused explanations before opening broad source files.
----
-
-# CodeGlance
-
-Use this skill when you need to understand the repository, plan a change, review impact, onboard a human, or answer "where is this handled?"
-
-## Read Order
-
-1. `.codeglance/outputs/llms.txt`
-2. `.codeglance/outputs/agent.md`
-3. `.codeglance/outputs/onboarding.md`
-4. `.codeglance/outputs/impact.md` for edits/reviews
-5. `.codeglance/outputs/review.md` before sharing/pushing
-6. `.codeglance/outputs/knowledge-graph.toon`
-7. selected source files only after the map identifies them
-
-## Commands
-
-```bash
-codeglance generate . --out .codeglance/outputs --profile all
-codeglance context . --mode agent -o AGENTS.md
-codeglance explain <path-or-symbol>
-codeglance impact . -o .codeglance/outputs/impact.md
-codeglance review . -o .codeglance/outputs/review.md
-codeglance onboard . -o .codeglance/outputs/onboarding.md
-codeglance serve . --dir .codeglance/outputs --host 0.0.0.0 --port 8777 --watch --profile all
-```
-
-## Rules
-
-- Map first, source last.
-- Changed files first, broad search later.
-- Use `explain` for a specific file/class/function.
-- Use `impact` before committing or reviewing a change.
-- Use `review` before sharing generated outputs.
-- Regenerate outputs after structural edits.
-"""
-
-
-def _slash_command_md(project: str) -> str:
-    return f"""# /codeglance
-
-Use CodeGlance to orient on `{project}` with low-token generated context before reading source.
-
-Argument behavior:
-
-- no argument: regenerate all outputs and summarize where to start
-- `serve`: host `.codeglance/outputs` locally
-- `impact`: refresh the impact report
-- `review`: refresh the graph/output quality report
-- `onboard`: refresh the onboarding guide
-- any other text: treat it as a path or symbol and run `codeglance explain`
-
-Suggested implementation:
-
-```bash
-codeglance generate . --out .codeglance/outputs --profile all
-codeglance impact . -o .codeglance/outputs/impact.md
-codeglance review . -o .codeglance/outputs/review.md
-codeglance onboard . -o .codeglance/outputs/onboarding.md
-```
-
-Then read:
-
-1. `.codeglance/outputs/llms.txt`
-2. `.codeglance/outputs/agent.md`
-3. `.codeglance/outputs/onboarding.md`
-4. `.codeglance/outputs/impact.md`
-5. `.codeglance/outputs/review.md`
-
-User argument:
-
-```text
-$ARGUMENTS
-```
 """

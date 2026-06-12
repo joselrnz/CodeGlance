@@ -347,7 +347,6 @@ codeglance init --agents all
 codeglance init --agents claude,codex,cursor,copilot
 codeglance init --list-agents
 codeglance init --dry-run
-codeglance init --merge
 codeglance init --marketplace-manifests
 
 codeglance agents list
@@ -359,11 +358,20 @@ codeglance agents validate
 Safety:
 
 - never overwrite by default
-- `--force` overwrites only Codeglance-owned files
-- `--merge` writes inside marked Codeglance blocks
+- `codeglance init` skips existing files by default
+- `codeglance agents install` reports conflicts by default
+- `--force`/`--overwrite` replaces selected integration files when explicitly requested
 - `--dry-run` writes nothing
 - no API keys, network calls, post-commit hooks, or shell auto-execution in templates
 - all paths repo-relative and Windows/POSIX safe
+
+Current implementation note:
+
+- Tier 1 registry paths, selector parsing, dry-run, validation, and optional local marketplace
+  manifests are implemented.
+- The integration package is split into `models.py`, `templates.py`, `registry.py`, and `install.py`;
+  `__init__.py` remains a compatibility facade for public imports.
+- Merge-block editing and ownership-aware force are still pending; do not market those as shipped.
 
 Tests:
 

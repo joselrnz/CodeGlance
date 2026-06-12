@@ -90,8 +90,26 @@ Then open the printed URL on your desktop or phone on the same Wi-Fi.
 - `.claude/skills/codeglance/SKILL.md`: Claude-compatible skill
 - `.claude/commands/codeglance.md`: local `/codeglance` command prompt
 
-Use `--no-agents` for config only, or `--force` to overwrite existing files.
+Use `--no-agents` for config only, `--dry-run` to preview, or `--force` to overwrite existing files.
 Use `codeglance init --generate` when you want setup and the first output bundle in one command.
+
+Agent/editor adapters can be selected explicitly:
+
+```bash
+codeglance init --agents default
+codeglance init --agents all --dry-run
+codeglance init --agents codex,cursor,copilot --marketplace-manifests
+codeglance init --list-agents
+
+codeglance agents list
+codeglance agents plan . --platform codex,cursor --marketplace-manifests
+codeglance agents install . --platform cursor --dry-run
+codeglance agents validate . --platform codex,cursor
+```
+
+Supported targets are Codex, Claude Code, Cursor, Windsurf, GitHub Copilot, Gemini CLI, Cline,
+Roo, Aider, and Continue. Optional marketplace manifests are local JSON descriptors under
+`.codeglance/marketplace/`; they are not published or uploaded.
 
 ## Project Structure
 

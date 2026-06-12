@@ -8,6 +8,8 @@ from codeglance.integrations import (
     create_install_plan,
     get_platform,
     list_platforms,
+    parse_platforms,
+    validate_installation,
 )
 
 
@@ -38,11 +40,21 @@ def test_registry_lists_supported_agent_platforms():
         get_platform("unknown")
 
 
+def test_platform_selector_supports_default_all_and_comma_lists():
+    assert parse_platforms("default") == ("codex", "claude")
+    assert parse_platforms("cursor,copilot") == ("cursor", "copilot")
+    assert parse_platforms(["copilot", "cursor"]) == ("cursor", "copilot")
+    assert parse_platforms("all") == EXPECTED_PLATFORMS
+
+    with pytest.raises(KeyError):
+        parse_platforms("all,codex")
+
+
 def test_dry_run_plan_reports_file_actions_without_writing(tmp_path):
     plan = create_install_plan(tmp_path, platforms=["codex"], dry_run=True)
 
     assert plan.dry_run is True
-    assert [action.status for action in plan.actions] == ["would_create"]
+    assert [action.status for action in plan.actions] == ["would_create", "would_create"]
     assert plan.actions[0].platform == "codex"
     assert plan.actions[0].relative_path == "AGENTS.md"
     assert plan.actions[0].target_path == tmp_path / "AGENTS.md"
@@ -60,7 +72,8 @@ def test_plan_actions_are_deterministic_and_repo_relative(tmp_path):
 
     assert [(action.platform, action.relative_path) for action in plan.actions] == [
         ("codex", "AGENTS.md"),
-        ("claude", "CLAUDE.md"),
+        ("codex", ".agents/skills/codeglance/SKILL.md"),
+        ("claude", ".claude/skills/codeglance/SKILL.md"),
         ("claude", ".claude/commands/codeglance.md"),
         ("continue", ".continue/rules/codeglance.md"),
     ]
@@ -76,7 +89,7 @@ def test_install_prevents_overwrites_by_default(tmp_path):
 
     plan = create_install_plan(tmp_path, platforms=["codex"], dry_run=False)
 
-    assert len(plan.actions) == 1
+    assert len(plan.actions) == 2
     assert plan.actions[0].status == "conflict"
     assert plan.has_conflicts is True
 
@@ -91,18 +104,45 @@ def test_install_can_create_and_overwrite_when_requested(tmp_path):
     created = apply_install_plan(create_plan)
 
     assert [item.relative_path for item in created] == [
-        "CLAUDE.md",
+        ".claude/skills/codeglance/SKILL.md",
         ".claude/commands/codeglance.md",
     ]
-    assert (tmp_path / "CLAUDE.md").is_file()
+    assert (tmp_path / ".claude" / "skills" / "codeglance" / "SKILL.md").is_file()
     assert (tmp_path / ".claude" / "commands" / "codeglance.md").is_file()
 
-    (tmp_path / "CLAUDE.md").write_text("old\n", encoding="utf-8")
+    (tmp_path / ".claude" / "skills" / "codeglance" / "SKILL.md").write_text("old\n", encoding="utf-8")
     overwrite_plan = create_install_plan(tmp_path, platforms=["claude"], overwrite=True, dry_run=False)
     statuses = {action.relative_path: action.status for action in overwrite_plan.actions}
 
-    assert statuses["CLAUDE.md"] == "overwrite"
+    assert statuses[".claude/skills/codeglance/SKILL.md"] == "overwrite"
     assert statuses[".claude/commands/codeglance.md"] == "overwrite"
 
     apply_install_plan(overwrite_plan)
-    assert "Codeglance" in (tmp_path / "CLAUDE.md").read_text(encoding="utf-8")
+    assert "Codeglance" in (tmp_path / ".claude" / "skills" / "codeglance" / "SKILL.md").read_text(encoding="utf-8")
+
+
+def test_marketplace_manifests_are_optional_install_plan_files(tmp_path):
+    plan = create_install_plan(tmp_path, platforms=["cursor"], dry_run=True, marketplace_manifests=True)
+
+    assert [action.relative_path for action in plan.actions] == [
+        ".cursor/rules/codeglance.mdc",
+        ".codeglance/marketplace/cursor.json",
+    ]
+    assert '"schema": "codeglance.integration"' in plan.actions[1].content
+    assert '"platform": "cursor"' in plan.actions[1].content
+
+
+def test_validate_reports_missing_and_modified_integration_files(tmp_path):
+    missing = validate_installation(tmp_path, platforms=["codex"])
+    assert [(item.status, item.relative_path) for item in missing.findings] == [
+        ("missing", "AGENTS.md"),
+        ("missing", ".agents/skills/codeglance/SKILL.md"),
+    ]
+
+    apply_install_plan(create_install_plan(tmp_path, platforms=["codex"], dry_run=False))
+    clean = validate_installation(tmp_path, platforms=["codex"])
+    assert clean.ok is True
+
+    (tmp_path / "AGENTS.md").write_text("changed\n", encoding="utf-8")
+    modified = validate_installation(tmp_path, platforms=["codex"])
+    assert [(item.status, item.relative_path) for item in modified.findings] == [("modified", "AGENTS.md")]

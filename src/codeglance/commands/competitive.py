@@ -8,7 +8,15 @@ from pathlib import Path
 
 from ..api import analyze_project
 from ..ask import render_answer
-from ..integrations import InstallConflictError, apply_install_plan, create_install_plan, get_platform, list_platforms
+from ..integrations import (
+    InstallConflictError,
+    apply_install_plan,
+    create_install_plan,
+    get_platform,
+    list_platforms,
+    parse_platforms,
+    validate_installation,
+)
 from ..processes import extract_process_map, render_process_map
 from .common import GRAPH_DIR, GRAPH_FILE, emit, write_meta
 from .workflows import _write_or_print
@@ -59,9 +67,33 @@ def cmd_agents(args: argparse.Namespace) -> int:
     if not root.is_dir():
         emit(f"Error: not a directory: {root}")
         return 1
-    platforms = None if args.all else args.platform
-    dry_run = args.action == "plan"
-    plan = create_install_plan(root, platforms=platforms, overwrite=args.overwrite, dry_run=dry_run)
+    try:
+        platforms = list_platforms() if getattr(args, "all", False) else parse_platforms(args.platform)
+    except KeyError as exc:
+        emit(f"Error: {exc}")
+        return 1
+
+    if args.action == "validate":
+        report = validate_installation(
+            root,
+            platforms=platforms,
+            marketplace_manifests=args.marketplace_manifests,
+        )
+        if report.ok:
+            emit(f"✓ integration files valid for {', '.join(report.platforms)}")
+            return 0
+        for finding in report.findings:
+            emit(f"{finding.status}\t{finding.platform}\t{finding.relative_path}")
+        return 1
+
+    dry_run = args.action == "plan" or args.dry_run
+    plan = create_install_plan(
+        root,
+        platforms=platforms,
+        overwrite=args.overwrite or args.force,
+        dry_run=dry_run,
+        marketplace_manifests=args.marketplace_manifests,
+    )
     _print_plan(plan)
     if dry_run:
         return 0

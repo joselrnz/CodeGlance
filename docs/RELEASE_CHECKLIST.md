@@ -52,6 +52,8 @@ Smoke-test the main commands in a temporary repo:
 
 ```bash
 .venv-release\Scripts\codeglance init
+.venv-release\Scripts\codeglance init --agents all --dry-run --marketplace-manifests
+.venv-release\Scripts\codeglance agents validate . --platform default
 .venv-release\Scripts\codeglance generate . --out .codeglance/outputs --profile all
 .venv-release\Scripts\codeglance review . -o .codeglance/outputs/review.md
 ```

@@ -21,6 +21,16 @@ def test_cli_registers_competitive_foundation_commands():
     assert agents.action == "plan"
     assert agents.platform == ["codex"]
 
+    init = build_parser().parse_args(["init", ".", "--agents", "codex,cursor", "--dry-run", "--marketplace-manifests"])
+    assert init.command == "init"
+    assert init.agents == "codex,cursor"
+    assert init.dry_run is True
+    assert init.marketplace_manifests is True
+
+    validate = build_parser().parse_args(["agents", "validate", ".", "--platform", "all", "--marketplace-manifests"])
+    assert validate.action == "validate"
+    assert validate.platform == ["all"]
+
 
 def test_ask_command_answers_from_graph_evidence(tmp_path, capsys):
     project = _sample_project(tmp_path)
@@ -57,6 +67,34 @@ def test_agents_command_lists_and_dry_runs_install_plan(tmp_path, capsys):
     assert "would_create" in planned
     assert "AGENTS.md" in planned
     assert not (tmp_path / "AGENTS.md").exists()
+
+    assert main(["agents", "install", str(tmp_path), "--platform", "cursor", "--dry-run"]) == 0
+    dry_install = capsys.readouterr().out
+    assert "would_create" in dry_install
+    assert ".cursor/rules/codeglance.mdc" in dry_install
+    assert not (tmp_path / ".cursor" / "rules" / "codeglance.mdc").exists()
+
+
+def test_init_agents_dry_run_install_and_validate(tmp_path, capsys):
+    assert main(["init", str(tmp_path), "--agents", "codex,cursor", "--dry-run", "--marketplace-manifests"]) == 0
+    dry = capsys.readouterr().err
+    assert "would initialize" in dry
+    assert ".agents/skills/codeglance/SKILL.md" in dry
+    assert ".codeglance/marketplace/cursor.json" in dry
+    assert not (tmp_path / ".codeglance" / "config.json").exists()
+    assert not (tmp_path / "AGENTS.md").exists()
+
+    assert main(["init", str(tmp_path), "--agents", "codex,cursor", "--force", "--marketplace-manifests"]) == 0
+    written = capsys.readouterr().err
+    assert "initialized CodeGlance" in written
+    assert (tmp_path / "AGENTS.md").is_file()
+    assert (tmp_path / ".agents" / "skills" / "codeglance" / "SKILL.md").is_file()
+    assert (tmp_path / ".cursor" / "rules" / "codeglance.mdc").is_file()
+    assert (tmp_path / ".codeglance" / "marketplace" / "cursor.json").is_file()
+
+    assert main(["agents", "validate", str(tmp_path), "--platform", "codex,cursor", "--marketplace-manifests"]) == 0
+    valid = capsys.readouterr().err
+    assert "integration files valid" in valid
 
 
 def _sample_project(tmp_path: Path) -> Path:
