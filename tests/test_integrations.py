@@ -25,6 +25,8 @@ EXPECTED_PLATFORMS = (
     "roo",
     "aider",
     "continue",
+    "augment",
+    "zed",
 )
 
 
@@ -135,6 +137,19 @@ def test_marketplace_manifests_are_optional_install_plan_files(tmp_path):
     assert '"platform": "cursor"' in plan.actions[1].content
     assert '"requiredArtifacts": [' in plan.actions[1].content
     assert ".codeglance/outputs/processes.md" in plan.actions[1].content
+
+
+def test_augment_and_zed_have_repo_local_rule_files(tmp_path):
+    plan = create_install_plan(tmp_path, platforms=["augment", "zed"], dry_run=True)
+
+    assert [(action.platform, action.relative_path) for action in plan.actions] == [
+        ("augment", ".augment-guidelines"),
+        ("zed", ".rules"),
+    ]
+    assert "Augment Code" in plan.actions[0].content
+    assert "Zed" in plan.actions[1].content
+    for action in plan.actions:
+        assert "codeglance generate" in action.content
 
 
 def test_validate_reports_missing_and_modified_integration_files(tmp_path):

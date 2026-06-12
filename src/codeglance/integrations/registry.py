@@ -82,6 +82,18 @@ _PLATFORMS: tuple[Platform, ...] = (
         description="Continue rule for Codeglance context.",
         files=(GuidanceFile(".continue/rules/codeglance.md", guidance("Continue")),),
     ),
+    Platform(
+        id="augment",
+        display_name="Augment Code",
+        description="Augment Code workspace guidelines.",
+        files=(GuidanceFile(".augment-guidelines", guidance("Augment Code")),),
+    ),
+    Platform(
+        id="zed",
+        display_name="Zed",
+        description="Zed Agent project rules.",
+        files=(GuidanceFile(".rules", guidance("Zed")),),
+    ),
 )
 
 _PLATFORM_BY_ID = {platform.id: platform for platform in _PLATFORMS}

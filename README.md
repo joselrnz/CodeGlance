@@ -111,7 +111,7 @@ codeglance agents validate . --platform codex,cursor
 ```
 
 Supported targets are Codex, Claude Code, Cursor, Windsurf, GitHub Copilot, Gemini CLI, Cline,
-Roo, Aider, and Continue. Optional marketplace manifests are local JSON descriptors under
+Roo, Aider, Continue, Augment Code, and Zed. Optional marketplace manifests are local JSON descriptors under
 `.codeglance/marketplace/`; they are not published or uploaded.
 
 ## Project Structure

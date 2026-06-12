@@ -18,6 +18,8 @@ static artifacts in `.codeglance/outputs`.
 | Roo Code | `.roo/rules/codeglance.md` |
 | Aider | `.aider/codeglance.md` |
 | Continue | `.continue/rules/codeglance.md` |
+| Augment Code | `.augment-guidelines` |
+| Zed | `.rules` |
 
 Default install targets are Codex and Claude. Use `--agents all` or `--platform all` for every
 supported target.

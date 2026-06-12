@@ -15,7 +15,7 @@ Latest public claims rechecked on 2026-06-12:
 - interactive knowledge graph with hierarchical drill-down, smart layout, community clustering,
   filtering, fuzzy/semantic search, and knowledge-base analysis
 - plugin-oriented workflow for Claude Code plus broad editor/agent mentions including Codex,
-  Cursor, Copilot, Gemini CLI, and others
+  Cursor, Copilot, Gemini CLI, Augment Code, Zed, and others
 - localized content/UI claims through a `--language` style option
 
 ## Bottom Line

@@ -354,6 +354,8 @@ src/codeglance/integrations/
     ├── cline.py
     ├── roo.py
     ├── aider.py
+    ├── augment.py
+    ├── zed.py
     └── generic.py
 ```
 
@@ -366,8 +368,10 @@ Tier 1 targets:
 - GitHub Copilot: `.github/copilot-instructions.md`
 - Gemini CLI: `GEMINI.md`
 - Cline/Roo: `.clinerules/codeglance.md`, `.roo/rules/codeglance.md`
-- Aider: `CONVENTIONS.md` or comment-safe `.aider.conf.yml` guidance
+- Aider: `.aider/codeglance.md`
 - Continue: `.continue/rules/codeglance.md`
+- Augment Code: `.augment-guidelines`
+- Zed: `.rules`
 
 CLI:
 
