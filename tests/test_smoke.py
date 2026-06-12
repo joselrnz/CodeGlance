@@ -7,7 +7,14 @@ import re
 import codeglance
 from codeglance.analyze import ts_core as ts
 from codeglance.graph import analyze
-from codeglance.render import render_explain, render_impact, render_interactive, render_onboarding, render_static
+from codeglance.render import (
+    render_explain,
+    render_impact,
+    render_interactive,
+    render_onboarding,
+    render_review,
+    render_static,
+)
 from codeglance.schema import Edge, KnowledgeGraph, Layer, Node, Project
 
 FIXTURES = Path(__file__).parent / "fixtures" / "multilang"
@@ -50,13 +57,14 @@ def test_schema_roundtrip():
 def test_cli_registers_workflow_commands():
     from codeglance.cli.parser import SUBCOMMANDS, build_parser
 
-    assert {"explain", "impact", "onboard", "init"} <= SUBCOMMANDS
+    assert {"explain", "impact", "review", "onboard", "init"} <= SUBCOMMANDS
     args = build_parser().parse_args(["serve", ".", "--watch", "--profile", "all", "--interval", "0.5"])
     assert args.command == "serve" and args.watch is True
     assert args.profile == "all" and args.interval == 0.5
     help_text = build_parser().format_help()
     assert "explain" in help_text
     assert "impact" in help_text
+    assert "review" in help_text
     assert "onboard" in help_text
     assert "init" in help_text
 
@@ -118,6 +126,8 @@ def test_init_creates_project_bootstrap_files(tmp_path):
     assert config["schema"] == "codeglance.config"
     assert config["profile"] == "all"
     assert "codeglance generate" in config["commands"]["generate"]
+    assert "review.md" in config["agent"]["review"]
+    assert "codeglance review" in config["commands"]["review"]
     assert (project / ".codeglance" / ".codeglanceignore").is_file()
     assert "CodeGlance" in (project / "AGENTS.md").read_text(encoding="utf-8")
     assert (project / ".agents" / "skills" / "codeglance" / "SKILL.md").is_file()
@@ -169,6 +179,11 @@ def test_workflow_markdown_renderers():
     assert "# Onboarding Guide: demo" in onboarding
     assert "Start Here" in onboarding
     assert "Agent Workflow" in onboarding
+
+    review = render_review(graph)
+    assert "# Codeglance Review: demo" in review
+    assert "## Summary" in review
+    assert "Pre-Push Checklist" in review
 
 
 def test_render_interactive_escapes_embedded_json_for_script_parser():
@@ -862,6 +877,7 @@ def test_generate_outputs_writes_complete_bundle(tmp_path):
         "agent.md",
         "onboarding.md",
         "impact.md",
+        "review.md",
         "llm-context.schema.json",
         "knowledge-graph.toon",
         "knowledge-graph.json",
@@ -874,12 +890,13 @@ def test_generate_outputs_writes_complete_bundle(tmp_path):
     assert "agent context" in (out / "agent.md").read_text(encoding="utf-8")
     assert "Onboarding Guide" in (out / "onboarding.md").read_text(encoding="utf-8")
     assert "Impact Report" in (out / "impact.md").read_text(encoding="utf-8")
+    assert "Codeglance Review" in (out / "review.md").read_text(encoding="utf-8")
     index = (out / "index.html").read_text(encoding="utf-8")
     assert "glance.html" in index and "llm-context.schema.json" in index
-    assert "onboarding.md" in index and "impact.md" in index
+    assert "onboarding.md" in index and "impact.md" in index and "review.md" in index
     llms = (out / "llms.txt").read_text(encoding="utf-8")
     assert "Read Order" in llms and "`agent.md`" in llms
-    assert "`onboarding.md`" in llms and "`impact.md`" in llms
+    assert "`onboarding.md`" in llms and "`impact.md`" in llms and "`review.md`" in llms
     assert "`knowledge-graph.toon`" in llms
     toon = (out / "knowledge-graph.toon").read_text(encoding="utf-8")
     assert "nodes[" in toon and "{id,type,name,path,summary,complexity,tags}" in toon
@@ -891,6 +908,7 @@ def test_generate_outputs_writes_complete_bundle(tmp_path):
     assert "knowledge-graph.toon" in schema["generatedArtifacts"]
     assert "onboarding.md" in schema["generatedArtifacts"]
     assert "impact.md" in schema["generatedArtifacts"]
+    assert "review.md" in schema["generatedArtifacts"]
     assert "file" in schema["nodeTypes"]
     assert "imports" in schema["edgeTypes"]
 

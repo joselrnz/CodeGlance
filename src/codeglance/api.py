@@ -12,6 +12,7 @@ from .services.projects import (
     render_html,
     render_impact_report,
     render_onboarding_guide,
+    render_review_report,
     save_graph,
 )
 
@@ -25,5 +26,6 @@ __all__ = [
     "render_html",
     "render_impact_report",
     "render_onboarding_guide",
+    "render_review_report",
     "save_graph",
 ]

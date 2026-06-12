@@ -550,6 +550,12 @@ def render_impact(graph: KnowledgeGraph, root: Path | None = None) -> str:
     return _render_impact(graph, root)
 
 
+def render_review(graph: KnowledgeGraph, root: Path | None = None, output_dir: Path | None = None) -> str:
+    """Render a Markdown graph/output quality review report."""
+    from .workflows import render_review as _render_review
+    return _render_review(graph, root, output_dir)
+
+
 def render_onboarding(graph: KnowledgeGraph, root: Path | None = None) -> str:
     """Render a Markdown onboarding guide from the analyzed graph."""
     from .workflows import render_onboarding as _render_onboarding

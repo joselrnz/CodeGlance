@@ -14,6 +14,7 @@ from ..commands import (
     cmd_impact,
     cmd_init,
     cmd_onboard,
+    cmd_review,
     cmd_render,
     cmd_serve,
     cmd_wiki,
@@ -29,6 +30,7 @@ SUBCOMMANDS = {
     "serve",
     "explain",
     "impact",
+    "review",
     "onboard",
     "init",
 }
@@ -51,6 +53,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_context_parser(subcommands)
     _add_explain_parser(subcommands)
     _add_impact_parser(subcommands)
+    _add_review_parser(subcommands)
     _add_onboard_parser(subcommands)
     _add_generate_parser(subcommands)
     _add_serve_parser(subcommands)
@@ -152,6 +155,17 @@ def _add_impact_parser(subcommands: argparse._SubParsersAction) -> None:
     cmd.add_argument("--full", action="store_true", help="force a full rebuild, ignoring fingerprints")
     cmd.add_argument("-o", "--output", default=None, help="write Markdown to a file instead of stdout")
     cmd.set_defaults(func=cmd_impact)
+
+
+def _add_review_parser(subcommands: argparse._SubParsersAction) -> None:
+    cmd = subcommands.add_parser("review", help="validate graph/output quality before sharing or pushing")
+    cmd.add_argument("path", nargs="?", default=".", help="project directory (default: .)")
+    cmd.add_argument("--llm", action="store_true", help="enrich summaries via an LLM (needs ANTHROPIC_API_KEY)")
+    cmd.add_argument("--model", default=None, help="LLM model id")
+    cmd.add_argument("--full", action="store_true", help="force a full rebuild, ignoring fingerprints")
+    cmd.add_argument("--dir", default=None, help="generated output folder to validate (default: .codeglance/outputs)")
+    cmd.add_argument("-o", "--output", default=None, help="write Markdown to a file instead of stdout")
+    cmd.set_defaults(func=cmd_review)
 
 
 def _add_onboard_parser(subcommands: argparse._SubParsersAction) -> None:

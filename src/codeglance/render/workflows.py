@@ -2,13 +2,109 @@
 
 from __future__ import annotations
 
+import json
 import subprocess
 from collections import Counter, defaultdict, deque
+from dataclasses import dataclass
 from pathlib import Path
 
 from ..schema import FILE_LEVEL_TYPES, KnowledgeGraph, Node
 
 _SYMBOL_TYPES = {"class", "function", "module", "endpoint", "schema", "table", "resource"}
+
+
+@dataclass(frozen=True)
+class ReviewFinding:
+    """One deterministic graph/output review finding."""
+
+    severity: str
+    title: str
+    detail: str
+    hint: str = ""
+
+
+def render_review(graph: KnowledgeGraph, root: Path | None = None, output_dir: Path | None = None) -> str:
+    """Render a Markdown quality report for the graph and generated outputs."""
+    root = root.resolve() if root else None
+    output_dir = output_dir.resolve() if output_dir else (root / ".codeglance" / "outputs" if root else None)
+    findings = review_findings(graph, root, output_dir)
+    counts = Counter(f.severity for f in findings)
+    stats = graph.stats()
+    file_nodes = [n for n in graph.nodes if n.type in FILE_LEVEL_TYPES and n.filePath]
+
+    lines = [
+        f"# Codeglance Review: {graph.project.name}",
+        "",
+        "## Summary",
+        f"- status: {_review_status(counts)}",
+        f"- issues: {counts['issue']}",
+        f"- warnings: {counts['warning']}",
+        f"- notes: {counts['note']}",
+        f"- nodes: {stats['nodes']}",
+        f"- edges: {stats['edges']}",
+        f"- layers: {stats['layers']}",
+        f"- file-level nodes: {len(file_nodes)}",
+        f"- analyzed: {graph.project.analyzedAt or 'unknown'}",
+        f"- commit: {(graph.project.gitCommitHash or 'unknown')[:12]}",
+        "",
+    ]
+    if output_dir:
+        lines.append(f"- output folder: `{_rel(root, output_dir)}`")
+        lines.append("")
+
+    if findings:
+        for severity in ("issue", "warning", "note"):
+            group = [f for f in findings if f.severity == severity]
+            if not group:
+                continue
+            lines.extend(["", f"## {severity.title()}s"])
+            for finding in group:
+                lines.append(f"- **{finding.title}**: {finding.detail}")
+                if finding.hint:
+                    lines.append(f"  - Fix: {finding.hint}")
+    else:
+        lines.extend(["## Findings", "No review findings. The graph and generated outputs look consistent."])
+
+    lines.extend([
+        "",
+        "## Pre-Push Checklist",
+        "- Regenerate outputs after code structure changes.",
+        "- Open `glance.html` and verify overview, folder drill-down, inspector, and terminal.",
+        "- Open `index.html` and confirm expected HTML/Markdown/JSON artifacts are listed.",
+        "- Run project tests and keep this report with the generated bundle when useful.",
+    ])
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def review_findings(
+    graph: KnowledgeGraph,
+    root: Path | None = None,
+    output_dir: Path | None = None,
+) -> list[ReviewFinding]:
+    """Return deterministic graph/output review findings."""
+    findings: list[ReviewFinding] = []
+    issues, warnings = graph.validate()
+    findings.extend(ReviewFinding("issue", "Schema issue", issue) for issue in issues[:25])
+    if len(issues) > 25:
+        findings.append(ReviewFinding("issue", "Schema issue limit", f"{len(issues) - 25} more schema issues omitted."))
+    missing_summary = [w for w in warnings if "missing summary" in w]
+    orphan_warnings = [w for w in warnings if "has no edges" in w]
+    other_warnings = [w for w in warnings if w not in missing_summary and w not in orphan_warnings]
+    if missing_summary:
+        findings.append(ReviewFinding(
+            "warning",
+            "Missing summaries",
+            f"{len(missing_summary)} node(s) have no summary.",
+            "Run with deterministic fallbacks or optional LLM enrichment for better context.",
+        ))
+    findings.extend(ReviewFinding("warning", "Schema warning", w) for w in other_warnings[:15])
+
+    _review_source_files(graph, root, findings)
+    _review_orphans(graph, orphan_warnings, findings)
+    _review_layers(graph, findings)
+    _review_folders(graph, findings)
+    _review_outputs(graph, root, output_dir, findings)
+    return findings
 
 
 def render_explain(graph: KnowledgeGraph, root: Path | None = None, target: str = "") -> str:
@@ -351,6 +447,217 @@ def _git_changed_paths(root: Path | None) -> set[str]:
     return {line.strip().replace("\\", "/") for line in out.stdout.splitlines() if line.strip()}
 
 
+def _git_head(root: Path | None) -> str:
+    if root is None:
+        return ""
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+    except Exception:
+        return ""
+    return out.stdout.strip() if out.returncode == 0 else ""
+
+
+def _review_status(counts: Counter[str]) -> str:
+    if counts["issue"]:
+        return "needs attention"
+    if counts["warning"]:
+        return "usable with warnings"
+    return "clean"
+
+
+def _review_source_files(graph: KnowledgeGraph, root: Path | None, findings: list[ReviewFinding]) -> None:
+    if root is None:
+        return
+    missing = []
+    for node in graph.nodes:
+        if node.type in FILE_LEVEL_TYPES and node.filePath and not (root / node.filePath).is_file():
+            missing.append(node.filePath)
+    if missing:
+        sample = ", ".join(f"`{p}`" for p in sorted(set(missing))[:8])
+        findings.append(ReviewFinding(
+            "issue",
+            "Missing source files",
+            f"{len(set(missing))} file-level node(s) point to files that no longer exist: {sample}.",
+            "Regenerate the graph from the current checkout.",
+        ))
+
+
+def _review_orphans(graph: KnowledgeGraph, orphan_warnings: list[str], findings: list[ReviewFinding]) -> None:
+    file_nodes = [n for n in graph.nodes if n.type in FILE_LEVEL_TYPES]
+    if not graph.nodes:
+        findings.append(ReviewFinding("issue", "Empty graph", "The graph has no nodes.", "Check the input path and ignore rules."))
+        return
+    if not graph.edges and len(graph.nodes) > 1:
+        findings.append(ReviewFinding(
+            "warning",
+            "No graph edges",
+            "The graph has multiple nodes but no relationships.",
+            "Review import/dependency extraction for this language or repo shape.",
+        ))
+    if file_nodes:
+        orphan_ids = {w.split("'")[1] for w in orphan_warnings if "'" in w}
+        orphan_files = [n for n in file_nodes if n.id in orphan_ids]
+        ratio = len(orphan_files) / len(file_nodes)
+        if ratio >= 0.65 and len(file_nodes) >= 8:
+            findings.append(ReviewFinding(
+                "warning",
+                "Orphan-heavy graph",
+                f"{len(orphan_files)} of {len(file_nodes)} file-level nodes have no edges.",
+                "This may be normal for docs/config repos; otherwise improve import/dependency detection.",
+            ))
+
+
+def _review_layers(graph: KnowledgeGraph, findings: list[ReviewFinding]) -> None:
+    ids = {n.id for n in graph.nodes}
+    edge_ids = {e.source for e in graph.edges} | {e.target for e in graph.edges}
+    if not graph.layers and graph.nodes:
+        findings.append(ReviewFinding(
+            "warning",
+            "No layers",
+            "The graph has nodes but no architecture layers.",
+            "Regenerate with current layer detection or inspect unusual repo layout.",
+        ))
+        return
+    for layer in graph.layers:
+        present = [nid for nid in layer.nodeIds if nid in ids]
+        if len(present) > 120:
+            findings.append(ReviewFinding(
+                "note",
+                "Large layer",
+                f"`{layer.name}` contains {len(present)} node(s).",
+                "Use folder drill-down and consider adding clearer package/domain grouping.",
+            ))
+        if present:
+            orphan_count = len([nid for nid in present if nid not in edge_ids])
+            if orphan_count / len(present) >= 0.75 and len(present) >= 12:
+                findings.append(ReviewFinding(
+                    "warning",
+                    "Orphan-heavy layer",
+                    f"`{layer.name}` has {orphan_count} of {len(present)} node(s) without edges.",
+                    "Check whether this layer is mostly docs/config or whether dependency extraction is missing links.",
+                ))
+
+
+def _review_folders(graph: KnowledgeGraph, findings: list[ReviewFinding]) -> None:
+    folders: Counter[str] = Counter()
+    for node in graph.nodes:
+        if node.type not in FILE_LEVEL_TYPES or not node.filePath:
+            continue
+        parts = node.filePath.split("/")
+        if len(parts) >= 2:
+            folders["/".join(parts[:2])] += 1
+        elif parts:
+            folders[parts[0]] += 1
+    for folder, count in folders.most_common(8):
+        if count >= 80:
+            findings.append(ReviewFinding(
+                "note",
+                "Large folder",
+                f"`{folder}` contains {count} file-level node(s).",
+                "The folder drill view should stay nested; validate breadcrumbs and up navigation for this folder.",
+            ))
+
+
+def _review_outputs(
+    graph: KnowledgeGraph,
+    root: Path | None,
+    output_dir: Path | None,
+    findings: list[ReviewFinding],
+) -> None:
+    if output_dir is None:
+        return
+    expected = {
+        "glance.html",
+        "knowledge-graph.json",
+        "meta.json",
+        "index.html",
+        "llms.txt",
+        "agent.md",
+        "llm-context.schema.json",
+        "knowledge-graph.toon",
+    }
+    if not output_dir.is_dir():
+        findings.append(ReviewFinding(
+            "warning",
+            "Missing output folder",
+            f"`{_rel(root, output_dir)}` does not exist.",
+            "Run `codeglance generate . --out .codeglance/outputs`.",
+        ))
+        return
+    missing = sorted(name for name in expected if not (output_dir / name).is_file())
+    if missing:
+        findings.append(ReviewFinding(
+            "warning",
+            "Incomplete output bundle",
+            "Missing expected artifact(s): " + ", ".join(f"`{name}`" for name in missing) + ".",
+            "Run `codeglance generate . --profile all` before sharing.",
+        ))
+    _review_output_meta(graph, root, output_dir, findings)
+    glance = output_dir / "glance.html"
+    if glance.is_file():
+        text = glance.read_text(encoding="utf-8", errors="ignore")
+        for marker in ("const DATA = ", 'id="refreshNotice"', "startOutputRefreshWatch"):
+            if marker not in text:
+                findings.append(ReviewFinding(
+                    "warning",
+                    "Glance HTML missing runtime marker",
+                    f"`glance.html` does not contain `{marker}`.",
+                    "Regenerate outputs with the current package version.",
+                ))
+
+
+def _review_output_meta(
+    graph: KnowledgeGraph,
+    root: Path | None,
+    output_dir: Path,
+    findings: list[ReviewFinding],
+) -> None:
+    meta_path = output_dir / "meta.json"
+    if not meta_path.is_file():
+        return
+    try:
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        findings.append(ReviewFinding("issue", "Invalid metadata", "`meta.json` is not valid JSON."))
+        return
+    if meta.get("lastAnalyzedAt") != graph.project.analyzedAt:
+        findings.append(ReviewFinding(
+            "warning",
+            "Stale metadata timestamp",
+            "`meta.json` does not match the current graph analysis timestamp.",
+            "Regenerate the output bundle.",
+        ))
+    if meta.get("version") != graph.version:
+        findings.append(ReviewFinding(
+            "warning",
+            "Metadata version mismatch",
+            f"`meta.json` version `{meta.get('version')}` does not match graph version `{graph.version}`.",
+            "Regenerate the output bundle.",
+        ))
+    analyzed_files = sum(1 for n in graph.nodes if n.type in FILE_LEVEL_TYPES)
+    if meta.get("analyzedFiles") != analyzed_files:
+        findings.append(ReviewFinding(
+            "warning",
+            "Analyzed file count mismatch",
+            f"`meta.json` reports {meta.get('analyzedFiles')} file(s), graph has {analyzed_files}.",
+            "Regenerate the output bundle.",
+        ))
+    current = _git_head(root)
+    meta_commit = meta.get("gitCommitHash") or ""
+    if current and meta_commit and current != meta_commit:
+        findings.append(ReviewFinding(
+            "warning",
+            "Output commit mismatch",
+            f"`meta.json` was generated for `{meta_commit[:12]}`, current HEAD is `{current[:12]}`.",
+            "Regenerate outputs after committing or before sharing.",
+        ))
+
+
 def _source_preview(root: Path | None, node: Node, radius: int = 8) -> str:
     if root is None or not node.filePath:
         return ""
@@ -381,3 +688,12 @@ def _short_id(node_id: str) -> str:
 def _sentence(text: str | None) -> str:
     value = (text or "").strip().replace("\n", " ")
     return value if value else ""
+
+
+def _rel(root: Path | None, path: Path) -> str:
+    if root is None:
+        return path.as_posix()
+    try:
+        return path.resolve().relative_to(root.resolve()).as_posix()
+    except ValueError:
+        return path.as_posix()

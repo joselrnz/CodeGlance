@@ -66,6 +66,7 @@ Generate review workflow docs:
 ```bash
 codeglance onboard . -o .codeglance/onboarding.md
 codeglance impact . -o .codeglance/impact.md
+codeglance review . -o .codeglance/review.md
 ```
 
 Browse every generated output locally:
@@ -226,12 +227,15 @@ The `all` profile adds:
 - `context.md`
 - `onboarding.md`
 - `impact.md`
+- `review.md`
 
 LLM-specific generated files:
 
 - `llms.txt`: tiny entrypoint with read order and artifact pointers
 - `onboarding.md`: first-day walkthrough with read-first files, layers, tour order, and agent workflow
 - `impact.md`: changed-file impact report with likely ripple areas and review checklist
+- `review.md`: graph/output quality report for stale metadata, missing artifacts, broken references,
+  missing files, large layers, and orphan-heavy graph areas
 - `llm-context.schema.json`: structured contract for agents and tools, including artifact tiers,
   graph fields, node types, edge types, and output profiles
 - `knowledge-graph.toon`: compact structured graph for LLM prompt context, with repeated JSON

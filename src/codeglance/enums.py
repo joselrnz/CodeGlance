@@ -13,11 +13,13 @@ from enum import Enum
 
 
 class NodeType(str, Enum):
-    """The 13 node types in the knowledge-graph schema."""
+    """Node types in the knowledge-graph schema."""
 
     FILE = "file"
     FUNCTION = "function"
     CLASS = "class"
+    VARIABLE = "variable"
+    CONSTANT = "constant"
     MODULE = "module"
     CONCEPT = "concept"
     CONFIG = "config"

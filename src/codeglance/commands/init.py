@@ -68,6 +68,7 @@ def _config_json(profile: str, output: str) -> str:
             "compactContext": "agent.md",
             "onboarding": "onboarding.md",
             "impact": "impact.md",
+            "review": "review.md",
             "graph": "knowledge-graph.toon",
         },
         "commands": {
@@ -75,6 +76,7 @@ def _config_json(profile: str, output: str) -> str:
             "serve": f"codeglance serve {output} --host 0.0.0.0 --port 8777",
             "context": "codeglance context . --mode agent -o AGENTS.md",
             "impact": f"codeglance impact . -o {output}/impact.md",
+            "review": f"codeglance review . -o {output}/review.md",
             "onboard": f"codeglance onboard . -o {output}/onboarding.md",
         },
     }
@@ -117,7 +119,8 @@ Use CodeGlance before broad source reads in `{project}`.
 2. Read `.codeglance/outputs/agent.md` for the compact repo map.
 3. Read `.codeglance/outputs/onboarding.md` for first-day orientation.
 4. Read `.codeglance/outputs/impact.md` before reviewing or committing edits.
-5. Open exact source files only after the generated map names them.
+5. Read `.codeglance/outputs/review.md` before sharing generated outputs.
+6. Open exact source files only after the generated map names them.
 
 ## Refresh
 
@@ -130,8 +133,9 @@ codeglance generate . --out .codeglance/outputs --profile all
 ```bash
 codeglance explain <path-or-symbol>
 codeglance impact . -o .codeglance/outputs/impact.md
+codeglance review . -o .codeglance/outputs/review.md
 codeglance onboard . -o .codeglance/outputs/onboarding.md
-codeglance serve .codeglance/outputs --host 0.0.0.0 --port 8777
+codeglance serve . --dir .codeglance/outputs --host 0.0.0.0 --port 8777 --watch --profile all
 ```
 
 Keep generated files aligned with structural code changes.
@@ -154,8 +158,9 @@ Use this skill when you need to understand the repository, plan a change, review
 2. `.codeglance/outputs/agent.md`
 3. `.codeglance/outputs/onboarding.md`
 4. `.codeglance/outputs/impact.md` for edits/reviews
-5. `.codeglance/outputs/knowledge-graph.toon`
-6. selected source files only after the map identifies them
+5. `.codeglance/outputs/review.md` before sharing/pushing
+6. `.codeglance/outputs/knowledge-graph.toon`
+7. selected source files only after the map identifies them
 
 ## Commands
 
@@ -164,8 +169,9 @@ codeglance generate . --out .codeglance/outputs --profile all
 codeglance context . --mode agent -o AGENTS.md
 codeglance explain <path-or-symbol>
 codeglance impact . -o .codeglance/outputs/impact.md
+codeglance review . -o .codeglance/outputs/review.md
 codeglance onboard . -o .codeglance/outputs/onboarding.md
-codeglance serve .codeglance/outputs --host 0.0.0.0 --port 8777
+codeglance serve . --dir .codeglance/outputs --host 0.0.0.0 --port 8777 --watch --profile all
 ```
 
 ## Rules
@@ -174,6 +180,7 @@ codeglance serve .codeglance/outputs --host 0.0.0.0 --port 8777
 - Changed files first, broad search later.
 - Use `explain` for a specific file/class/function.
 - Use `impact` before committing or reviewing a change.
+- Use `review` before sharing generated outputs.
 - Regenerate outputs after structural edits.
 """
 
@@ -188,6 +195,7 @@ Argument behavior:
 - no argument: regenerate all outputs and summarize where to start
 - `serve`: host `.codeglance/outputs` locally
 - `impact`: refresh the impact report
+- `review`: refresh the graph/output quality report
 - `onboard`: refresh the onboarding guide
 - any other text: treat it as a path or symbol and run `codeglance explain`
 
@@ -196,6 +204,7 @@ Suggested implementation:
 ```bash
 codeglance generate . --out .codeglance/outputs --profile all
 codeglance impact . -o .codeglance/outputs/impact.md
+codeglance review . -o .codeglance/outputs/review.md
 codeglance onboard . -o .codeglance/outputs/onboarding.md
 ```
 
@@ -205,6 +214,7 @@ Then read:
 2. `.codeglance/outputs/agent.md`
 3. `.codeglance/outputs/onboarding.md`
 4. `.codeglance/outputs/impact.md`
+5. `.codeglance/outputs/review.md`
 
 User argument:
 

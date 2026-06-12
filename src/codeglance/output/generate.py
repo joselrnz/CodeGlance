@@ -12,6 +12,7 @@ from ..render import (
     render_impact,
     render_interactive,
     render_onboarding,
+    render_review,
     render_static,
     render_wiki,
 )
@@ -53,6 +54,7 @@ def generate_outputs(
         GeneratedOutput("Compact agent context", out / "agent.md", "Markdown"),
         GeneratedOutput("Onboarding guide", out / "onboarding.md", "Markdown"),
         GeneratedOutput("Impact report", out / "impact.md", "Markdown"),
+        GeneratedOutput("Review report", out / "review.md", "Markdown"),
         GeneratedOutput("LLM context schema", out / "llm-context.schema.json", "JSON"),
         GeneratedOutput("Knowledge graph TOON", out / "knowledge-graph.toon", "TOON"),
         GeneratedOutput("Knowledge graph JSON", out / "knowledge-graph.json", "JSON"),
@@ -91,6 +93,8 @@ def generate_outputs(
         _write_meta(out / "meta.json", graph)
     if "index.html" in selected:
         (out / "index.html").write_text(build_output_index(root, outputs), encoding="utf-8")
+    if "review.md" in selected:
+        (out / "review.md").write_text(render_review(graph, root, out), encoding="utf-8")
 
     return graph, outputs
 

@@ -13,6 +13,7 @@ from ..render import (
     render_impact,
     render_interactive,
     render_onboarding,
+    render_review,
     render_static,
     render_wiki,
 )
@@ -64,6 +65,19 @@ def explain_target(graph: KnowledgeGraph, target: str, root: str | Path | None =
 def render_impact_report(graph: KnowledgeGraph, root: str | Path | None = None) -> str:
     """Render a changed-file impact report."""
     return render_impact(graph, Path(root) if root is not None else None)
+
+
+def render_review_report(
+    graph: KnowledgeGraph,
+    root: str | Path | None = None,
+    output_dir: str | Path | None = None,
+) -> str:
+    """Render a graph/output quality review report."""
+    return render_review(
+        graph,
+        Path(root) if root is not None else None,
+        Path(output_dir) if output_dir is not None else None,
+    )
 
 
 def render_onboarding_guide(graph: KnowledgeGraph, root: str | Path | None = None) -> str:

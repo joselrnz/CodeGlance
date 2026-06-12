@@ -22,6 +22,7 @@ def build_llms_txt(root: Path, outputs: list[GeneratedOutput]) -> str:
         ("agent.md", "compact repo map, read order, dependency hotspots, and agent rules"),
         ("onboarding.md", "human-friendly architecture walkthrough and first-day reading order"),
         ("impact.md", "changed-file impact report and dependency ripple checklist"),
+        ("review.md", "graph and generated-output quality report before sharing or pushing"),
         ("llm-context.schema.json", "machine-readable contract for this output bundle"),
         ("knowledge-graph.toon", "compact TOON graph for LLM prompt context"),
         ("context.md", "full markdown map when compact context is not enough"),
@@ -108,6 +109,14 @@ def build_llm_context_schema(root: Path, outputs: list[GeneratedOutput]) -> dict
                 "audience": "human-agent",
                 "contains": ["changed files", "ripple areas", "dependency ripples", "review checklist"],
                 "useWhen": "Use before commit or review to understand likely affected areas.",
+            },
+            {
+                "path": "review.md",
+                "format": "markdown",
+                "tier": 2,
+                "audience": "human-agent",
+                "contains": ["schema checks", "output freshness", "missing artifacts", "graph quality notes"],
+                "useWhen": "Use before sharing or pushing generated Codeglance artifacts.",
             },
             {
                 "path": "knowledge-graph.toon",

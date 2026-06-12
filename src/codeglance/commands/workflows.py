@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from ..api import analyze_project, explain_target, render_impact_report, render_onboarding_guide
+from ..api import analyze_project, explain_target, render_impact_report, render_onboarding_guide, render_review_report
 from .common import GRAPH_DIR, GRAPH_FILE, emit, write_meta
 
 
@@ -37,6 +37,20 @@ def cmd_impact(args: argparse.Namespace) -> int:
     write_meta(root, graph)
     md = render_impact_report(graph, root)
     return _write_or_print(md, args.output, "impact report")
+
+
+def cmd_review(args: argparse.Namespace) -> int:
+    """Generate a graph/output quality review report."""
+    root = Path(args.path).resolve()
+    if not root.is_dir():
+        emit(f"Error: not a directory: {root}")
+        return 1
+    out_dir = Path(args.dir).resolve() if args.dir else root / GRAPH_DIR / "outputs"
+    graph = analyze_project(root, use_llm=args.llm, model=args.model, progress=emit, full=args.full)
+    graph.save(root / GRAPH_DIR / GRAPH_FILE)
+    write_meta(root, graph)
+    md = render_review_report(graph, root, out_dir)
+    return _write_or_print(md, args.output, "review report")
 
 
 def cmd_onboard(args: argparse.Namespace) -> int:
