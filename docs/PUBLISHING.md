@@ -17,7 +17,7 @@ Create a PyPI Trusted Publisher for the `codeglance` project:
 | Field | Value |
 | --- | --- |
 | Owner | `joselrnz` |
-| Repository name | `codeglance` |
+| Repository name | `CodeGlance` |
 | Workflow filename | `release.yml` |
 | Environment name | Any |
 
