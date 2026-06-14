@@ -174,6 +174,8 @@ scan with `.gitignore` or `.codeglance/.codeglanceignore`.
 
 Codeglance writes repo-local guidance files that point tools to the same generated artifacts. It
 does not install official plugins, publish marketplace packages, call tool APIs, or imply affiliation.
+Project credit uses non-personal metadata: CodeGlance Contributor, with AI assistance from Claude
+and Codex.
 
 | Target | Generated guidance |
 | --- | --- |
