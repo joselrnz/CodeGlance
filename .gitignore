@@ -54,6 +54,25 @@ tmp-codeglance/
 demo/*.html
 demo/*.md
 
+# Local working notes
+REFACTOR_PLAN.md
+*_PLAN.md
+*PLAN*.md
+*_plan.md
+*plan*.md
+*_CHECKLIST.md
+*CHECKLIST*.md
+*_checklist.md
+*checklist*.md
+TODO*.md
+todo*.md
+WIP*.md
+wip*.md
+plans/
+checklists/
+notes/
+scratch/
+
 # Editor / tooling
 .agents/
 .claude/launch.json

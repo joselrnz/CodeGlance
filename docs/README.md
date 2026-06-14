@@ -10,7 +10,7 @@ This folder holds project documentation that is useful for humans and agents.
 | `AGENT_CONTEXT.md` | How CodeGlance builds low-token context for AI agents. |
 | `GLANCE_WALKTHROUGH.md` | Walkthrough for `glance.html`, workflow outputs, mobile behavior, screenshots, and human-in-the-loop review. |
 | `INTEGRATIONS.md` | Agent/editor platform matrix, generated files, safety rules, and validation behavior. |
-| `RELEASE_CHECKLIST.md` | Pre-push and pre-publish validation checklist for package build, generated outputs, UI, and commit policy. |
+| `PUBLISHING.md` | GitHub Actions and PyPI Trusted Publishing release flow. |
 | `README.md` | This documentation index. |
 
 ## Screenshot Assets

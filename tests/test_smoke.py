@@ -31,7 +31,7 @@ def test_package_version_matches_pyproject():
     assert codeglance.__version__ == match.group(1) == "0.0.1"
     readme = (root / "README.md").read_text(encoding="utf-8")
     assert "pypi/v/codeglance" not in readme
-    assert "pypi-v0.0.1" in readme
+    assert "version-v0.0.1" in readme
 
 
 def _sample_graph() -> KnowledgeGraph:

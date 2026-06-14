@@ -15,8 +15,7 @@ codeglance/
 ├── .gitignore
 ├── LICENSE
 ├── pyproject.toml
-├── README.md
-└── REFACTOR_PLAN.md
+└── README.md
 ```
 
 Generated and local-only folders such as `.codeglance/`, `dist/`, `.pytest_cache/`, `.ruff_cache/`,
@@ -129,9 +128,6 @@ graph: KnowledgeGraph = analyze_project(".")
 html = render_html(graph, ".")
 ```
 
-A future `pydantic` extra can add strict validation models without changing the
-current public imports.
-
 ## Generated Output Layout
 
 The default generated bundle lives under `.codeglance/outputs/`:
@@ -142,6 +138,8 @@ The default generated bundle lives under `.codeglance/outputs/`:
 ├── llms.txt
 ├── glance.html
 ├── wiki.html
+├── processes.md
+├── processes.json
 ├── agent.md
 ├── context.md
 ├── hippocampus.md

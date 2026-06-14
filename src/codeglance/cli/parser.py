@@ -109,7 +109,7 @@ def _add_init_parser(subcommands: argparse._SubParsersAction) -> None:
     cmd.add_argument("--generate", action="store_true", help="generate the configured output bundle after init")
     cmd.add_argument("--language", default="en", help="default UI/content language to write into .codeglance/config.json")
     cmd.add_argument("--ui-language", default=None, help="UI language override for generated HTML")
-    cmd.add_argument("--content-language", default=None, help="future generated prose language; defaults to --language")
+    cmd.add_argument("--content-language", default=None, help="generated prose language; defaults to --language")
     cmd.add_argument(
         "--localize-generated-text",
         action="store_true",

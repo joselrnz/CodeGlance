@@ -1,11 +1,11 @@
-# Agent Context Capability Plan
+# Agent Context
 
-Codeglance should serve two audiences from one analysis pass:
+CodeGlance serves two audiences from one analysis pass:
 
 - Humans get a self-contained HTML graph and wiki they can inspect visually.
 - Agents get Markdown that is small enough to read often, but rich enough to choose the next files to open.
 
-## Capability
+## Current Behavior
 
 An agent can refresh a compact project memory after each change, read that memory first, then open only the files relevant to the requested task. The same underlying graph powers the HTML, wiki, full context map, and compact agent handoff, so human and agent views stay aligned.
 
@@ -44,25 +44,17 @@ An agent can refresh a compact project memory after each change, read that memor
 11. Refresh the output bundle when the code shape changed.
 12. Use `codeglance serve .codeglance/outputs --host 0.0.0.0` when a human needs to inspect the generated outputs locally.
 
-## Research-Backed Design
+## Design Notes
 
-- OpenAI prompt guidance recommends clear Markdown/XML boundaries, retrieved context, explicit workflow guidance, and planning for the context window. Codeglance keeps the agent handoff structured and small instead of stuffing the whole repo into a prompt.
+- OpenAI prompt guidance recommends clear Markdown/XML boundaries, retrieved context, and explicit workflow guidance. Codeglance keeps the agent handoff structured and small instead of stuffing the whole repo into a prompt.
 - Claude Code memory guidance uses persistent Markdown project memory. Codeglance's `agent.md` is a generated project memory that can be refreshed after code changes.
 - Aider's repo map keeps a compact symbol/file map under a token budget and expands when needed. Codeglance follows the same principle with `agent.md` first, `context.md` second, and source files last.
-- Repository-level coding research such as CodePlan argues that multi-file changes need repository context, dependency analysis, and planning instead of isolated local prompts.
+- Repository-level coding research shows that multi-file changes need repository context and dependency analysis instead of isolated local prompts.
 - Graph-RAG/codebase graph research supports deterministic structural graphs over naive vector/text retrieval for multi-hop architecture questions.
 - TOON-style structured context is useful for LLM prompts because it keeps tabular graph data while reducing repeated JSON field names. JSON stays canonical for tools and parsing.
-
-## Roadmap
-
-- Expand `llm-context.schema.json` with build/test relationships as analyzers learn them.
-- Add a `--changed` context mode that reports only changed files and their neighbors.
-- Add optional source snippets around symbol definitions under a strict line/token budget.
-- Add a watch mode that refreshes `.codeglance/` artifacts and the served output index after file changes.
 
 ## External Patterns
 
 - Aider repo maps: compact symbol/file maps sent with change requests instead of entire repos.
 - Repomix-style packing: optional full-repo export in Markdown, XML, JSON, or plain text when a model really needs a bundle.
 - `llms.txt`: a small, stable entrypoint that tells agents where the current docs and context live.
-- SCIP/LSIF-style indexing: a future optional lane for precise go-to-definition and find-references workflows.

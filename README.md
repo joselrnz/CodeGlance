@@ -2,7 +2,7 @@
   <img src="brand/codeglance-banner.svg" alt="codeglance" width="920">
 </p>
 <p align="center">
-  <a href="https://pypi.org/project/codeglance/"><img alt="PyPI package v0.0.1" src="https://img.shields.io/badge/pypi-v0.0.1-0ea5e9"></a>
+  <img alt="Package version v0.0.1" src="https://img.shields.io/badge/version-v0.0.1-0ea5e9">
   <img alt="Python 3.10+" src="https://img.shields.io/badge/python-3.10%2B-0ea5e9">
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-22d3ee">
   <img alt="Python based" src="https://img.shields.io/badge/runtime-Python--based-1f6feb">
@@ -14,8 +14,8 @@
 </p>
 
 `codeglance` turns a repository into a visual map, a readable wiki, and compact AI context files.
-It runs locally, writes deterministic artifacts, and gives humans and coding agents the same
-evidence before anyone starts editing source.
+By default, it runs locally, writes deterministic artifacts, and gives humans and coding agents the
+same evidence before anyone starts editing source.
 
 **Map first. Source last.**
 
@@ -26,12 +26,12 @@ codeglance generate . --out .codeglance/outputs --profile all
 codeglance serve . --dir .codeglance/outputs --watch
 ```
 
-No Node. No npm. No hosted service. Pure Python in, static files out.
+Default runs use no Node, no npm, and no hosted service. Python CLI in, static files out.
 
 ## Why
 
-New repo, old repo, inherited repo, huge repo: the failure mode is usually the same. You open files
-too early, miss the dependency shape, and hand an AI agent a pile of source with no reading order.
+New repo, inherited repo, huge repo: the failure mode is usually the same. You open files too early,
+miss the dependency shape, and hand an AI agent a pile of source with no reading order.
 
 Codeglance gives you a repo memory layer:
 
@@ -41,8 +41,8 @@ Codeglance gives you a repo memory layer:
 | Read the project like docs | Generated `wiki.html` with overview, architecture, domains, file reference, and reading order. |
 | Give agents compact context | `llms.txt`, `agent.md`, and `knowledge-graph.toon` for low-token handoffs. |
 | Plan a change | `impact.md`, `review.md`, changed-file overlays, and dependency hotspots. |
-| Browse locally | `codeglance serve` opens every generated artifact from your laptop or phone. |
-| Bring tools along | Local guidance files for agent/editor workflows. No network install or hosted runtime required. |
+| Browse locally | `codeglance serve` hosts generated artifacts; bind `--host 0.0.0.0` for phone access on the same network. |
+| Bring tools along | Local guidance files for agent/editor workflows. No plugin install, network call, or hosted runtime required. |
 
 ## How It Works
 
@@ -69,7 +69,7 @@ memory, and moves low-signal files into a recycle lane until the graph pulls the
 
 ## Quick Start
 
-Generate the default graph:
+Generate the legacy single-graph view:
 
 ```bash
 codeglance init
@@ -84,15 +84,16 @@ That writes:
 .codeglance/meta.json
 ```
 
-Generate the complete output bundle:
+That path is useful for a quick one-off graph. For the current full local dashboard, generate the
+output bundle:
 
 ```bash
 codeglance generate . --out .codeglance/outputs --profile all
 codeglance serve . --dir .codeglance/outputs --host 0.0.0.0 --watch
 ```
 
-Open the printed URL on your desktop or phone on the same Wi-Fi. `--watch` regenerates outputs when
-files change and quietly marks the `glance.html` Refresh button when newer output is available.
+Open the printed URL on your desktop or phone on the same Wi-Fi. `--watch` regenerates the bundle
+when files change and quietly marks the `glance.html` Refresh button when newer output is available.
 
 ## Command Map
 
@@ -117,26 +118,36 @@ files change and quietly marks the `glance.html` Refresh button when newer outpu
 | Profile | Best for | Includes |
 | --- | --- | --- |
 | `minimal` | Fast default handoff | `index.html`, `llms.txt`, `glance.html`, `agent.md`, schema, TOON, graph JSON, metadata. |
-| `human` | People reviewing a repo | Visual graph, wiki, hippocampus context, onboarding, impact docs, review docs, metadata. |
-| `agent` | Coding-agent context | Compact agent context, hippocampus memory budget, onboarding, impact docs, review docs, graph data. |
+| `human` | People reviewing a repo | Visual graph, wiki, process map, hippocampus context, onboarding, impact docs, review docs, metadata. |
+| `agent` | Coding-agent context | Compact agent context, process map, hippocampus memory budget, onboarding, impact docs, review docs, graph data. |
 | `all` | Full local bundle | Every generated artifact. |
 
-Default minimal outputs:
+Frequently generated files:
 
-| File | Audience | Purpose |
+| File | Profile | Audience | Purpose |
+| --- | --- | --- | --- |
+| `index.html` | `minimal`, `human`, `all` | human | Clickable output-folder landing page. |
+| `glance.html` | `minimal`, `human`, `all` | human | Interactive visual codebase map. |
+| `llms.txt` | `minimal`, `human`, `agent`, `all` | agent | Small read-first entrypoint with artifact order and usage rules. |
+| `agent.md` | `minimal`, `agent`, `all` | agent | Compact, low-token repo handoff. |
+| `knowledge-graph.toon` | `minimal`, `agent`, `all` | agent | Compact graph context for prompts. |
+| `knowledge-graph.json` | `minimal`, `human`, `agent`, `all` | tool | Canonical structured graph for parsing and re-rendering. |
+| `llm-context.schema.json` | `minimal`, `agent`, `all` | agent/tool | Machine-readable contract for generated artifacts. |
+| `meta.json` | `minimal`, `human`, `agent`, `all` | human/tool | Version, commit, analyzed file count, and analysis metadata. |
+
+Human, agent, and full profiles add the heavier review artifacts:
+
+| File | Profile | Purpose |
 | --- | --- | --- |
-| `index.html` | human | Clickable output-folder landing page. |
-| `glance.html` | human | Interactive visual codebase map. |
-| `wiki.html` | human | Readable project wiki when using `human` or `all`. |
-| `llms.txt` | agent | Small read-first entrypoint with artifact order and usage rules. |
-| `agent.md` | agent | Compact, low-token repo handoff. |
-| `knowledge-graph.toon` | agent | Compact graph context for prompts. |
-| `knowledge-graph.json` | tool | Canonical structured graph for parsing and re-rendering. |
-| `llm-context.schema.json` | agent/tool | Machine-readable contract for generated artifacts. |
-| `meta.json` | human/tool | Version, commit, analyzed file count, and analysis metadata. |
-
-The `all` profile also writes `graph.static.html`, `context.md`, `hippocampus.md`, `onboarding.md`,
-`impact.md`, and `review.md`.
+| `wiki.html` | `human`, `all` | Readable project wiki. |
+| `processes.md` | `human`, `agent`, `all` | Domain/process map inferred from the graph. |
+| `processes.json` | `agent`, `all` | Structured process map for tools. |
+| `context.md` | `all` | Fuller markdown repo context. |
+| `graph.static.html` | `all` | Zero-JavaScript static graph render. |
+| `hippocampus.md` | `human`, `agent`, `all` | Context memory budget for long agent sessions. |
+| `onboarding.md` | `human`, `agent`, `all` | First-day reading path. |
+| `impact.md` | `human`, `agent`, `all` | Changed-file impact report. |
+| `review.md` | `human`, `agent`, `all` | Share-readiness and graph quality checks. |
 
 ## Interactive Graph
 
@@ -152,7 +163,11 @@ The default HTML graph is a self-contained canvas app. It opens directly from di
 | Devices | Desktop layout plus mobile bottom sheets, safe-area handling, tap/pan/pinch gestures. |
 | Local workflow | Watch mode marks refresh quietly; no forced reloads or pop-up banners. |
 
-## Agent And Editor Adapters
+Large repositories can produce large self-contained HTML because the graph data is embedded into
+the file. For browser-friendly output, keep generated, vendored, and bulky public assets out of the
+scan with `.gitignore` or `.codeglance/.codeglanceignore`.
+
+## Agent and Editor Adapters
 
 Codeglance writes repo-local guidance files that point tools to the same generated artifacts. It
 does not install official plugins, publish marketplace packages, call tool APIs, or imply affiliation.
@@ -200,6 +215,7 @@ The default path is deterministic and offline:
 | Layers/domains | Inferred from graph structure and path conventions. |
 | Summaries/tours | Deterministic fallbacks, with optional LLM enrichment. |
 | Incremental runs | `.codeglance/fingerprints.json` keeps unchanged file summaries and marks changed files. |
+| Ignore rules | Built-in defaults plus `.gitignore` and `.codeglance/.codeglanceignore`. |
 
 Optional LLM enrichment:
 
@@ -222,7 +238,8 @@ older languages:
 | Data/ops | PowerShell, shell, Lua, Julia |
 | Legacy/specialized | VHDL, Verilog, COBOL, Fortran, Ada, Haskell, OCaml, Erlang, Elixir, Clojure, Common Lisp, Scheme, Racket, Gleam |
 
-Unsupported text files still appear as file-level nodes with summaries.
+Recognized docs, config, data, and source files appear as file-level nodes with summaries. Unknown
+extensions and very large files are skipped by the scanner.
 
 ## Python API
 
@@ -295,12 +312,12 @@ codeglance/
 | [`docs/AGENT_CONTEXT.md`](docs/AGENT_CONTEXT.md) | Agent reading protocol and generated context strategy. |
 | [`docs/GLANCE_WALKTHROUGH.md`](docs/GLANCE_WALKTHROUGH.md) | Walkthrough for `glance.html`, generated files, mobile behavior, screenshots, and review flow. |
 | [`docs/INTEGRATIONS.md`](docs/INTEGRATIONS.md) | Agent/editor matrix, safety rules, generated files, validation behavior. |
-| [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) | Pre-push and pre-publish validation checklist. |
+| [`docs/PUBLISHING.md`](docs/PUBLISHING.md) | GitHub Actions and PyPI Trusted Publishing release flow. |
 
 ## Status
 
 Current package version: `0.0.1`.
 
-Before publishing a new release, update the version in `pyproject.toml`,
-`src/codeglance/__init__.py`, this README badge, and the brand badge text. Use
-[`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) for the full validation pass.
+Before publishing a PyPI release, update the version in `pyproject.toml`,
+`src/codeglance/__init__.py`, this README badge, and the brand badge text, then restore a PyPI badge
+after the package page exists. Publishing automation lives in [docs/PUBLISHING.md](docs/PUBLISHING.md).
