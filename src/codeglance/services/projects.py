@@ -12,6 +12,7 @@ from ..processes import process_map_for_graph, render_process_map
 from ..render import (
     render_context,
     render_explain,
+    render_hippocampus,
     render_impact,
     render_interactive,
     render_onboarding,
@@ -67,6 +68,16 @@ def explain_target(graph: KnowledgeGraph, target: str, root: str | Path | None =
 def render_impact_report(graph: KnowledgeGraph, root: str | Path | None = None) -> str:
     """Render a changed-file impact report."""
     return render_impact(graph, Path(root) if root is not None else None)
+
+
+def render_hippocampus_report(
+    graph: KnowledgeGraph,
+    root: str | Path | None = None,
+    *,
+    max_items: int = 6,
+) -> str:
+    """Render a context memory budget report."""
+    return render_hippocampus(graph, Path(root) if root is not None else None, max_items=max_items)
 
 
 def render_review_report(

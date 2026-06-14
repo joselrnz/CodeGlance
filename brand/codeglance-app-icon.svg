@@ -1,43 +1,65 @@
 <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="codeglance app icon">
   <defs>
-    <linearGradient id="oceani" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#38BDF8"/><stop offset="100%" stop-color="#0E7490"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#071017"/>
+      <stop offset="100%" stop-color="#0E1B24"/>
     </linearGradient>
-    <linearGradient id="lensi" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#22D3EE"/><stop offset="100%" stop-color="#2DD4BF"/>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0D1720"/>
+      <stop offset="100%" stop-color="#111F2A"/>
     </linearGradient>
-    <linearGradient id="wmi" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#38BDF8"/><stop offset="55%" stop-color="#22D3EE"/><stop offset="100%" stop-color="#2DD4BF"/>
+    <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8CF4FF"/>
+      <stop offset="48%" stop-color="#22D3EE"/>
+      <stop offset="100%" stop-color="#0EA5E9"/>
     </linearGradient>
-    <clipPath id="clipi"><circle cx="130" cy="130" r="86"/></clipPath>
+    <linearGradient id="handle" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6EE7F9"/>
+      <stop offset="55%" stop-color="#22D3EE"/>
+      <stop offset="100%" stop-color="#14B8A6"/>
+    </linearGradient>
+    <radialGradient id="glass" cx="36%" cy="28%" r="76%">
+      <stop offset="0%" stop-color="#E6F6FB" stop-opacity=".22"/>
+      <stop offset="42%" stop-color="#38BDF8" stop-opacity=".06"/>
+      <stop offset="100%" stop-color="#061018" stop-opacity=".05"/>
+    </radialGradient>
+    <clipPath id="lensClip"><circle cx="268" cy="250" r="112"/></clipPath>
+    <filter id="shadow" x="-25%" y="-25%" width="160%" height="170%">
+      <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#02070A" flood-opacity=".45"/>
+    </filter>
   </defs>
-  <rect width="512" height="512" rx="100" fill="#0B141D"/>
-  <rect x="3" y="3" width="506" height="506" rx="97" fill="none" stroke="#14222E" stroke-width="2"/>
-  <g transform="translate(53,53) scale(1.45)">
-    <g clip-path="url(#clipi)">
-      <rect x="44" y="44" width="172" height="172" fill="#0F1B26"/>
-      <g fill="#1A2A38">
-        <circle cx="62" cy="74" r="2.5"/><circle cx="98" cy="60" r="2.5"/><circle cx="190" cy="70" r="2.5"/>
-        <circle cx="206" cy="120" r="2.5"/><circle cx="64" cy="160" r="2.5"/><circle cx="186" cy="200" r="2.5"/>
-        <circle cx="120" cy="216" r="2.5"/><circle cx="74" cy="206" r="2.5"/>
-      </g>
-      <g stroke="#2DD4BF" stroke-width="3.5" opacity="0.9">
-        <line x1="116" y1="98" x2="166" y2="126"/>
-        <line x1="112" y1="102" x2="112" y2="154"/>
-        <line x1="130" y1="162" x2="164" y2="142"/>
-      </g>
-      <g fill="#2DD4BF">
-        <path d="M166 126 l-11 -1.5 5.5 -9.5 Z"/>
-        <path d="M112 154 l-5.5 -9.5 11 0 Z"/>
-      </g>
-      <rect x="86" y="74" width="54" height="36" rx="5" fill="url(#oceani)"/>
-      <circle cx="102" cy="86" r="5" fill="#E6F6FB"/>
-      <rect x="156" y="116" width="48" height="32" rx="5" fill="#1B2A38" stroke="#24384A" stroke-width="1.5"/>
-      <rect x="86" y="154" width="46" height="30" rx="5" fill="#155E75"/>
-    </g>
-    <circle cx="130" cy="130" r="86" fill="none" stroke="url(#lensi)" stroke-width="11"/>
-    <path d="M 69 88 A 74 74 0 0 1 111 59" fill="none" stroke="#E6F6FB" stroke-width="5" stroke-linecap="round" opacity="0.35"/>
-    <line x1="192" y1="192" x2="222" y2="222" stroke="#2DD4BF" stroke-width="14" stroke-linecap="round" opacity="0.0"/>
-    <line x1="194" y1="194" x2="260" y2="260" stroke="url(#oceani)" stroke-width="17" stroke-linecap="round"/>
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <rect x="62" y="82" width="328" height="252" rx="28" fill="url(#panel)" stroke="#234456" stroke-width="4"/>
+  <rect x="72" y="92" width="308" height="46" rx="18" fill="#122635"/>
+  <circle cx="103" cy="116" r="8" fill="#38BDF8"/>
+  <circle cx="133" cy="116" r="8" fill="#22D3EE"/>
+  <circle cx="163" cy="116" r="8" fill="#2DD4BF"/>
+  <g fill="#668492" font-family="Bahnschrift, 'Segoe UI', Arial, sans-serif" font-size="18" font-weight="500">
+    <text x="102" y="185">src/</text>
+    <text x="132" y="225">render/</text>
+    <text x="132" y="265">analyze/</text>
   </g>
+  <g clip-path="url(#lensClip)">
+    <rect x="148" y="120" width="268" height="268" fill="#0A151D"/>
+    <g opacity=".34" stroke="#1F3D4A" stroke-width="1.4">
+      <path d="M148 162 H416 M148 204 H416 M148 246 H416 M148 288 H416 M148 330 H416"/>
+      <path d="M184 120 V388 M226 120 V388 M268 120 V388 M310 120 V388 M352 120 V388"/>
+    </g>
+    <path d="M188 210 H252 V176 H332 V220 H370" fill="none" stroke="#244758" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M254 215 V288 H340 V340 H394" fill="none" stroke="#2DD4BF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M206 340 H254 V290" fill="none" stroke="#38BDF8" stroke-width="8" stroke-linecap="round"/>
+    <rect x="202" y="186" width="76" height="44" rx="9" fill="#38BDF8"/>
+    <rect x="314" y="202" width="72" height="44" rx="9" fill="#162B38" stroke="#4B7180" stroke-width="3"/>
+    <rect x="214" y="318" width="74" height="44" rx="9" fill="#155E75"/>
+    <rect x="350" y="330" width="76" height="44" rx="9" fill="#0F2A35" stroke="#2DD4BF" stroke-width="3"/>
+    <circle cx="228" cy="202" r="6" fill="#E6F6FB"/>
+  </g>
+  <path d="M350 332 L462 444" stroke="#02080C" stroke-width="46" stroke-linecap="round" opacity=".52" filter="url(#shadow)"/>
+  <path d="M360 342 L462 444" stroke="url(#handle)" stroke-width="31" stroke-linecap="round"/>
+  <path d="M376 358 L446 428" stroke="#B6FAFF" stroke-width="6" stroke-linecap="round" opacity=".30"/>
+  <circle cx="268" cy="250" r="120" fill="none" stroke="#02080C" stroke-width="20" opacity=".62" filter="url(#shadow)"/>
+  <circle cx="268" cy="250" r="112" fill="url(#glass)" stroke="#0C2A35" stroke-width="22"/>
+  <circle cx="268" cy="250" r="112" fill="none" stroke="url(#rim)" stroke-width="15"/>
+  <circle cx="268" cy="250" r="98" fill="none" stroke="#B9F7FF" stroke-width="1.5" opacity=".20"/>
+  <path d="M199 180 A96 96 0 0 1 254 154" fill="none" stroke="#E6F6FB" stroke-width="7" stroke-linecap="round" opacity=".44"/>
 </svg>

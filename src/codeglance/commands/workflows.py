@@ -5,7 +5,14 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from ..api import analyze_project, explain_target, render_impact_report, render_onboarding_guide, render_review_report
+from ..api import (
+    analyze_project,
+    explain_target,
+    render_hippocampus_report,
+    render_impact_report,
+    render_onboarding_guide,
+    render_review_report,
+)
 from .common import GRAPH_DIR, GRAPH_FILE, emit, write_meta
 
 
@@ -37,6 +44,19 @@ def cmd_impact(args: argparse.Namespace) -> int:
     write_meta(root, graph)
     md = render_impact_report(graph, root)
     return _write_or_print(md, args.output, "impact report")
+
+
+def cmd_hippocampus(args: argparse.Namespace) -> int:
+    """Generate a context memory budget report."""
+    root = Path(args.path).resolve()
+    if not root.is_dir():
+        emit(f"Error: not a directory: {root}")
+        return 1
+    graph = analyze_project(root, use_llm=args.llm, model=args.model, progress=emit, full=args.full)
+    graph.save(root / GRAPH_DIR / GRAPH_FILE)
+    write_meta(root, graph)
+    md = render_hippocampus_report(graph, root, max_items=args.max_items)
+    return _write_or_print(md, args.output, "hippocampus context")
 
 
 def cmd_review(args: argparse.Namespace) -> int:

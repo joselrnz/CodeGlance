@@ -1,5 +1,13 @@
 <svg viewBox="0 0 1280 40" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="codeglance section divider">
-  <line x1="0" y1="20" x2="1212" y2="20" stroke="#1E3240" stroke-width="2"/>
-  <circle cx="1236" cy="18" r="12" fill="none" stroke="#22D3EE" stroke-width="4"/>
-  <line x1="1245" y1="27" x2="1256" y2="38" stroke="#0E7490" stroke-width="6" stroke-linecap="round"/>
+  <defs>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#1E3240" stop-opacity="0"/>
+      <stop offset="45%" stop-color="#22D3EE" stop-opacity=".75"/>
+      <stop offset="70%" stop-color="#2DD4BF" stop-opacity=".55"/>
+      <stop offset="100%" stop-color="#1E3240" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <path d="M64 20 H1216" stroke="url(#line)" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="640" cy="20" r="5" fill="#22D3EE"/>
+  <circle cx="664" cy="20" r="4" fill="#2DD4BF" opacity=".8"/>
 </svg>

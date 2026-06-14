@@ -20,6 +20,7 @@ def build_llms_txt(root: Path, outputs: list[GeneratedOutput]) -> str:
     ]
     read_order = [
         ("agent.md", "compact repo map, read order, dependency hotspots, and agent rules"),
+        ("hippocampus.md", "context memory budget: short-term, working, long-term, and recycle lanes"),
         ("processes.md", "explicit business domains, process flows, and ordered steps"),
         ("processes.json", "machine-readable business domain and process-flow sidecar"),
         ("onboarding.md", "human-friendly architecture walkthrough and first-day reading order"),
@@ -57,6 +58,7 @@ def build_llm_context_schema(root: Path, outputs: list[GeneratedOutput]) -> dict
         "readOrder": [
             "llms.txt",
             "agent.md",
+            "hippocampus.md",
             "processes.md",
             "processes.json",
             "llm-context.schema.json",
@@ -97,6 +99,14 @@ def build_llm_context_schema(root: Path, outputs: list[GeneratedOutput]) -> dict
                 "audience": "agent",
                 "contains": ["read-first files", "file dependency map", "per-file summaries", "symbols"],
                 "useWhen": "Use when agent.md is not enough to choose files.",
+            },
+            {
+                "path": "hippocampus.md",
+                "format": "markdown",
+                "tier": 1,
+                "audience": "agent",
+                "contains": ["short-term memory", "working memory", "long-term memory", "recycle bin"],
+                "useWhen": "Use before long sessions to keep prompt context small and defer low-signal files.",
             },
             {
                 "path": "processes.md",

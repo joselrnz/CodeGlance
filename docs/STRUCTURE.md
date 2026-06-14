@@ -9,7 +9,6 @@ codeglance/
 ├── .agents/                # local CodeGlance skill for repo mapping
 ├── .claude/                # Claude-compatible skill metadata
 ├── brand/                  # SVG brand assets
-├── demo/                   # committed demo outputs
 ├── docs/                   # package and agent documentation
 ├── src/codeglance/         # installable Python package
 ├── tests/                  # pytest smoke tests and fixtures
@@ -37,15 +36,29 @@ src/codeglance/
 │   ├── registry.py         # language registry
 │   ├── tour.py             # guided-tour generation
 │   └── ts_core.py          # tree-sitter adapter
+├── ask/
+│   ├── models.py           # cited answer/result dataclasses
+│   ├── render.py           # Markdown/JSON answer rendering
+│   └── retrieval.py        # graph-evidence retrieval for repo questions
 ├── cli/
 │   ├── __init__.py         # exports main/build_parser for package entrypoint
 │   ├── main.py             # process entrypoint and default command dispatch
 │   └── parser.py           # argparse command/flag definitions
 ├── commands/
 │   ├── analyze.py          # analyze/render/dashboard/wiki/context commands
+│   ├── agents.py           # agent/editor integration commands
+│   ├── ask.py              # graph-evidence question answering command
 │   ├── common.py           # shared CLI helpers
 │   ├── generate.py         # output-bundle command
-│   └── serve.py            # local server command
+│   ├── init.py             # config and local integration bootstrap
+│   ├── processes.py        # domain/process map command
+│   ├── serve.py            # local server command
+│   └── workflows.py        # explain, hippocampus, impact, review, onboard commands
+├── integrations/
+│   ├── install.py          # repo-local guidance file writer
+│   ├── models.py           # integration target/file models
+│   ├── registry.py         # supported agent/editor target registry
+│   └── templates.py        # generated guidance text
 ├── models/
 │   ├── __init__.py         # stable public model imports
 │   ├── constants.py        # schema constants and vocabulary
@@ -60,8 +73,10 @@ src/codeglance/
 │   ├── context.py          # Markdown context for agents
 │   ├── icons.py            # vendored file-type icon data
 │   ├── static.py           # zero-JS static HTML renderer
+│   ├── template_parts/     # CSS/JS/HTML chunks for the interactive graph
 │   ├── template.py         # interactive HTML renderer template
-│   └── wiki.py             # generated wiki renderer
+│   ├── wiki.py             # generated wiki renderer
+│   └── workflows.py        # Markdown workflow reports
 ├── services/
 │   └── projects.py         # reusable analyze/render/generate workflows
 ├── api.py                  # public SDK surface
@@ -71,6 +86,7 @@ src/codeglance/
 ├── graph.py                # analysis orchestration
 ├── ignore.py               # lightweight ignore matching
 ├── layout.py               # graph layout engine
+├── processes/              # domain/process map extraction
 ├── scan.py                 # project scanner and language detection
 ├── schema.py               # canonical JSON/dataclass schema
 └── serve.py                # local artifact browser
@@ -90,13 +106,7 @@ src/codeglance/
 | Renderers | `src/codeglance/render/` | Interactive HTML, static HTML, wiki, and agent context renderers. |
 | Local server | `src/codeglance/serve.py` | Hosts generated HTML/Markdown/JSON folders locally. |
 
-## Reference pattern
-
-IBM watsonx Orchestrate ADK uses a Python package plus CLI model, with clear
-resource areas such as `agents/`, `tools/`, `knowledge/`, and `flows/`, plus
-command families for environment, agent, tool, and settings workflows.
-
-CodeGlance follows the same shape at package scale:
+## Package Boundaries
 
 - `api.py` is the SDK entrypoint.
 - `services/` owns reusable workflows.
@@ -131,14 +141,22 @@ The default generated bundle lives under `.codeglance/outputs/`:
 ├── index.html
 ├── llms.txt
 ├── glance.html
+├── wiki.html
 ├── agent.md
+├── context.md
+├── hippocampus.md
+├── onboarding.md
+├── impact.md
+├── review.md
+├── graph.static.html
 ├── llm-context.schema.json
 ├── knowledge-graph.toon
 ├── knowledge-graph.json
 └── meta.json
 ```
 
-Use `--profile all` to also include `wiki.html`, `context.md`, and `graph.static.html`.
+The `minimal` profile writes the compact subset. Use `--profile all` for the complete folder shown
+above.
 
 ## Import Guidance
 

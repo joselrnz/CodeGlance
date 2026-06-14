@@ -13,6 +13,7 @@ from ..commands import (
     cmd_dashboard,
     cmd_explain,
     cmd_generate,
+    cmd_hippocampus,
     cmd_impact,
     cmd_init,
     cmd_onboard,
@@ -32,6 +33,7 @@ SUBCOMMANDS = {
     "generate",
     "serve",
     "explain",
+    "hippocampus",
     "impact",
     "review",
     "onboard",
@@ -58,6 +60,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_wiki_parser(subcommands)
     _add_context_parser(subcommands)
     _add_explain_parser(subcommands)
+    _add_hippocampus_parser(subcommands)
     _add_impact_parser(subcommands)
     _add_review_parser(subcommands)
     _add_onboard_parser(subcommands)
@@ -170,6 +173,17 @@ def _add_explain_parser(subcommands: argparse._SubParsersAction) -> None:
     cmd.add_argument("--full", action="store_true", help="force a full rebuild, ignoring fingerprints")
     cmd.add_argument("-o", "--output", default=None, help="write Markdown to a file instead of stdout")
     cmd.set_defaults(func=cmd_explain)
+
+
+def _add_hippocampus_parser(subcommands: argparse._SubParsersAction) -> None:
+    cmd = subcommands.add_parser("hippocampus", help="generate a context memory budget for agents")
+    cmd.add_argument("path", nargs="?", default=".", help="project directory (default: .)")
+    cmd.add_argument("--llm", action="store_true", help="enrich summaries via an LLM (needs ANTHROPIC_API_KEY)")
+    cmd.add_argument("--model", default=None, help="LLM model id")
+    cmd.add_argument("--full", action="store_true", help="force a full rebuild, ignoring fingerprints")
+    cmd.add_argument("--max-items", type=int, default=6, help="maximum files per memory lane")
+    cmd.add_argument("-o", "--output", default=None, help="write Markdown to a file instead of stdout")
+    cmd.set_defaults(func=cmd_hippocampus)
 
 
 def _add_impact_parser(subcommands: argparse._SubParsersAction) -> None:

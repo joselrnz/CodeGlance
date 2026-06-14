@@ -315,6 +315,115 @@ def render_onboarding(graph: KnowledgeGraph, root: Path | None = None) -> str:
     return "\n".join(lines).rstrip() + "\n"
 
 
+def render_hippocampus(graph: KnowledgeGraph, root: Path | None = None, max_items: int = 6) -> str:
+    """Render a memory-budget report that separates active, durable, and deferred context."""
+    max_items = max(1, max_items)
+    outgoing, incoming = _adjacency(graph)
+    file_nodes = [n for n in graph.nodes if n.type in FILE_LEVEL_TYPES and n.filePath]
+    changed_paths = set(_changed_paths(graph, root))
+
+    def degree(node: Node) -> int:
+        return len(outgoing[node.id]) + len(incoming[node.id])
+
+    def score(node: Node) -> tuple[int, int, int, str]:
+        changed = 1 if node.filePath in changed_paths else 0
+        summary = 1 if (node.summary or "").strip() else 0
+        return (-changed, -degree(node), -summary, node.filePath)
+
+    ranked = sorted(file_nodes, key=score)
+    short_term = [n for n in ranked if n.filePath in changed_paths][:max_items]
+    if not short_term:
+        short_term = ranked[:max_items]
+    short_ids = {n.id for n in short_term}
+
+    working = [n for n in ranked if n.id not in short_ids and degree(n) > 0][:max_items]
+    working_ids = {n.id for n in working}
+
+    layer_of = _node_layers(graph)
+    durable = []
+    seen_paths = set()
+    for node in ranked:
+        if node.id in short_ids or node.id in working_ids:
+            continue
+        layer = layer_of.get(node.id)
+        if not layer or node.filePath in seen_paths:
+            continue
+        durable.append(node)
+        seen_paths.add(node.filePath)
+        if len(durable) >= max_items:
+            break
+    durable_ids = {n.id for n in durable}
+
+    selected_ids = short_ids | working_ids | durable_ids
+    recycle = sorted(
+        [n for n in file_nodes if n.id not in selected_ids],
+        key=lambda n: (degree(n), 0 if (n.summary or "").strip() else -1, n.filePath),
+    )[:max_items]
+
+    stats = graph.stats()
+    active_tokens = sum(_estimated_tokens(n) for n in short_term + working + durable)
+    deferred_tokens = sum(_estimated_tokens(n) for n in recycle)
+    lines = [
+        f"# Hippocampus Context: {graph.project.name}",
+        "",
+        "## Memory Budget",
+        f"- files considered: {len(file_nodes)}",
+        f"- nodes: {stats['nodes']}",
+        f"- edges: {stats['edges']}",
+        f"- active memory slots: {max_items}",
+        f"- changed files detected: {len(changed_paths)}",
+        f"- estimated active context: ~{active_tokens:,} tokens",
+        f"- deferred sample: ~{deferred_tokens:,} tokens kept out of the prompt",
+        "",
+        "Use this file as the context filter before a long agent session. Keep short-term memory small,",
+        "promote reusable facts into long-term memory, and push low-signal files into the recycle lane until",
+        "the graph or a task pulls them back.",
+        "",
+        "## Compression Strategy",
+        "- Keep only changed files and direct task facts in short-term memory.",
+        "- Use the working set for one-hop dependencies instead of broad repo reads.",
+        "- Store stable architecture anchors as long-term memory summaries.",
+        "- Defer low-signal files until they are cited by an edge, search result, or failing test.",
+        "",
+        "## Short-Term Memory",
+        "Files to keep in the prompt right now. Changed files win; otherwise the highest-connectivity hubs win.",
+    ]
+    _append_memory_lane(lines, short_term, outgoing, incoming, layer_of)
+
+    lines.extend([
+        "",
+        "## Working Memory",
+        "Nearby hubs that explain how the active files connect to the rest of the repo.",
+    ])
+    _append_memory_lane(lines, working, outgoing, incoming, layer_of)
+
+    lines.extend([
+        "",
+        "## Long-Term Memory",
+        "Stable architecture anchors. Keep these as durable repo facts instead of rereading broad source.",
+    ])
+    _append_memory_lane(lines, durable, outgoing, incoming, layer_of)
+
+    lines.extend([
+        "",
+        "## Recycle Bin",
+        "Deferred context. Do not spend prompt budget here unless a task, edge, or search result pulls it back.",
+    ])
+    _append_memory_lane(lines, recycle, outgoing, incoming, layer_of)
+
+    lines.extend([
+        "",
+        "## Brain Dump Queue",
+        "- New task facts start in short-term memory.",
+        "- Fresh discoveries should be written as one-line facts before reading more files.",
+        "- Reusable repo facts move to long-term memory after they appear in multiple tasks.",
+        "- One-off files return to the recycle bin after the change is reviewed.",
+        "- If context gets crowded, drop recycle items first, then working-set files with no direct edge to the task.",
+        "- Regenerate with `codeglance hippocampus . -o .codeglance/hippocampus.md` after structural edits.",
+    ])
+    return "\n".join(lines).rstrip() + "\n"
+
+
 def _find_node(graph: KnowledgeGraph, target: str) -> Node | None:
     query = target.replace("\\", "/").lower()
     candidates = graph.nodes
@@ -378,6 +487,41 @@ def _append_edges(lines: list[str], title: str, nodes: list[Node], typed_edges: 
         lines.append(f"- `{_display_node(node)}` via `{edge_type}`")
     if len(nodes) > 12:
         lines.append(f"- ... {len(nodes) - 12} more")
+
+
+def _append_memory_lane(
+    lines: list[str],
+    nodes: list[Node],
+    outgoing: dict[str, list[tuple[int, str]]],
+    incoming: dict[str, list[tuple[int, str]]],
+    layer_of: dict[str, object],
+) -> None:
+    if not nodes:
+        lines.append("- No files matched this lane.")
+        return
+    for node in nodes:
+        degree = len(outgoing[node.id]) + len(incoming[node.id])
+        layer = layer_of.get(node.id)
+        layer_text = f" layer: {layer.name};" if layer else ""
+        summary = _sentence(node.summary) or "No summary captured yet."
+        action = _memory_action(degree, summary)
+        tokens = _estimated_tokens(node)
+        lines.append(f"- `{node.filePath}` -{layer_text} edges: {degree}; ~{tokens} tokens; {action}; {summary}")
+
+
+def _memory_action(degree: int, summary: str) -> str:
+    if degree >= 12:
+        return "compress as a hub summary"
+    if degree >= 3:
+        return "read only when task touches a neighbor"
+    if summary and summary != "No summary captured yet.":
+        return "keep as a one-line fact"
+    return "defer until cited"
+
+
+def _estimated_tokens(node: Node) -> int:
+    text = " ".join(part for part in (node.filePath, node.name, node.summary, node.signature, node.docstring) if part)
+    return max(12, len(text) // 4)
 
 
 def _next_reads(

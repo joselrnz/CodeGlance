@@ -1,11 +1,13 @@
 """CLI command handlers."""
 
+from .agents import cmd_agents
 from .analyze import cmd_analyze, cmd_context, cmd_dashboard, cmd_render, cmd_wiki
-from .competitive import cmd_agents, cmd_ask, cmd_processes
+from .ask import cmd_ask
 from .generate import cmd_generate
 from .init import cmd_init
+from .processes import cmd_processes
 from .serve import cmd_serve, resolve_serve_dir
-from .workflows import cmd_explain, cmd_impact, cmd_onboard, cmd_review
+from .workflows import cmd_explain, cmd_hippocampus, cmd_impact, cmd_onboard, cmd_review
 
 __all__ = [
     "cmd_analyze",
@@ -15,6 +17,7 @@ __all__ = [
     "cmd_dashboard",
     "cmd_explain",
     "cmd_generate",
+    "cmd_hippocampus",
     "cmd_impact",
     "cmd_init",
     "cmd_onboard",

@@ -566,6 +566,12 @@ def render_impact(graph: KnowledgeGraph, root: Path | None = None) -> str:
     return _render_impact(graph, root)
 
 
+def render_hippocampus(graph: KnowledgeGraph, root: Path | None = None, max_items: int = 6) -> str:
+    """Render a Markdown context memory budget for agents."""
+    from .workflows import render_hippocampus as _render_hippocampus
+    return _render_hippocampus(graph, root, max_items=max_items)
+
+
 def render_review(graph: KnowledgeGraph, root: Path | None = None, output_dir: Path | None = None) -> str:
     """Render a Markdown graph/output quality review report."""
     from .workflows import render_review as _render_review

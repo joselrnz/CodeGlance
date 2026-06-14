@@ -9,6 +9,7 @@ from codeglance.analyze import ts_core as ts
 from codeglance.graph import analyze
 from codeglance.render import (
     render_explain,
+    render_hippocampus,
     render_impact,
     render_interactive,
     render_onboarding,
@@ -56,7 +57,7 @@ def test_schema_roundtrip():
 def test_cli_registers_workflow_commands():
     from codeglance.cli.parser import SUBCOMMANDS, build_parser
 
-    assert {"explain", "impact", "review", "onboard", "init"} <= SUBCOMMANDS
+    assert {"explain", "hippocampus", "impact", "review", "onboard", "init"} <= SUBCOMMANDS
     args = build_parser().parse_args(["serve", ".", "--watch", "--profile", "all", "--interval", "0.5"])
     assert args.command == "serve" and args.watch is True
     assert args.profile == "all" and args.interval == 0.5
@@ -65,6 +66,7 @@ def test_cli_registers_workflow_commands():
     assert generate_args.language == "es-MX" and generate_args.ui_language == "ja"
     help_text = build_parser().format_help()
     assert "explain" in help_text
+    assert "hippocampus" in help_text
     assert "impact" in help_text
     assert "review" in help_text
     assert "onboard" in help_text
@@ -158,6 +160,7 @@ def test_init_can_generate_bundle(tmp_path):
     assert (project / ".codeglance" / "config.json").is_file()
     assert (project / ".codeglance" / "outputs" / "llms.txt").is_file()
     assert (project / ".codeglance" / "outputs" / "agent.md").is_file()
+    assert (project / ".codeglance" / "outputs" / "hippocampus.md").is_file()
     assert not (project / "AGENTS.md").exists()
 
 
@@ -210,6 +213,12 @@ def test_workflow_markdown_renderers():
     assert "# Impact Report: demo" in impact
     assert "`a.py`" in impact
     assert "Review Checklist" in impact
+
+    hippocampus = render_hippocampus(graph, max_items=2)
+    assert "# Hippocampus Context: demo" in hippocampus
+    assert "Short-Term Memory" in hippocampus
+    assert "Long-Term Memory" in hippocampus
+    assert "Recycle Bin" in hippocampus
 
     onboarding = render_onboarding(graph)
     assert "# Onboarding Guide: demo" in onboarding
@@ -789,6 +798,25 @@ def test_interactive_toolbar_stays_compact():
     assert 'id="btnMore"' not in html
 
 
+def test_interactive_controls_keep_dominant_active_states():
+    html = render_interactive(_sample_graph())
+    for marker in (
+        "#topbar .bar button.on",
+        "border-color:rgba(var(--accent-rgb),0.5)",
+        "background:rgba(var(--accent-rgb),0.12)",
+        "#moreMenu button.on",
+        "#moreMenu button.active",
+        "border-color:rgba(var(--accent-rgb),0.78)",
+        "inset 3px 0 0 var(--accent)",
+        ".pa.active",
+        "background:rgba(var(--accent-rgb),0.18)",
+        ".seg button.on",
+        "#btnReload.stale",
+        "box-shadow:0 0 0 1px rgba(var(--accent-rgb),0.18) inset",
+    ):
+        assert marker in html, f"missing dominant control marker: {marker}"
+
+
 def test_interactive_tour_keeps_app_chrome():
     html = render_interactive(_sample_graph())
     for m in (
@@ -995,6 +1023,7 @@ def test_generate_outputs_writes_complete_bundle(tmp_path):
         "processes.json",
         "context.md",
         "agent.md",
+        "hippocampus.md",
         "onboarding.md",
         "impact.md",
         "review.md",
@@ -1008,6 +1037,7 @@ def test_generate_outputs_writes_complete_bundle(tmp_path):
     assert graph.nodes
     assert "<canvas" in (out / "glance.html").read_text(encoding="utf-8")
     assert "agent context" in (out / "agent.md").read_text(encoding="utf-8")
+    assert "Hippocampus Context" in (out / "hippocampus.md").read_text(encoding="utf-8")
     assert "Onboarding Guide" in (out / "onboarding.md").read_text(encoding="utf-8")
     assert "Business Process Map" in (out / "processes.md").read_text(encoding="utf-8")
     assert "domains" in json.loads((out / "processes.json").read_text(encoding="utf-8"))
@@ -1015,11 +1045,11 @@ def test_generate_outputs_writes_complete_bundle(tmp_path):
     assert "Codeglance Review" in (out / "review.md").read_text(encoding="utf-8")
     index = (out / "index.html").read_text(encoding="utf-8")
     assert "glance.html" in index and "llm-context.schema.json" in index
-    assert "onboarding.md" in index and "impact.md" in index and "review.md" in index
+    assert "hippocampus.md" in index and "onboarding.md" in index and "impact.md" in index and "review.md" in index
     assert "processes.md" in index and "processes.json" in index
     llms = (out / "llms.txt").read_text(encoding="utf-8")
     assert "Read Order" in llms and "`agent.md`" in llms
-    assert "`onboarding.md`" in llms and "`impact.md`" in llms and "`review.md`" in llms
+    assert "`hippocampus.md`" in llms and "`onboarding.md`" in llms and "`impact.md`" in llms and "`review.md`" in llms
     assert "`processes.md`" in llms and "`processes.json`" in llms
     assert "`knowledge-graph.toon`" in llms
     toon = (out / "knowledge-graph.toon").read_text(encoding="utf-8")
@@ -1034,6 +1064,7 @@ def test_generate_outputs_writes_complete_bundle(tmp_path):
     assert "knowledgeGraphSchema" in schema
     assert "knowledge-graph.toon" in schema["generatedArtifacts"]
     assert "onboarding.md" in schema["generatedArtifacts"]
+    assert "hippocampus.md" in schema["generatedArtifacts"]
     assert "processes.md" in schema["generatedArtifacts"]
     assert "processes.json" in schema["generatedArtifacts"]
     assert "impact.md" in schema["generatedArtifacts"]

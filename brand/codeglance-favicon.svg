@@ -1,8 +1,49 @@
 <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="codeglance favicon">
-  <rect width="64" height="64" rx="14" fill="#0B141D"/>
-  <circle cx="28" cy="28" r="19" fill="#0F1B26" stroke="#22D3EE" stroke-width="6"/>
-  <rect x="17" y="17" width="15" height="11" rx="2.5" fill="#38BDF8"/>
-  <line x1="30" y1="27" x2="37" y2="34" stroke="#2DD4BF" stroke-width="3"/>
-  <circle cx="38" cy="36" r="4" fill="#2DD4BF"/>
-  <line x1="42" y1="42" x2="55" y2="55" stroke="#0E7490" stroke-width="9" stroke-linecap="round"/>
+  <defs>
+    <linearGradient id="rimEdge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8CF4FF"/>
+      <stop offset="43%" stop-color="#22D3EE"/>
+      <stop offset="100%" stop-color="#0EA5E9"/>
+    </linearGradient>
+    <linearGradient id="handleEdge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6EE7F9"/>
+      <stop offset="52%" stop-color="#22D3EE"/>
+      <stop offset="100%" stop-color="#14B8A6"/>
+    </linearGradient>
+    <radialGradient id="lensGlass" cx="36%" cy="28%" r="76%">
+      <stop offset="0%" stop-color="#E6F6FB" stop-opacity=".20"/>
+      <stop offset="42%" stop-color="#38BDF8" stop-opacity=".055"/>
+      <stop offset="100%" stop-color="#061018" stop-opacity=".05"/>
+    </radialGradient>
+    <clipPath id="lensClip">
+      <circle cx="400" cy="220" r="114"/>
+    </clipPath>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#071017"/>
+  <g transform="translate(-40 -8.8) scale(.17)">
+    <g clip-path="url(#lensClip)">
+      <rect x="266" y="86" width="304" height="290" fill="#0A151D"/>
+      <g opacity=".33" stroke="#1F3D4A" stroke-width="1">
+        <path d="M266 130 H570 M266 172 H570 M266 214 H570 M266 256 H570 M266 298 H570"/>
+        <path d="M298 86 V376 M340 86 V376 M382 86 V376 M424 86 V376 M466 86 V376 M508 86 V376"/>
+      </g>
+      <path d="M308 173 H382 V142 H466 V184 H516" fill="none" stroke="#244758" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M383 178 V250 H470 V304 H528" fill="none" stroke="#2DD4BF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M328 300 H384 V252" fill="none" stroke="#38BDF8" stroke-width="7" stroke-linecap="round"/>
+      <rect x="324" y="150" width="78" height="44" rx="9" fill="#38BDF8"/>
+      <rect x="448" y="164" width="78" height="46" rx="9" fill="#162B38" stroke="#4B7180" stroke-width="2.5"/>
+      <rect x="336" y="278" width="74" height="44" rx="9" fill="#155E75"/>
+      <rect x="470" y="288" width="78" height="44" rx="9" fill="#0F2A35" stroke="#2DD4BF" stroke-width="2.5"/>
+      <circle cx="351" cy="166" r="6" fill="#E6F6FB"/>
+    </g>
+    <path d="M488 308 L584 404" stroke="#02080C" stroke-width="42" stroke-linecap="round" opacity=".52"/>
+    <path d="M496 316 L584 404" stroke="url(#handleEdge)" stroke-width="28" stroke-linecap="round"/>
+    <path d="M510 330 L570 390" stroke="#B6FAFF" stroke-width="5" stroke-linecap="round" opacity=".30"/>
+    <circle cx="400" cy="220" r="121" fill="none" stroke="#02080C" stroke-width="20" opacity=".62"/>
+    <circle cx="400" cy="220" r="114" fill="url(#lensGlass)" stroke="#0C2A35" stroke-width="23"/>
+    <circle cx="400" cy="220" r="114" fill="none" stroke="url(#rimEdge)" stroke-width="15"/>
+    <circle cx="400" cy="220" r="100" fill="none" stroke="#B9F7FF" stroke-width="1.5" opacity=".20"/>
+    <path d="M330 150 A99 99 0 0 1 386 124" fill="none" stroke="#E6F6FB" stroke-width="7" stroke-linecap="round" opacity=".44"/>
+    <path d="M348 135 A106 106 0 0 1 438 122" fill="none" stroke="#B8F7FF" stroke-width="3" stroke-linecap="round" opacity=".22"/>
+  </g>
 </svg>

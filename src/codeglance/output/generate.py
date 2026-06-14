@@ -12,6 +12,7 @@ from ..i18n import normalize_locale
 from ..processes import process_map_for_graph, render_process_map
 from ..render import (
     render_context,
+    render_hippocampus,
     render_impact,
     render_interactive,
     render_onboarding,
@@ -59,6 +60,7 @@ def generate_outputs(
         GeneratedOutput("Business process map JSON", out / "processes.json", "JSON"),
         GeneratedOutput("Full agent context", out / "context.md", "Markdown"),
         GeneratedOutput("Compact agent context", out / "agent.md", "Markdown"),
+        GeneratedOutput("Hippocampus context memory", out / "hippocampus.md", "Markdown"),
         GeneratedOutput("Onboarding guide", out / "onboarding.md", "Markdown"),
         GeneratedOutput("Impact report", out / "impact.md", "Markdown"),
         GeneratedOutput("Review report", out / "review.md", "Markdown"),
@@ -89,6 +91,8 @@ def generate_outputs(
         (out / "context.md").write_text(render_context(graph, root, mode="full"), encoding="utf-8")
     if "agent.md" in selected:
         (out / "agent.md").write_text(render_context(graph, root, mode="agent"), encoding="utf-8")
+    if "hippocampus.md" in selected:
+        (out / "hippocampus.md").write_text(render_hippocampus(graph, root), encoding="utf-8")
     if "onboarding.md" in selected:
         (out / "onboarding.md").write_text(render_onboarding(graph, root), encoding="utf-8")
     if "impact.md" in selected:

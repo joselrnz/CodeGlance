@@ -9,8 +9,8 @@ from codeglance.cli.main import main
 from codeglance.cli.parser import SUBCOMMANDS, build_parser
 
 
-def test_cli_registers_competitive_foundation_commands():
-    assert {"ask", "processes", "agents"} <= SUBCOMMANDS
+def test_cli_registers_agent_context_commands():
+    assert {"ask", "processes", "hippocampus", "agents"} <= SUBCOMMANDS
 
     ask = build_parser().parse_args(["ask", "Where is billing?", ".", "--format", "json"])
     assert ask.command == "ask"
@@ -20,6 +20,10 @@ def test_cli_registers_competitive_foundation_commands():
     assert agents.command == "agents"
     assert agents.action == "plan"
     assert agents.platform == ["codex"]
+
+    hippocampus = build_parser().parse_args(["hippocampus", ".", "--max-items", "3"])
+    assert hippocampus.command == "hippocampus"
+    assert hippocampus.max_items == 3
 
     init = build_parser().parse_args(
         [
@@ -75,6 +79,19 @@ def test_processes_command_outputs_domain_flow_json(tmp_path, capsys):
     assert rc == 0
     assert {"cart", "payment"} <= domain_keys
     assert payload["flows"]
+
+
+def test_hippocampus_command_outputs_memory_lanes(tmp_path, capsys):
+    project = _sample_project(tmp_path)
+
+    rc = main(["hippocampus", str(project), "--max-items", "2", "--full"])
+    out = capsys.readouterr().out
+
+    assert rc == 0
+    assert "# Hippocampus Context: shop" in out
+    assert "Short-Term Memory" in out
+    assert "Working Memory" in out
+    assert "Recycle Bin" in out
 
 
 def test_agents_command_lists_and_dry_runs_install_plan(tmp_path, capsys):

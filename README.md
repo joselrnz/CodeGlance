@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="brand/codeglance-banner.svg" alt="codeglance" width="760">
+  <img src="brand/codeglance-banner.svg" alt="codeglance" width="920">
 </p>
 <p align="center">
   <a href="https://pypi.org/project/codeglance/"><img alt="PyPI package v0.0.1" src="https://img.shields.io/badge/pypi-v0.0.1-0ea5e9"></a>
@@ -8,31 +8,68 @@
   <img alt="Python based" src="https://img.shields.io/badge/runtime-Python--based-1f6feb">
   <img alt="Offline HTML" src="https://img.shields.io/badge/output-offline%20HTML-155e75">
 </p>
+
 <p align="center">
-  <img src="brand/codeglance-schema-lens.svg" alt="CodeGlance maps repositories into human and agent context" width="860">
+  <img src="brand/codeglance-local-adapters.svg" alt="Codeglance scans once, builds an evidence map, and writes local adapter files for AI coding tools" width="860">
 </p>
 
-`codeglance` turns a repo into a clean map that both humans and agents can use before touching
-code. It scans locally, writes deterministic artifacts, and gives you one place to inspect
-structure, dependencies, business flows, source snippets, and AI-ready context.
+`codeglance` turns a repository into a visual map, a readable wiki, and compact AI context files.
+It runs locally, writes deterministic artifacts, and gives humans and coding agents the same
+evidence before anyone starts editing source.
 
-- Interactive `glance.html` for humans.
-- Compact `llms.txt`, `agent.md`, and TOON for AI agents.
-- Review, impact, onboarding, process, and wiki outputs for change planning.
-- Local browser mode so generated HTML works from your laptop or phone.
-- Agent/editor adapters for Codex, Claude Code, Cursor, Windsurf, Copilot, Gemini CLI, Cline,
-  Roo, Aider, Continue, Augment Code, and Zed.
-
-No Node. No npm. No hosted service. Pure Python in, static files out.
+**Map first. Source last.**
 
 ```bash
 pip install codeglance
-codeglance /path/to/project
+codeglance init
+codeglance generate . --out .codeglance/outputs --profile all
+codeglance serve . --dir .codeglance/outputs --watch
 ```
+
+No Node. No npm. No hosted service. Pure Python in, static files out.
+
+## Why
+
+New repo, old repo, inherited repo, huge repo: the failure mode is usually the same. You open files
+too early, miss the dependency shape, and hand an AI agent a pile of source with no reading order.
+
+Codeglance gives you a repo memory layer:
+
+| Need | Codeglance output |
+| --- | --- |
+| See the system shape | Interactive `glance.html` graph with layers, domains, dependencies, search, focus, paths, and export. |
+| Read the project like docs | Generated `wiki.html` with overview, architecture, domains, file reference, and reading order. |
+| Give agents compact context | `llms.txt`, `agent.md`, and `knowledge-graph.toon` for low-token handoffs. |
+| Plan a change | `impact.md`, `review.md`, changed-file overlays, and dependency hotspots. |
+| Browse locally | `codeglance serve` opens every generated artifact from your laptop or phone. |
+| Bring tools along | Local guidance files for agent/editor workflows. No network install or hosted runtime required. |
+
+## How It Works
+
+<p align="center">
+  <img src="brand/codeglance-workflow.svg" alt="Codeglance workflow from repository scan to evidence map and generated outputs" width="860">
+</p>
+
+## Hippocampus Context
+
+<p align="center">
+  <img src="brand/codeglance-hippocampus.svg" alt="Codeglance hippocampus context memory system with short-term memory, long-term memory, indexing, and recycle lanes" width="860">
+</p>
+
+`codeglance hippocampus` turns the graph into a memory budget for long agent sessions. It keeps
+changed files and task facts in short-term memory, promotes reusable architecture into long-term
+memory, and moves low-signal files into a recycle lane until the graph pulls them back.
+
+| Lane | What it saves |
+| --- | --- |
+| Short-term | The few files and facts that must stay in the prompt right now. |
+| Working set | One-hop dependencies that explain the task without reading the whole repo. |
+| Long-term | Stable architecture facts that can be reused across sessions. |
+| Recycle lane | Low-signal context kept out of the prompt until evidence cites it again. |
 
 ## Quick Start
 
-Generate the main graph:
+Generate the default graph:
 
 ```bash
 codeglance init
@@ -47,62 +84,93 @@ That writes:
 .codeglance/meta.json
 ```
 
-Generate the wiki:
+Generate the complete output bundle:
 
 ```bash
-codeglance wiki . -o .codeglance/wiki.html
-```
-
-Generate AI context:
-
-```bash
-codeglance context . --mode full -o .codeglance/context.md
-codeglance context . --mode agent -o AGENTS.md
-```
-
-Explain one file or symbol:
-
-```bash
-codeglance explain src/app.py
-codeglance explain UserService -o .codeglance/explain.md
-```
-
-Generate review workflow docs:
-
-```bash
-codeglance onboard . -o .codeglance/onboarding.md
-codeglance impact . -o .codeglance/impact.md
-codeglance review . -o .codeglance/review.md
-```
-
-Browse every generated output locally:
-
-```bash
-codeglance init
-codeglance generate . --out .codeglance/outputs
 codeglance generate . --out .codeglance/outputs --profile all
-codeglance generate . --out .codeglance/outputs --language es
-codeglance serve . --host 0.0.0.0
-codeglance serve . --host 0.0.0.0 --watch
+codeglance serve . --dir .codeglance/outputs --host 0.0.0.0 --watch
 ```
 
-Then open the printed URL on your desktop or phone on the same Wi-Fi.
-`--language` localizes the static `glance.html` chrome while keeping graph IDs, file paths, JSON
-keys, and agent artifacts stable.
+Open the printed URL on your desktop or phone on the same Wi-Fi. `--watch` regenerates outputs when
+files change and quietly marks the `glance.html` Refresh button when newer output is available.
 
-`codeglance init` creates:
+## Command Map
 
-- `.codeglance/config.json`: default output/profile commands
-- `.codeglance/.codeglanceignore`: extra scan ignores
-- `AGENTS.md`: low-token agent reading protocol
-- `.agents/skills/codeglance/SKILL.md`: local agent skill
-- `.claude/skills/codeglance/SKILL.md`: Claude-compatible skill
-- `.claude/commands/codeglance.md`: local `/codeglance` command prompt
+| Command | Use it when you want to |
+| --- | --- |
+| `codeglance .` | Analyze a project and write the primary interactive graph. |
+| `codeglance wiki . -o .codeglance/wiki.html` | Generate a readable architecture/wiki document. |
+| `codeglance context . --mode agent -o AGENTS.md` | Create a small agent handoff file. |
+| `codeglance context . --mode full -o .codeglance/context.md` | Create fuller repo context with dependencies and symbols. |
+| `codeglance explain src/app.py` | Explain one file or symbol. |
+| `codeglance ask "Where should I start?" .` | Ask a repo question and get cited graph evidence. |
+| `codeglance processes .` | Generate a domain/process map from the analyzed graph. |
+| `codeglance hippocampus .` | Generate a context memory budget with short-term, working, long-term, and recycle lanes. |
+| `codeglance onboard .` | Generate a first-day walkthrough. |
+| `codeglance impact .` | Build a changed-file impact report. |
+| `codeglance review .` | Check graph/output quality before sharing. |
+| `codeglance generate . --profile all` | Produce the full local output folder from one analysis pass. |
+| `codeglance serve . --watch` | Browse outputs locally and refresh as files change. |
 
-Use `--no-agents` for config only, `--dry-run` to preview, or `--force` to overwrite existing files.
-Use `codeglance init --generate` when you want setup and the first output bundle in one command.
+## Output Profiles
 
-Agent/editor adapters can be selected explicitly:
+| Profile | Best for | Includes |
+| --- | --- | --- |
+| `minimal` | Fast default handoff | `index.html`, `llms.txt`, `glance.html`, `agent.md`, schema, TOON, graph JSON, metadata. |
+| `human` | People reviewing a repo | Visual graph, wiki, hippocampus context, onboarding, impact docs, review docs, metadata. |
+| `agent` | Coding-agent context | Compact agent context, hippocampus memory budget, onboarding, impact docs, review docs, graph data. |
+| `all` | Full local bundle | Every generated artifact. |
+
+Default minimal outputs:
+
+| File | Audience | Purpose |
+| --- | --- | --- |
+| `index.html` | human | Clickable output-folder landing page. |
+| `glance.html` | human | Interactive visual codebase map. |
+| `wiki.html` | human | Readable project wiki when using `human` or `all`. |
+| `llms.txt` | agent | Small read-first entrypoint with artifact order and usage rules. |
+| `agent.md` | agent | Compact, low-token repo handoff. |
+| `knowledge-graph.toon` | agent | Compact graph context for prompts. |
+| `knowledge-graph.json` | tool | Canonical structured graph for parsing and re-rendering. |
+| `llm-context.schema.json` | agent/tool | Machine-readable contract for generated artifacts. |
+| `meta.json` | human/tool | Version, commit, analyzed file count, and analysis metadata. |
+
+The `all` profile also writes `graph.static.html`, `context.md`, `hippocampus.md`, `onboarding.md`,
+`impact.md`, and `review.md`.
+
+## Interactive Graph
+
+The default HTML graph is a self-contained canvas app. It opens directly from disk or through
+`codeglance serve`.
+
+| Area | Built in |
+| --- | --- |
+| Navigation | Zoom, pan, focus mode, path finding, guided tour, search, filters. |
+| Views | Structural graph, domain/process view, knowledge view, file tree. |
+| Inspector | Source snippets, highlighted symbols, dependencies, used-by links, editor links. |
+| Output | Export PNG, SVG, or JSON. |
+| Devices | Desktop layout plus mobile bottom sheets, safe-area handling, tap/pan/pinch gestures. |
+| Local workflow | Watch mode marks refresh quietly; no forced reloads or pop-up banners. |
+
+## Agent And Editor Adapters
+
+Codeglance writes repo-local guidance files that point tools to the same generated artifacts. It
+does not install official plugins, publish marketplace packages, call tool APIs, or imply affiliation.
+
+| Target | Generated guidance |
+| --- | --- |
+| Codex | `AGENTS.md`, `.agents/skills/codeglance/SKILL.md` |
+| Claude Code | `.claude/skills/codeglance/SKILL.md`, `.claude/commands/codeglance.md` |
+| Cursor | `.cursor/rules/codeglance.mdc` |
+| Windsurf | `.windsurf/rules/codeglance.md` |
+| GitHub Copilot | `.github/copilot-instructions.md` |
+| Gemini CLI | `GEMINI.md` |
+| Cline | `.clinerules/codeglance.md` |
+| Roo Code | `.roo/rules/codeglance.md` |
+| Aider | `.aider/codeglance.md` |
+| Continue | `.continue/rules/codeglance.md` |
+| Augment Code | `.augment-guidelines` |
+| Zed | `.rules` |
 
 ```bash
 codeglance init --agents default
@@ -116,38 +184,47 @@ codeglance agents install . --platform cursor --dry-run
 codeglance agents validate . --platform codex,cursor
 ```
 
-Supported targets are Codex, Claude Code, Cursor, Windsurf, GitHub Copilot, Gemini CLI, Cline,
-Roo, Aider, Continue, Augment Code, and Zed. Optional marketplace manifests are local JSON descriptors under
-`.codeglance/marketplace/`; they are not published or uploaded.
+Optional marketplace manifests are local JSON descriptors under `.codeglance/marketplace/`; they are
+not published or uploaded. No affiliation, endorsement, or partnership is implied with any named
+third-party tool.
 
-## Project Structure
+## Analysis
 
-CodeGlance is a Python package with a thin CLI over reusable SDK services.
+The default path is deterministic and offline:
 
-```text
-codeglance/
-├── brand/                  # banner, logo, badge, favicon, social-card SVGs
-├── demo/                   # generated demo HTML/Markdown outputs
-├── docs/                   # structure, agent-context, and project notes
-├── src/codeglance/
-│   ├── analyze/            # scanners, language registry, symbol extraction, layers, tours
-│   ├── cli/                # console entrypoint and argparse parser
-│   ├── commands/           # CLI command handlers
-│   ├── models/             # public model facade: KnowledgeGraph, Node, Edge, Layer
-│   ├── output/             # generated output bundles, llms.txt, TOON, schema, index
-│   ├── render/             # interactive HTML, static HTML, wiki, and agent context renderers
-│   ├── services/           # reusable workflows used by API and CLI
-│   ├── api.py              # public Python SDK surface
-│   ├── graph.py            # analysis orchestration
-│   ├── schema.py           # canonical graph dataclasses and JSON schema behavior
-│   ├── scan.py             # file discovery, language/framework detection
-│   └── serve.py            # local output browser
-├── tests/                  # smoke tests and fixture repos
-├── pyproject.toml
-└── README.md
+| Capability | How |
+| --- | --- |
+| Python symbols/imports | Standard-library `ast`. |
+| Other languages | Bundled tree-sitter grammars through `tree-sitter-language-pack`. |
+| Dependencies | Import/reference resolution where local resolution is available. |
+| Layers/domains | Inferred from graph structure and path conventions. |
+| Summaries/tours | Deterministic fallbacks, with optional LLM enrichment. |
+| Incremental runs | `.codeglance/fingerprints.json` keeps unchanged file summaries and marks changed files. |
+
+Optional LLM enrichment:
+
+```bash
+ANTHROPIC_API_KEY=... codeglance . --llm
 ```
 
-Public Python usage:
+The package works without an API key.
+
+## Language Coverage
+
+Python is first-class. Tree-sitter coverage adds broad symbol extraction across common, systems, and
+older languages:
+
+| Family | Examples |
+| --- | --- |
+| Web/app | JavaScript, TypeScript/TSX, PHP, Ruby, Dart |
+| Backend/systems | Go, Rust, Java, C#, C, C++, Kotlin, Swift, Scala |
+| Infrastructure | Terraform/HCL resources, modules, variables, outputs, dependency references |
+| Data/ops | PowerShell, shell, Lua, Julia |
+| Legacy/specialized | VHDL, Verilog, COBOL, Fortran, Ada, Haskell, OCaml, Erlang, Elixir, Clojure, Common Lisp, Scheme, Racket, Gleam |
+
+Unsupported text files still appear as file-level nodes with summaries.
+
+## Python API
 
 ```python
 from codeglance.api import analyze_project, generate_bundle, render_html
@@ -160,178 +237,6 @@ generate_bundle(".", ".codeglance/outputs")
 
 The older `codeglance.schema` imports still work, but new integrations should prefer
 `codeglance.models` and `codeglance.api`.
-
-## Outputs
-
-### Interactive Graph
-
-The default HTML graph is a self-contained canvas app. It shows files, functions, classes,
-dependencies, layers, domains, documentation links, and changed files from the last analysis.
-
-Useful controls are built in:
-
-- overview cards for architecture layers
-- structural, domain, and knowledge views
-- search, filters, focus mode, path finding, and guided tour
-- file tree with source snippets and highlighted symbols
-- export to PNG, SVG, or JSON
-- themes and keyboard shortcuts
-- mobile-friendly bottom-sheet panels, safe-area layout, one-finger pan/tap, and two-finger pinch zoom
-
-Open it directly as a file, or serve it through `codeglance serve`.
-
-### Wiki
-
-The wiki output is a readable HTML document:
-
-- getting started
-- project overview
-- architecture layers
-- inferred domains
-- per-file reference
-- suggested reading order
-
-Use it when you want a cleaner document instead of a graph.
-
-### Agent Context
-
-Agents should not need to read the whole repo before every task. `codeglance context` gives them
-a smaller entry point.
-
-Full mode:
-
-```bash
-codeglance context . --mode full
-```
-
-Includes the read-first files, file-to-file dependencies, summaries, symbols, imports, and used-by
-relationships.
-
-Agent mode:
-
-```bash
-codeglance context . --mode agent -o AGENTS.md
-```
-
-Keeps the handoff small: snapshot, read-first files, layers, dependency hotspots, changed files,
-context budget, reading protocol, and refresh rules.
-
-### Local Output Browser
-
-`generate` writes a compact output folder from one analysis pass:
-
-```bash
-codeglance generate . --out .codeglance/outputs
-```
-
-The default `minimal` profile contains:
-
-| File | Audience | Purpose |
-| --- | --- | --- |
-| `index.html` | human | Clickable output-folder landing page. |
-| `llms.txt` | agent | Small read-first entrypoint with artifact order and usage rules. |
-| `glance.html` | human | Interactive visual codebase map. |
-| `agent.md` | agent | Compact, low-token repo handoff. |
-| `llm-context.schema.json` | agent/tool | Machine-readable contract for all generated artifacts. |
-| `knowledge-graph.toon` | agent | Compact graph context for prompts. |
-| `knowledge-graph.json` | tool | Canonical structured graph for parsing and re-rendering. |
-| `meta.json` | human/tool | Analysis metadata: version, commit, analyzed file count. |
-
-Use profiles when you want a different bundle:
-
-```bash
-codeglance generate . --profile minimal  # LLM entrypoint + Glance visual + compact agent context + JSON metadata
-codeglance generate . --profile human    # Glance visual + wiki + onboarding/impact docs + JSON metadata
-codeglance generate . --profile agent    # compact agent context + onboarding/impact docs + graph data
-codeglance generate . --profile all      # every generated artifact
-```
-
-The `all` profile adds:
-
-- `graph.static.html`
-- `wiki.html`
-- `context.md`
-- `onboarding.md`
-- `impact.md`
-- `review.md`
-
-LLM-specific generated files:
-
-- `llms.txt`: tiny entrypoint with read order and artifact pointers
-- `onboarding.md`: first-day walkthrough with read-first files, layers, tour order, and agent workflow
-- `impact.md`: changed-file impact report with likely ripple areas and review checklist
-- `review.md`: graph/output quality report for stale metadata, missing artifacts, broken references,
-  missing files, large layers, and orphan-heavy graph areas
-- `llm-context.schema.json`: structured contract for agents and tools, including artifact tiers,
-  graph fields, node types, edge types, and output profiles
-- `knowledge-graph.toon`: compact structured graph for LLM prompt context, with repeated JSON
-  field names collapsed into TOON-style tables
-- `knowledge-graph.json`: canonical graph for parsers, tooling, re-rendering, and compatibility
-
-`serve` hosts an output folder and generates a simple index page for artifacts:
-
-```bash
-codeglance serve .
-codeglance serve . --dir .codeglance
-codeglance serve .codeglance/outputs --host 0.0.0.0
-codeglance serve . --host 0.0.0.0 --watch --profile all
-codeglance serve demo --host 0.0.0.0
-```
-
-It lists HTML, Markdown, JSON, TXT, and SVG files. This is the easiest way to check all generated
-views from a phone without pushing or deploying anything.
-
-Use `--watch` when you want a live local workflow. Codeglance regenerates the selected output
-profile when project files change, and `glance.html` quietly marks the toolbar Refresh button when
-served output is newer than the page you are viewing. It does not force reloads or show pop-up
-banners. The same HTML still opens directly from disk without a server.
-
-For a guided walkthrough of `glance.html`, the generated files, mobile behavior, screenshots, and the
-human-in-the-loop review flow, see [`docs/GLANCE_WALKTHROUGH.md`](docs/GLANCE_WALKTHROUGH.md).
-
-## How It Stays Fast
-
-Codeglance stores fingerprints in `.codeglance/fingerprints.json`. Re-running analysis compares
-file hashes, keeps prior summaries for unchanged files, and only marks changed files for the diff
-overlay.
-
-```bash
-codeglance .
-codeglance wiki .
-codeglance context . --mode agent -o AGENTS.md
-```
-
-Use `--full` when you want to rebuild from scratch.
-
-## Analysis
-
-The default path is deterministic and offline:
-
-- Python uses the standard library `ast` module.
-- Other languages use bundled tree-sitter grammars.
-- Imports become dependency edges where local resolution is supported.
-- Layers are inferred from the graph structure.
-- Tours and summaries have deterministic fallbacks.
-
-Optional LLM enrichment is available:
-
-```bash
-ANTHROPIC_API_KEY=... codeglance . --llm
-```
-
-The package still works without an API key.
-
-## Language Coverage
-
-Python is first-class. Tree-sitter coverage adds broad symbol extraction across common and older
-languages:
-
-- JavaScript, TypeScript/TSX, Go, Rust, Java, Ruby, PHP, C#, C, C++, Kotlin, Swift, Scala, Lua
-- Terraform/HCL resources, modules, variables, outputs, and dependency references
-- VHDL, Verilog, COBOL, Fortran, Ada, Haskell, OCaml, Erlang, Elixir, Clojure, Julia, Dart,
-  Solidity, PowerShell, Tcl, Common Lisp, Scheme, Racket, Gleam, shell, and more
-
-Unsupported text files still appear as file-level nodes with summaries.
 
 ## Schema
 
@@ -355,40 +260,47 @@ codeglance render .codeglance/knowledge-graph.json -o graph.html
 codeglance render .codeglance/knowledge-graph.json --static -o graph.static.html
 ```
 
+## Project Structure
+
+```text
+codeglance/
+├── brand/                  # banner, logo, favicon, README visuals, social-card SVGs
+├── docs/                   # structure, agent-context, integrations, release notes
+├── src/codeglance/
+│   ├── ask/                # graph-evidence retrieval for repo questions
+│   ├── analyze/            # scanners, language registry, symbol extraction, layers, tours
+│   ├── cli/                # console entrypoint and argparse parser
+│   ├── commands/           # CLI command handlers
+│   ├── integrations/       # repo-local agent/editor guidance files
+│   ├── models/             # public model facade: KnowledgeGraph, Node, Edge, Layer
+│   ├── output/             # generated bundles, llms.txt, TOON, schema, index
+│   ├── processes/          # domain/process map extraction
+│   ├── render/             # interactive HTML, static HTML, wiki, and agent context renderers
+│   ├── services/           # reusable workflows used by API and CLI
+│   ├── api.py              # public Python SDK surface
+│   ├── graph.py            # analysis orchestration
+│   ├── schema.py           # canonical graph dataclasses and JSON schema behavior
+│   ├── scan.py             # file discovery, language/framework detection
+│   └── serve.py            # local output browser
+├── tests/
+├── pyproject.toml
+└── README.md
+```
+
 ## Documentation Map
 
-- `docs/STRUCTURE.md`: package layout, module responsibilities, and SDK/CLI boundaries
-- `docs/AGENT_CONTEXT.md`: agent reading protocol and generated context strategy
-- `docs/UNDERSTAND_ANYTHING_GAP_PLAN.md`: current mega plan for shipped capabilities, release hardening, `doctor`, `ask`, business flows, concepts, localization, and team sharing
-- `docs/COMPETITIVE_AUDIT.md`: push-readiness comparison against Understand Anything
-- `docs/COMPETITIVE_SUPERSET_PLAN.md`: pre-push implementation plan for Q&A, business flows, localization, and platform installers
-- `docs/INTEGRATIONS.md`: agent/editor platform matrix, safety rules, and validation behavior
-- `docs/RELEASE_CHECKLIST.md`: pre-push and pre-publish validation checklist
-- `docs/README.md`: documentation index and screenshot guidance
-- `REFACTOR_PLAN.md`: longer-term cleanup and enhancement plan
+| File | Purpose |
+| --- | --- |
+| [`docs/STRUCTURE.md`](docs/STRUCTURE.md) | Package layout, module responsibilities, SDK imports, generated output layout. |
+| [`docs/AGENT_CONTEXT.md`](docs/AGENT_CONTEXT.md) | Agent reading protocol and generated context strategy. |
+| [`docs/GLANCE_WALKTHROUGH.md`](docs/GLANCE_WALKTHROUGH.md) | Walkthrough for `glance.html`, generated files, mobile behavior, screenshots, and review flow. |
+| [`docs/INTEGRATIONS.md`](docs/INTEGRATIONS.md) | Agent/editor matrix, safety rules, generated files, validation behavior. |
+| [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) | Pre-push and pre-publish validation checklist. |
 
-## Current Version
+## Status
 
-Package version is static for now: `0.0.1`.
+Current package version: `0.0.1`.
 
-When the package version changes, update:
-
-- `pyproject.toml`
-- `src/codeglance/__init__.py`
-- this README badge
-- brand badge text
-
-## Next Build Plan
-
-The current package structure is split into SDK, services, CLI, commands, models, output,
-renderers, and analysis. The next useful pieces are:
-
-- richer process cards and flow-focused polish for non-expert users
-- multi-agent/platform installer docs and validation polish
-- release hardening with wheel install validation and `docs/RELEASE_CHECKLIST.md`
-- `codeglance doctor` to automate package, output, metadata, and UI marker checks
-- richer `codeglance ask` intents for reverse dependencies, changed-file risk, and read-first plans
-- persona preset cleanup for Human, Developer, Reviewer, PM, and Agent audiences
-- language concept cards and filters
-- richer output-folder landing pages with project stats
-- changed-only context mode for fast review after edits
+Before publishing a new release, update the version in `pyproject.toml`,
+`src/codeglance/__init__.py`, this README badge, and the brand badge text. Use
+[`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) for the full validation pass.
