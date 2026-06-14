@@ -9,7 +9,7 @@ description = "Turn any codebase into an interactive knowledge graph, a readable
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-authors = [{ name = "CodeGlance contributors" }]
+authors = [{ name = "CodeGlance" }]
 keywords = ["codebase", "knowledge-graph", "visualization", "static-analysis", "documentation"]
 classifiers = [
     "Development Status :: 4 - Beta",

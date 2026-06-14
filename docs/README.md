@@ -19,6 +19,8 @@ Optional screenshots can live here when needed:
 
 - `codeglance-graph.png`: interactive graph screenshot
 - `codeglance-wiki.png`: generated wiki screenshot
+- `../brand/codeglance-ui-preview.png`: README static interface preview
+- `../brand/codeglance-ui-demo.gif`: README animated interface preview
 
 Generated screenshots from local verification should stay under ignored folders such as
 `.codeglance/screenshots/` unless they are intentionally promoted into docs.
