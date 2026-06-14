@@ -28,10 +28,10 @@ def test_package_version_matches_pyproject():
     pyproject = (root / "pyproject.toml").read_text(encoding="utf-8")
     match = re.search(r'^version = "([^"]+)"', pyproject, re.MULTILINE)
     assert match
-    assert codeglance.__version__ == match.group(1) == "0.0.2"
+    assert codeglance.__version__ == match.group(1) == "0.0.3"
     readme = (root / "README.md").read_text(encoding="utf-8")
     assert "pypi/v/codeglance" not in readme
-    assert "version-v0.0.2" in readme
+    assert "version-v0.0.3" in readme
 
 
 def _sample_graph() -> KnowledgeGraph:
