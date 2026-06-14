@@ -2,6 +2,9 @@
   <img src="brand/codeglance-banner.svg" alt="codeglance" width="920">
 </p>
 <p align="center">
+  <img src="brand/codeglance-rust-flow.gif" alt="CodeGlance browsing a Rust application report with terminal stats, drill view, search, inspector, and expanded source" width="860">
+</p>
+<p align="center">
   <img src="brand/codeglance-ui-demo.gif" alt="Animated CodeGlance interface preview showing overview, domain, and knowledge views" width="860">
 </p>
 <p align="center">
@@ -326,11 +329,5 @@ Current package version: `0.0.3`.
 Before publishing a PyPI release, update the version in `pyproject.toml`,
 `src/codeglance/__init__.py`, this README badge, and the brand badge text, then restore a PyPI badge
 after the package page exists. Publishing automation lives in [docs/PUBLISHING.md](docs/PUBLISHING.md).
-
-## Rust Flow Preview
-
-<p align="center">
-  <img src="brand/codeglance-rust-flow.gif" alt="CodeGlance browsing a Rust application report with terminal stats, drill view, search, inspector, and expanded source" width="860">
-</p>
 
 Static preview: [`brand/codeglance-ui-preview.png`](brand/codeglance-ui-preview.png)
