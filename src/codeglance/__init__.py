@@ -1,6 +1,6 @@
 """codeglance — turn any codebase into an interactive knowledge-graph HTML file you can open in a browser."""
 
-__version__ = "0.0.3"
+__version__ = "0.0.4"
 
 from .api import (
     analyze_project,

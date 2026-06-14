@@ -29,7 +29,7 @@ Command font stack: `'JetBrains Mono','Cascadia Code',Consolas,monospace`
 | codeglance-favicon.svg | 64 | `<link rel="icon" type="image/svg+xml" href="codeglance-favicon.svg">` — legible at 16px |
 | codeglance-logo-light.svg | 900x220 | docs sites / light backgrounds (transparent) |
 | codeglance-mono.svg | 280 | single-color stencil; inline or use as a mask to recolor |
-| codeglance-badge.svg | 286x28 | shields-style `codeglance | v0.0.3 · py3` — version is one <text> element |
+| codeglance-badge.svg | 286x28 | shields-style `codeglance | v0.0.4 · py3` — version is one <text> element |
 | codeglance-rust-flow.gif | 960x540 | README flow preview showing a Rust application report, terminal stats, search, inspector, and source expansion |
 | codeglance-divider.svg | 1280×40 | horizontal rule between README sections |
 

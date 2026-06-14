@@ -29,7 +29,7 @@ can publish through the same workflow.
 1. Update the version in `pyproject.toml`, `src/codeglance/__init__.py`, the README badge, and brand badge text.
 2. Commit and push to GitHub.
 3. Confirm the CI workflow passes.
-4. Create a GitHub release for the version tag, such as `v0.0.3`.
+4. Create a GitHub release for the version tag, such as `v0.0.4`.
 5. The `Publish to PyPI` workflow builds `dist/` and uploads it through Trusted Publishing.
 
 Manual runs of `release.yml` are enabled for recovery, but release-triggered publishing should be the

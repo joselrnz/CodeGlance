@@ -1,14 +1,14 @@
 <p align="center">
-  <img src="brand/codeglance-banner.svg" alt="codeglance" width="920">
+  <img src="https://raw.githubusercontent.com/joselrnz/CodeGlance/v0.0.4/brand/codeglance-banner.svg" alt="codeglance" width="920">
 </p>
 <p align="center">
-  <img src="brand/codeglance-rust-flow.gif" alt="CodeGlance browsing a Rust application report with terminal stats, drill view, search, inspector, and expanded source" width="860">
+  <img src="https://raw.githubusercontent.com/joselrnz/CodeGlance/v0.0.4/brand/codeglance-rust-flow.gif" alt="CodeGlance browsing a Rust application report with terminal stats, drill view, search, inspector, and expanded source" width="860">
 </p>
 <p align="center">
-  <img src="brand/codeglance-ui-demo.gif" alt="Animated CodeGlance interface preview showing overview, domain, and knowledge views" width="860">
+  <img src="https://raw.githubusercontent.com/joselrnz/CodeGlance/v0.0.4/brand/codeglance-ui-demo.gif" alt="Animated CodeGlance interface preview showing overview, domain, and knowledge views" width="860">
 </p>
 <p align="center">
-  <img alt="Package version v0.0.3" src="https://img.shields.io/badge/version-v0.0.3-0ea5e9">
+  <img alt="Package version v0.0.4" src="https://img.shields.io/badge/version-v0.0.4-0ea5e9">
   <img alt="Python 3.10+" src="https://img.shields.io/badge/python-3.10%2B-0ea5e9">
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-22d3ee">
   <img alt="Python based" src="https://img.shields.io/badge/runtime-Python--based-1f6feb">
@@ -16,7 +16,7 @@
 </p>
 
 <p align="center">
-  <img src="brand/codeglance-local-adapters.svg" alt="Codeglance scans once, builds an evidence map, and writes local adapter files for AI coding tools" width="860">
+  <img src="https://raw.githubusercontent.com/joselrnz/CodeGlance/v0.0.4/brand/codeglance-local-adapters.svg" alt="Codeglance scans once, builds an evidence map, and writes local adapter files for AI coding tools" width="860">
 </p>
 
 `codeglance` turns a repository into a visual map, a readable wiki, and compact AI context files.
@@ -53,13 +53,13 @@ Codeglance gives you a repo memory layer:
 ## How It Works
 
 <p align="center">
-  <img src="brand/codeglance-workflow.svg" alt="Codeglance workflow from repository scan to evidence map and generated outputs" width="860">
+  <img src="https://raw.githubusercontent.com/joselrnz/CodeGlance/v0.0.4/brand/codeglance-workflow.svg" alt="Codeglance workflow from repository scan to evidence map and generated outputs" width="860">
 </p>
 
 ## Hippocampus Context
 
 <p align="center">
-  <img src="brand/codeglance-hippocampus.svg" alt="Codeglance hippocampus context memory system with short-term memory, long-term memory, indexing, and recycle lanes" width="860">
+  <img src="https://raw.githubusercontent.com/joselrnz/CodeGlance/v0.0.4/brand/codeglance-hippocampus.svg" alt="Codeglance hippocampus context memory system with short-term memory, long-term memory, indexing, and recycle lanes" width="860">
 </p>
 
 `codeglance hippocampus` turns the graph into a memory budget for long agent sessions. It keeps
@@ -324,10 +324,10 @@ codeglance/
 
 ## Status
 
-Current package version: `0.0.3`.
+Current package version: `0.0.4`.
 
 Before publishing a PyPI release, update the version in `pyproject.toml`,
 `src/codeglance/__init__.py`, this README badge, and the brand badge text, then restore a PyPI badge
 after the package page exists. Publishing automation lives in [docs/PUBLISHING.md](docs/PUBLISHING.md).
 
-Static preview: [`brand/codeglance-ui-preview.png`](brand/codeglance-ui-preview.png)
+Static preview: [`brand/codeglance-ui-preview.png`](https://raw.githubusercontent.com/joselrnz/CodeGlance/v0.0.4/brand/codeglance-ui-preview.png)
