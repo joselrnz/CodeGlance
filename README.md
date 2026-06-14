@@ -2,7 +2,10 @@
   <img src="brand/codeglance-banner.svg" alt="codeglance" width="920">
 </p>
 <p align="center">
-  <img alt="Package version v0.0.1" src="https://img.shields.io/badge/version-v0.0.1-0ea5e9">
+  <img src="brand/codeglance-ui-demo.gif" alt="Animated CodeGlance interface preview showing overview, domain, and knowledge views" width="860">
+</p>
+<p align="center">
+  <img alt="Package version v0.0.2" src="https://img.shields.io/badge/version-v0.0.2-0ea5e9">
   <img alt="Python 3.10+" src="https://img.shields.io/badge/python-3.10%2B-0ea5e9">
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-22d3ee">
   <img alt="Python based" src="https://img.shields.io/badge/runtime-Python--based-1f6feb">
@@ -316,16 +319,10 @@ codeglance/
 
 ## Status
 
-Current package version: `0.0.1`.
+Current package version: `0.0.2`.
 
 Before publishing a PyPI release, update the version in `pyproject.toml`,
 `src/codeglance/__init__.py`, this README badge, and the brand badge text, then restore a PyPI badge
 after the package page exists. Publishing automation lives in [docs/PUBLISHING.md](docs/PUBLISHING.md).
-
-## Preview
-
-<p align="center">
-  <img src="brand/codeglance-ui-demo.gif" alt="Animated CodeGlance interface preview showing overview, domain, and knowledge views" width="860">
-</p>
 
 Static preview: [`brand/codeglance-ui-preview.png`](brand/codeglance-ui-preview.png)
